@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Dedicated Coach & Program | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Di Lorenzo Mindset 90-Day Mentorship & Academy Management — Assign dedicated coach, initial habits, and launch 3-way private group.">
+  <link rel="icon" type="image/svg+xml" href="/icons/assign-coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Mentorship Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link active" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.2);">
+        Assign Coach
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <span>Admin Portal</span>
+      <span class="separator">/</span>
+      <span>Mentorship Programs</span>
+      <span class="separator">/</span>
+      <span class="active">Assign Dedicated Coach</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn-ghost-sm" id="quickFillBtn" title="Auto-fill with Figma example data">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        Fill Figma Mock Data
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE WRAPPER -->
+  <main class="page-container">
+    <div class="page-backdrop-overlay" aria-hidden="true"></div>
+
+    <!-- MODAL CONTAINER (Figma Node #33275:5077) -->
+    <div class="assign-modal-wrapper">
+      <div class="assign-modal-container" role="dialog" aria-labelledby="modalHeading" aria-modal="true">
+        
+        <!-- MODAL HEADER (Figma #33275:5078) -->
+        <div class="modal-header-athlete">
+          <div class="modal-header-icon-box-gold" aria-hidden="true">
+            <img src="/icons/assign-coach-icon.svg" alt="" width="20" height="20">
+          </div>
+          <div class="modal-header-content" style="flex: 1;">
+            <h1 class="modal-title-athlete" id="modalHeading">Assign Dedicated Coach & Program</h1>
+            <p class="modal-subtitle-athlete">Di Lorenzo Mindset 90-Day Mentorship & Academy Management</p>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close dialog">
+            <img src="/icons/close-icon.svg" alt="" width="18" height="18">
+          </button>
+        </div>
+
+        <!-- FORM (Figma #33275:5095) -->
+        <form id="assignCoachForm" novalidate>
+          <div class="assign-form-body">
+            
+            <!-- Hidden inputs for selected values (MongoDB ObjectIds) -->
+            <input type="hidden" id="selectedAthleteId" name="athleteId" value="6acb0c4bf0bd964d711f17a5">
+            <input type="hidden" id="selectedCoachId" name="coachId" value="6acb088d1585cdc26ae1d8b9">
+
+            <!-- SECTION 1: SELECT ATHLETE / CLIENT (Figma #33275:5096) -->
+            <div>
+              <h2 class="assign-section-title">1. Select Athlete / Client</h2>
+              <div class="athlete-select-grid" id="athleteSelectGrid">
+                <!-- Andrew Vasquez (Selected) -->
+                <button type="button" class="athlete-card-btn selected" data-athlete-id="6acb0c4bf0bd964d711f17a5" data-athlete-name="Andrew Vasquez">
+                  <div class="athlete-avatar-badge" style="background: #2B7FFF;">AV</div>
+                  <div class="athlete-card-info">
+                    <span class="athlete-card-name">Andrew Vasquez</span>
+                    <span class="athlete-card-meta">Regional Stars U18 · <span class="meta-coach">Coach Rivera</span></span>
+                  </div>
+                </button>
+
+                <!-- Alex Thompson -->
+                <button type="button" class="athlete-card-btn" data-athlete-id="Alex Thompson" data-athlete-name="Alex Thompson">
+                  <div class="athlete-avatar-badge" style="background: #615FFF;">AT</div>
+                  <div class="athlete-card-info">
+                    <span class="athlete-card-name">Alex Thompson</span>
+                    <span class="athlete-card-meta">Regional Stars U18 · <span class="meta-coach">Coach Rivera</span></span>
+                  </div>
+                </button>
+
+                <!-- Adam Shenouda -->
+                <button type="button" class="athlete-card-btn" data-athlete-id="Adam Shenouda" data-athlete-name="Adam Shenouda">
+                  <div class="athlete-avatar-badge" style="background: #00BC7D;">AS</div>
+                  <div class="athlete-card-info">
+                    <span class="athlete-card-name">Adam Shenouda</span>
+                    <span class="athlete-card-meta">City Academy U16 · <span class="meta-coach">Coach Gabe</span></span>
+                  </div>
+                </button>
+
+                <!-- Lionel Atanasov -->
+                <button type="button" class="athlete-card-btn" data-athlete-id="Lionel Atanasov" data-athlete-name="Lionel Atanasov">
+                  <div class="athlete-avatar-badge" style="background: #8E51FF;">LA</div>
+                  <div class="athlete-card-info">
+                    <span class="athlete-card-name">Lionel Atanasov</span>
+                    <span class="athlete-card-meta">National League U19 · <span class="meta-coach">Coach Osei</span></span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- SECTION 2: SELECT DEDICATED COACH (Figma #33275:5146) -->
+            <div>
+              <h2 class="assign-section-title">2. Select Dedicated Coach</h2>
+              <div class="coach-select-grid" id="coachSelectGrid">
+                <!-- Coach Rivera (Selected) -->
+                <button type="button" class="coach-card-btn selected" data-coach-id="6acb088d1585cdc26ae1d8b9" data-coach-name="Coach Rivera">
+                  <div class="coach-card-top">
+                    <div class="coach-card-avatar" style="background: #C27AFF;">CR</div>
+                    <div style="flex: 1; overflow: hidden;">
+                      <div class="coach-card-title-row">
+                        <span class="coach-card-name">Coach Rivera</span>
+                        <span class="coach-card-rating">★ 4.9</span>
+                      </div>
+                      <span class="coach-card-sub">Mental Performance Specialist</span>
+                    </div>
+                  </div>
+                  <div class="coach-card-tags">
+                    <span class="coach-card-tag">Mental Mindset</span>
+                    <span class="coach-card-tag">Focus & Flow</span>
+                  </div>
+                  <div class="coach-card-roster">
+                    Roster: 4 / 10 athletes · <span class="cap-highlight">40% capacity</span>
+                  </div>
+                </button>
+
+                <!-- Coach Osei -->
+                <button type="button" class="coach-card-btn" data-coach-id="Coach Osei" data-coach-name="Coach Osei">
+                  <div class="coach-card-top">
+                    <div class="coach-card-avatar" style="background: #6A7282;">CO</div>
+                    <div style="flex: 1; overflow: hidden;">
+                      <div class="coach-card-title-row">
+                        <span class="coach-card-name">Coach Osei</span>
+                        <span class="coach-card-rating">★ 4.8</span>
+                      </div>
+                      <span class="coach-card-sub">High-Pressure Performance Lead</span>
+                    </div>
+                  </div>
+                  <div class="coach-card-tags">
+                    <span class="coach-card-tag">Pressure Inoculation</span>
+                    <span class="coach-card-tag">Match Day Activation</span>
+                  </div>
+                  <div class="coach-card-roster">
+                    Roster: 3 / 8 athletes · <span class="cap-highlight">38% capacity</span>
+                  </div>
+                </button>
+
+                <!-- Coach Gabe -->
+                <button type="button" class="coach-card-btn" data-coach-id="Coach Gabe" data-coach-name="Coach Gabe">
+                  <div class="coach-card-top">
+                    <div class="coach-card-avatar" style="background: #615FFF;">CG</div>
+                    <div style="flex: 1; overflow: hidden;">
+                      <div class="coach-card-title-row">
+                        <span class="coach-card-name">Coach Gabe</span>
+                        <span class="coach-card-rating">★ 4.7</span>
+                      </div>
+                      <span class="coach-card-sub">Tactical Mindset & Habit Coach</span>
+                    </div>
+                  </div>
+                  <div class="coach-card-tags">
+                    <span class="coach-card-tag">Habit Architecture</span>
+                    <span class="coach-card-tag">Ball Mastery Focus</span>
+                  </div>
+                  <div class="coach-card-roster">
+                    Roster: 3 / 8 athletes · <span class="cap-highlight">38% capacity</span>
+                  </div>
+                </button>
+
+                <!-- Valentino Di Lorenzo -->
+                <button type="button" class="coach-card-btn" data-coach-id="Valentino Di Lorenzo" data-coach-name="Valentino Di Lorenzo">
+                  <div class="coach-card-top">
+                    <div class="coach-card-avatar" style="background: linear-gradient(135deg, #FFB900 0%, #FF6900 100%);">VL</div>
+                    <div style="flex: 1; overflow: hidden;">
+                      <div class="coach-card-title-row">
+                        <span class="coach-card-name">Valentino Di Lorenzo</span>
+                        <span class="coach-card-rating">★ 5</span>
+                      </div>
+                      <span class="coach-card-sub">Founder & Head of Mindset</span>
+                    </div>
+                  </div>
+                  <div class="coach-card-tags">
+                    <span class="coach-card-tag">Elite Mentorship</span>
+                    <span class="coach-card-tag">Goldfish Mentality</span>
+                  </div>
+                  <div class="coach-card-roster">
+                    Roster: 2 / 5 athletes · <span class="cap-highlight">40% capacity</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- SECTION 3: PROGRAM CONFIGURATION (Figma #33275:5268) -->
+            <div class="form-grid-2col">
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="programTier">Program Tier</label>
+                <div class="select-wrapper-athlete">
+                  <select id="programTier" name="tier" class="form-select-athlete">
+                    <option value="90-Day Mentorship (Elite 1-on-1)" selected>90-Day Mentorship (Elite 1-on-1)</option>
+                    <option value="Premium Academy Access">Premium Academy Access</option>
+                    <option value="Foundation Membership">Foundation Membership</option>
+                  </select>
+                  <div class="select-chevron" aria-hidden="true">
+                    <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="startingPhase">Starting Phase</label>
+                <div class="select-wrapper-athlete">
+                  <select id="startingPhase" name="startingPhase" class="form-select-athlete">
+                    <option value="Phase 1: Foundation (Days 1 – 30)" selected>Phase 1: Foundation (Days 1 – 30)</option>
+                    <option value="Phase 2: Acceleration (Days 31 – 60)">Phase 2: Acceleration (Days 31 – 60)</option>
+                    <option value="Phase 3: Mastery (Days 61 – 90)">Phase 3: Mastery (Days 61 – 90)</option>
+                  </select>
+                  <div class="select-chevron" aria-hidden="true">
+                    <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 4: ASSIGN INITIAL HABITS & ACCOUNTABILITY (Figma #33275:5295) -->
+            <div>
+              <div class="habits-header-row">
+                <h2 class="assign-section-title" style="margin: 0;">Assign Initial Habits & Accountability</h2>
+                <span class="selected-badge-pill" id="habitsSelectedCount">4 SELECTED</span>
+              </div>
+              <div class="habits-grid">
+                <label class="habit-checkbox-label checked">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Ball mastery / Dribbling (5x/week)" checked style="display: none;">
+                  <span class="habit-label-text">Ball mastery / Dribbling (5x/week)</span>
+                </label>
+
+                <label class="habit-checkbox-label checked">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Send action steps feedback (3x/week)" checked style="display: none;">
+                  <span class="habit-label-text">Send action steps feedback (3x/week)</span>
+                </label>
+
+                <label class="habit-checkbox-label checked">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Morning Mindset Journal (Daily)" checked style="display: none;">
+                  <span class="habit-label-text">Morning Mindset Journal (Daily)</span>
+                </label>
+
+                <label class="habit-checkbox-label checked">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Breathing Reset 4-7-8 Protocol (Pre-training)" checked style="display: none;">
+                  <span class="habit-label-text">Breathing Reset 4-7-8 Protocol (Pre-training)</span>
+                </label>
+
+                <label class="habit-checkbox-label">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Goldfish Mentality Mistake Reset (Match days)" style="display: none;">
+                  <span class="habit-label-text">Goldfish Mentality Mistake Reset (Match days)</span>
+                </label>
+
+                <label class="habit-checkbox-label">
+                  <div class="custom-checkbox-sq">
+                    <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 3.5 6.5 9 1"></polyline>
+                    </svg>
+                  </div>
+                  <input type="checkbox" name="habits" value="Evening Gratitude & Focus Score (Daily)" style="display: none;">
+                  <span class="habit-label-text">Evening Gratitude & Focus Score (Daily)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- SECTION 5: 3-WAY PRIVATE GROUP CHAT (Figma #33275:5353) -->
+            <!-- STATIC SECTION WITH DYNAMIC ADMIN WELCOME MESSAGE -->
+            <div class="chat-3way-card">
+              <div class="chat-3way-header">
+                <div class="chat-3way-brand">
+                  <img src="/icons/chat-3way-icon.svg" alt="" width="16" height="16">
+                  <span>3-Way Private Group Chat</span>
+                </div>
+                <label class="chat-autolaunch-label">
+                  <input type="checkbox" id="autoLaunchGroupChat" name="autoLaunchGroupChat" value="true" checked style="accent-color: #E8A820; width: 14px; height: 14px;">
+                  <span>Auto-Launch Group Chat</span>
+                </label>
+              </div>
+
+              <!-- Static Description Text as instructed by user -->
+              <p class="chat-3way-desc">
+                Admin (Valentino Di Lorenzo), Assigned Coach (Coach Rivera), and Athlete (Andrew Vasquez) will be connected in a unified space for session recordings, feedback, and action step accountability.
+              </p>
+
+              <!-- Dynamic Admin Welcome Message -->
+              <div class="chat-welcome-group">
+                <label class="chat-welcome-label" for="adminWelcomeMessage">Admin Welcome Message</label>
+                <textarea 
+                  id="adminWelcomeMessage" 
+                  name="adminWelcomeMessage" 
+                  class="chat-welcome-textarea"
+                >Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.</textarea>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- FOOTER ACTIONS (Figma #33275:5402) -->
+          <footer class="athlete-modal-footer">
+            <button type="button" class="btn-athlete-cancel" id="cancelBtn">
+              Cancel
+            </button>
+            <button type="submit" class="btn-athlete-submit" id="submitBtn">
+              <img src="/icons/assign-confirm-icon.svg" alt="" width="16" height="16">
+              <span>Confirm & Assign Coach</span>
+            </button>
+          </footer>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- SUCCESS NOTIFICATION OVERLAY -->
+  <div class="success-overlay" id="successOverlay" role="dialog" aria-modal="true" aria-labelledby="successTitle" style="display: none;">
+    <div class="success-card">
+      <div class="success-badge-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E8A820" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+
+      <h2 class="success-title" id="successTitle">Coach Assigned & Program Launched!</h2>
+      <p class="success-desc">The dedicated mindset coach has been paired with the athlete, initial habits established, and the 3-way private group initialized.</p>
+
+      <div class="credential-box">
+        <div class="cred-row">
+          <span class="cred-label">Athlete:</span>
+          <span class="cred-val" id="dispAthleteName">Andrew Vasquez</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Assigned Coach:</span>
+          <span class="cred-val" id="dispCoachName" style="color: #E8A820; font-weight: 700;">Coach Rivera</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Program Tier:</span>
+          <span class="cred-val" id="dispTier">90-Day Mentorship</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Starting Phase:</span>
+          <span class="cred-val" id="dispPhase">Phase 1: Foundation</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Habits Activated:</span>
+          <span class="cred-val" id="dispHabitsCount">4 Initial Habits</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button type="button" class="btn-secondary-toast" id="successCloseBtn">Close</button>
+        <button type="button" class="btn-primary-toast" id="successNewAssignBtn">Assign Another Athlete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- SCRIPT -->
+  <script src="/js/assign-coach.js"></script>
+</body>
+</html>

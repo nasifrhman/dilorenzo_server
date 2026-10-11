@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Coach & Provision Staff Account | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Provision full coaching credentials, workload capacity limits, and generate portal access on Di Lorenzo Mindset Soccer Academy.">
+  <link rel="icon" type="image/svg+xml" href="/icons/coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Coach Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD PROVISIONING SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link active" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.2);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <span>Admin Portal</span>
+      <span class="separator">/</span>
+      <span>Staff & Mentors</span>
+      <span class="separator">/</span>
+      <span class="active">Add Coach & Provision</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn-ghost-sm" id="quickFillBtn" title="Auto-fill with Figma example data">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        Fill Figma Mock Data
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE WRAPPER -->
+  <main class="page-container">
+    <div class="page-backdrop-overlay" aria-hidden="true"></div>
+
+    <!-- MODAL CONTAINER (Figma Node #33275:4002) -->
+    <div class="modal-wrapper">
+      <div class="modal-container" role="dialog" aria-labelledby="modalHeading" aria-modal="true">
+        
+        <!-- MODAL HEADER (Figma #33275:4003) -->
+        <div class="modal-header">
+          <div class="modal-header-icon-box" aria-hidden="true">
+            <img src="/icons/coach-icon.svg" alt="" width="20" height="20">
+          </div>
+          <div class="modal-header-content">
+            <h1 class="modal-title" id="modalHeading">Add Coach & Provision Staff Account</h1>
+            <p class="modal-subtitle">Input full coaching credentials, capacity limits, and generate portal access</p>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close dialog">
+            <img src="/icons/close-icon.svg" alt="" width="18" height="18">
+          </button>
+        </div>
+
+        <!-- FORM (Figma #33275:4020) -->
+        <form id="coachForm" novalidate>
+          <div class="modal-body">
+            
+            <!-- Hidden inputs for state -->
+            <input type="hidden" id="selectedAvatarInitials" name="avatarInitials" value="CR">
+            <input type="hidden" id="selectedAvatarColor" name="avatarColor" value="#C27AFF">
+
+            <!-- SECTION 1: COACH PROFILE & IDENTITY (Figma #33275:4021) -->
+            <section class="section-card" aria-labelledby="sec1Heading">
+              <div class="section-header">
+                <span class="section-num-badge" aria-hidden="true">1</span>
+                <h2 class="section-title" id="sec1Heading">Coach Profile & Identity</h2>
+              </div>
+
+              <!-- Coach Avatar Photo (Figma #33275:4030) -->
+              <div class="avatar-selection-group">
+                <label class="form-label" id="avatarGroupLabel">Coach Avatar Photo</label>
+                <div class="avatar-row" role="group" aria-labelledby="avatarGroupLabel">
+                  <button type="button" class="avatar-btn selected" data-avatar="CR" aria-label="Select avatar CR">CR</button>
+                  <button type="button" class="avatar-btn" data-avatar="CO" aria-label="Select avatar CO">CO</button>
+                  <button type="button" class="avatar-btn" data-avatar="CG" aria-label="Select avatar CG">CG</button>
+                  <button type="button" class="avatar-btn" data-avatar="VL" aria-label="Select avatar VL">VL</button>
+                  <button type="button" class="avatar-btn" data-avatar="JR" aria-label="Select avatar JR">JR</button>
+                  <button type="button" class="avatar-btn" data-avatar="MS" aria-label="Select avatar MS">MS</button>
+                  <label class="avatar-upload-label" title="Upload custom photo">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <input type="file" id="avatarUploadInput" accept="image/*" aria-label="Upload custom photo">
+                  </label>
+                </div>
+              </div>
+
+              <!-- 2-Column Grid Fields (Figma #33275:4054) -->
+              <div class="form-row-2col">
+                <!-- Full Name -->
+                <div class="form-group">
+                  <label for="fullName" class="form-label">
+                    Full Name <span class="required-asterisk">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input 
+                      type="text" 
+                      id="fullName" 
+                      name="fullName" 
+                      class="input-control" 
+                      placeholder="e.g. Coach Matteo Rossi" 
+                      required 
+                      autocomplete="name"
+                    >
+                  </div>
+                  <span class="input-error-msg" id="fullNameError">Full name is required</span>
+                </div>
+
+                <!-- Designation / Role Title -->
+                <div class="form-group">
+                  <label for="roleTitle" class="form-label">
+                    Designation / Role Title
+                  </label>
+                  <div class="input-wrapper">
+                    <input 
+                      type="text" 
+                      id="roleTitle" 
+                      name="roleTitle" 
+                      class="input-control" 
+                      value="High-Performance Mindset Coach"
+                    >
+                  </div>
+                </div>
+
+                <!-- Staff Email -->
+                <div class="form-group">
+                  <label for="email" class="form-label">
+                    Staff Email (Login Email) <span class="required-asterisk">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-left" aria-hidden="true">
+                      <img src="/icons/email-icon.svg" alt="" width="14" height="14">
+                    </span>
+                    <input 
+                      type="email" 
+                      id="email" 
+                      name="email" 
+                      class="input-control has-left-icon" 
+                      placeholder="m.rossi@dsmsoccer.com" 
+                      required 
+                      autocomplete="email"
+                    >
+                  </div>
+                  <span class="input-error-msg" id="emailError">Valid staff email required</span>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="form-group">
+                  <label for="phoneNumber" class="form-label">
+                    Phone Number (WhatsApp Direct)
+                  </label>
+                  <div class="input-wrapper">
+                    <span class="input-icon-left" aria-hidden="true">
+                      <img src="/icons/phone-icon.svg" alt="" width="14" height="14">
+                    </span>
+                    <input 
+                      type="tel" 
+                      id="phoneNumber" 
+                      name="phoneNumber" 
+                      class="input-control has-left-icon" 
+                      placeholder="+44 7700 900821" 
+                      autocomplete="tel"
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Professional Bio & Philosophy (Figma #33275:4097) -->
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="bio" class="form-label">
+                  Professional Bio & Coaching Philosophy
+                </label>
+                <textarea 
+                  id="bio" 
+                  name="bio" 
+                  class="textarea-control" 
+                  placeholder="Describe years with pro youth clubs, mental toughness focus areas, and tactical experience..."
+                ></textarea>
+              </div>
+            </section>
+
+
+            <!-- SECTION 2: WORKLOAD, TIMEZONE & SPECIALTIES (Figma #33275:4108) -->
+            <section class="section-card" aria-labelledby="sec2Heading">
+              <div class="section-header">
+                <span class="section-num-badge" aria-hidden="true">2</span>
+                <h2 class="section-title" id="sec2Heading">Workload, Timezone & Specialties</h2>
+              </div>
+
+              <!-- 3-Column Grid Fields (Figma #33275:4117) -->
+              <div class="form-row-3col">
+                <!-- Experience Years -->
+                <div class="form-group">
+                  <label for="experienceYears" class="form-label">
+                    Experience (Years)
+                  </label>
+                  <input 
+                    type="number" 
+                    id="experienceYears" 
+                    name="experienceYears" 
+                    class="input-control" 
+                    value="5" 
+                    min="0" 
+                    max="50"
+                  >
+                </div>
+
+                <!-- Max Athlete Capacity -->
+                <div class="form-group">
+                  <label for="maxAthleteCapacity" class="form-label">
+                    Max Athlete Capacity
+                  </label>
+                  <input 
+                    type="number" 
+                    id="maxAthleteCapacity" 
+                    name="maxAthleteCapacity" 
+                    class="input-control" 
+                    value="15" 
+                    min="1" 
+                    max="100"
+                  >
+                </div>
+
+                <!-- Operational Timezone -->
+                <div class="form-group">
+                  <label for="operationalTimezone" class="form-label">
+                    Operational Timezone
+                  </label>
+                  <div class="select-wrapper">
+                    <select id="operationalTimezone" name="operationalTimezone" class="select-control">
+                      <option value="Europe/London (GMT+1)" selected>Europe/London (GMT+1)</option>
+                      <option value="Europe/Madrid (GMT+2)">Europe/Madrid (GMT+2)</option>
+                      <option value="Europe/Paris (GMT+2)">Europe/Paris (GMT+2)</option>
+                      <option value="Europe/Rome (GMT+2)">Europe/Rome (GMT+2)</option>
+                      <option value="US/Eastern (EST)">US/Eastern (EST)</option>
+                      <option value="US/Central (CST)">US/Central (CST)</option>
+                      <option value="US/Pacific (PST)">US/Pacific (PST)</option>
+                      <option value="Asia/Dubai (GST)">Asia/Dubai (GST)</option>
+                    </select>
+                    <span class="select-arrow" aria-hidden="true">
+                      <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <p class="helper-caption">Default for 90-Day Mentorship is 10–15</p>
+
+              <!-- Coaching Specialties (Figma #33275:4150) -->
+              <div class="specialties-group">
+                <label class="form-label">
+                  Coaching Specialties <span class="form-label-muted">(Select all that apply)</span>
+                </label>
+                <div class="pills-container" role="group" aria-label="Coaching Specialties">
+                  <!-- Selected in Figma -->
+                  <button type="button" class="specialty-pill selected" data-specialty="Pre-Game Routines" aria-pressed="true">
+                    <span class="check-icon">✓</span> Pre-Game Routines
+                  </button>
+                  
+                  <!-- Unselected in Figma -->
+                  <button type="button" class="specialty-pill" data-specialty="Mistake Recovery / Goldfish Reset" aria-pressed="false">
+                    <span class="check-icon">✓</span> Mistake Recovery / Goldfish Reset
+                  </button>
+
+                  <!-- Selected in Figma -->
+                  <button type="button" class="specialty-pill selected" data-specialty="Composure Under Pressure" aria-pressed="true">
+                    <span class="check-icon">✓</span> Composure Under Pressure
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Confidence Conditioning" aria-pressed="false">
+                    <span class="check-icon">✓</span> Confidence Conditioning
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Tactical Video Review" aria-pressed="false">
+                    <span class="check-icon">✓</span> Tactical Video Review
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Habit Architecture" aria-pressed="false">
+                    <span class="check-icon">✓</span> Habit Architecture
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Ball Mastery Focus" aria-pressed="false">
+                    <span class="check-icon">✓</span> Ball Mastery Focus
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Leadership & Body Language" aria-pressed="false">
+                    <span class="check-icon">✓</span> Leadership & Body Language
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Breathwork & Heart Rate Sync" aria-pressed="false">
+                    <span class="check-icon">✓</span> Breathwork & Heart Rate Sync
+                  </button>
+
+                  <button type="button" class="specialty-pill" data-specialty="Parent Communication" aria-pressed="false">
+                    <span class="check-icon">✓</span> Parent Communication
+                  </button>
+                </div>
+              </div>
+
+              <!-- Certifications & Badges (Figma #33275:4192) -->
+              <div class="certifications-group">
+                <label class="form-label">Certifications & Badges</label>
+                <div class="badges-container">
+                  <span class="cert-badge">UEFA Mental Performance Coaching (MPC)</span>
+                  <span class="cert-badge">FA Level 2 Coaching in Football</span>
+                  <span class="cert-badge">USSF National Youth License</span>
+                  <span class="cert-badge">Certified High-Performance Mindset Coach (CHPMC)</span>
+                  <span class="cert-badge">Sports Psychology Diploma (Level 5)</span>
+                  <span class="cert-badge specialist-gold">Di Lorenzo Mindset Certified Specialist</span>
+                </div>
+              </div>
+            </section>
+
+
+            <!-- SECTION 3: COACH PORTAL LOGIN CREDENTIALS & PERMISSIONS (Figma #33275:4220) -->
+            <section class="section-card" aria-labelledby="sec3Heading">
+              <div class="section-header">
+                <span class="section-num-badge" aria-hidden="true">3</span>
+                <h2 class="section-title" id="sec3Heading">Coach Portal Login Credentials & Permissions</h2>
+              </div>
+
+              <!-- 2-Column Grid Fields (Figma #33275:4229) -->
+              <div class="form-row-2col">
+                <!-- Portal Username -->
+                <div class="form-group">
+                  <label for="username" class="form-label">
+                    Portal Username <span class="required-asterisk">*</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <input 
+                      type="text" 
+                      id="username" 
+                      name="username" 
+                      class="input-control" 
+                      placeholder="@ coach.matteo" 
+                      required 
+                      autocomplete="username"
+                    >
+                  </div>
+                  <span class="input-error-msg" id="usernameError">Username is required</span>
+                </div>
+
+                <!-- Temporary Access Password -->
+                <div class="form-group">
+                  <label for="temporaryPassword" class="form-label">
+                    Temporary Access Password
+                  </label>
+                  <div class="input-wrapper">
+                    <input 
+                      type="password" 
+                      id="temporaryPassword" 
+                      name="temporaryPassword" 
+                      class="input-control has-right-icon" 
+                      value="DSMCoach2026!" 
+                      autocomplete="new-password"
+                    >
+                    <button type="button" class="input-icon-btn-right" id="togglePasswordBtn" aria-label="Toggle password visibility">
+                      <img src="/icons/eye-icon.svg" alt="" width="16" height="16">
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Coach Dashboard Permissions (Figma #33275:4252) -->
+              <div class="permissions-group">
+                <label class="form-label">Coach Dashboard Permissions</label>
+                <div class="permissions-row">
+                  <label class="custom-checkbox-label" for="permHabits">
+                    <input type="checkbox" id="permHabits" name="permissions" value="Assign Habits & Drills" checked>
+                    <span class="custom-checkbox-box">
+                      <img src="/icons/check-icon.svg" alt="" width="11" height="11">
+                    </span>
+                    <span class="checkbox-text">Assign Habits & Drills</span>
+                  </label>
+
+                  <label class="custom-checkbox-label" for="permChat">
+                    <input type="checkbox" id="permChat" name="permissions" value="3-Way Group Voice/Chat" checked>
+                    <span class="custom-checkbox-box">
+                      <img src="/icons/check-icon.svg" alt="" width="11" height="11">
+                    </span>
+                    <span class="checkbox-text">3-Way Group Voice/Chat</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Automated Welcome Email Notice (Figma #33275:4282) -->
+              <div class="notice-checkbox-wrapper">
+                <label class="custom-checkbox-label" for="welcomeEmailCheck">
+                  <input type="checkbox" id="welcomeEmailCheck" name="sendWelcomeEmail" checked>
+                  <span class="custom-checkbox-box">
+                    <img src="/icons/check-icon.svg" alt="" width="11" height="11">
+                  </span>
+                  <span class="notice-checkbox-text">Send automated welcome email with login credentials and mobile app download link</span>
+                </label>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- MODAL ACTIONS FOOTER (Figma #33275:4296) -->
+          <footer class="modal-footer">
+            <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+            <button type="submit" class="btn-submit-gold" id="submitBtn">
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <img src="/icons/submit-icon.svg" class="btn-icon" alt="" width="16" height="16">
+              <span class="btn-text">Create Coach Account & Grant Portal Access</span>
+            </button>
+          </footer>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- SUCCESS CONFIRMATION OVERLAY -->
+  <aside class="success-overlay" id="successOverlay" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <div class="success-card">
+      <div class="success-icon-badge" aria-hidden="true">✓</div>
+      <h2 class="success-title" id="successTitle">Coach Account Provisioned!</h2>
+      <p class="success-desc">
+        Staff account has been generated and granted full coach portal access. An automated welcome email has been queued.
+      </p>
+
+      <div class="credentials-box">
+        <div class="cred-row">
+          <span class="cred-key">Coach Name:</span>
+          <span class="cred-val" id="credName">Coach Matteo Rossi</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-key">Role:</span>
+          <span class="cred-val" id="credRole">High-Performance Mindset Coach</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-key">Staff Email:</span>
+          <span class="cred-val" id="credEmail">m.rossi@dsmsoccer.com</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-key">Username:</span>
+          <span class="cred-val" id="credUsername">@ coach.matteo</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-key">Temporary Pass:</span>
+          <span class="cred-val" id="credPassword">DSMCoach2026!</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button type="button" class="btn-secondary" id="copyCredsBtn">Copy Credentials</button>
+        <button type="button" class="btn-primary-toast" id="successAddAnotherBtn">Add Another Coach</button>
+        <button type="button" class="btn-secondary" id="successCloseBtn">Done</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Scripts -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

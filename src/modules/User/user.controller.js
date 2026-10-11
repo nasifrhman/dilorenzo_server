@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -261,6 +261,84 @@ const getUserHomeController = catchAsync(async (req, res) => {
   );
 });
 
+const createCoachController = catchAsync(async (req, res) => {
+  const result = await createCoachService(req.body);
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'Coach',
+      message: 'Coach account provisioned and staff access granted successfully',
+      data: result,
+    })
+  );
+});
+
+const getCoachesController = catchAsync(async (req, res) => {
+  const result = await getCoachesService();
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Coaches',
+      message: 'Coaches retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const createAthleteController = catchAsync(async (req, res) => {
+  const result = await createAthleteService(req.body);
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'Athlete',
+      message: 'Athlete intake completed and member enrolled successfully',
+      data: result,
+    })
+  );
+});
+
+const getAthletesController = catchAsync(async (req, res) => {
+  const result = await getAthletesService();
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Athletes',
+      message: 'Athletes retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const assignCoachController = catchAsync(async (req, res) => {
+  const result = await assignCoachService(req.body);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachAssignment',
+      message: 'Dedicated coach and mentorship program assigned successfully',
+      data: result,
+    })
+  );
+});
+
+const getAssignedCoachesOverviewController = catchAsync(async (req, res) => {
+  const result = await getAssignedCoachesOverviewService();
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Overview',
+      message: 'Assignment overview retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   suspendUserController,
   fcmTokenController,
@@ -277,5 +355,11 @@ module.exports = {
   bulkActiveUserController,
   togglePushNotificationController,
   getPushNotificationController,
-  getUserHomeController
-}
+  getUserHomeController,
+  createCoachController,
+  getCoachesController,
+  createAthleteController,
+  getAthletesController,
+  assignCoachController,
+  getAssignedCoachesOverviewController,
+};

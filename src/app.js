@@ -1,6 +1,7 @@
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -79,6 +80,21 @@ app.use((req, res, next) => {
 
 // Static Files
 app.use(express.static("public"));
+
+// Coach Provisioning Page (Figma node 33275-4002)
+app.get(["/add-coach", "/admin/add-coach", "/coach-provisioning"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+// Athlete Intake Page (Figma node 33275-6181)
+app.get(["/add-athlete", "/intake-athlete", "/admin/add-athlete", "/admin/athlete-intake"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/add-athlete.html"));
+});
+
+// Assign Dedicated Coach & Program Page (Figma node 33275-5077)
+app.get(["/assign-coach", "/admin/assign-coach", "/coach-assignment"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/assign-coach.html"));
+});
 
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {

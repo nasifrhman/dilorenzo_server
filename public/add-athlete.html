@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Athlete Intake & Registration | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Approve admission call or add new Academy member into Di Lorenzo Mindset Soccer Academy.">
+  <link rel="icon" type="image/svg+xml" href="/icons/athlete-intake-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Academy Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD PROVISIONING SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link active" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.2);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <span>Admin Portal</span>
+      <span class="separator">/</span>
+      <span>Athletes & Academy</span>
+      <span class="separator">/</span>
+      <span class="active">New Athlete Intake</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn-ghost-sm" id="quickFillBtn" title="Auto-fill with Figma example data">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        Fill Figma Mock Data
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE WRAPPER -->
+  <main class="page-container">
+    <div class="page-backdrop-overlay" aria-hidden="true"></div>
+
+    <!-- MODAL CONTAINER (Figma Node #33275:6181) -->
+    <div class="athlete-modal-wrapper">
+      <div class="athlete-modal-container" role="dialog" aria-labelledby="modalHeading" aria-modal="true">
+        
+        <!-- MODAL HEADER (Figma #33275:6182) -->
+        <div class="modal-header-athlete">
+          <div class="modal-header-icon-box-gold" aria-hidden="true">
+            <img src="/icons/athlete-intake-icon.svg" alt="" width="20" height="20">
+          </div>
+          <div class="modal-header-content" style="flex: 1;">
+            <h1 class="modal-title-athlete" id="modalHeading">New Athlete Intake & Registration</h1>
+            <p class="modal-subtitle-athlete">Approve admission call or add new Academy member</p>
+          </div>
+          <button type="button" class="modal-close-btn" id="closeModalBtn" aria-label="Close dialog">
+            <img src="/icons/athlete-close-icon.svg" alt="" width="18" height="18">
+          </button>
+        </div>
+
+        <!-- FORM (Figma #33275:6199) -->
+        <form id="athleteForm" novalidate>
+          <div class="athlete-form-body">
+            
+            <!-- ATHLETE FULL NAME (Figma #33275:6200) -->
+            <div class="form-group-athlete">
+              <label class="form-label-athlete" for="athleteFullName">
+                Athlete Full Name <span class="req-star">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="athleteFullName" 
+                name="fullName" 
+                class="form-input-athlete" 
+                placeholder="e.g. Marcus Sterling" 
+                required 
+                autocomplete="name"
+              >
+            </div>
+
+            <!-- EMAIL & PHONE NUMBER (Figma #33275:6208) -->
+            <div class="form-grid-2col">
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="athleteEmail">
+                  Email Address <span class="req-star">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  id="athleteEmail" 
+                  name="email" 
+                  class="form-input-athlete" 
+                  placeholder="athlete@example.com" 
+                  required 
+                  autocomplete="email"
+                >
+              </div>
+
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="athletePhone">
+                  Phone Number
+                </label>
+                <input 
+                  type="tel" 
+                  id="athletePhone" 
+                  name="phoneNumber" 
+                  class="form-input-athlete" 
+                  placeholder="+1 (555) 000-0000" 
+                  autocomplete="tel"
+                >
+              </div>
+            </div>
+
+            <!-- PROGRAM TIER & LEAGUE / DIVISION (Figma #33275:6225) -->
+            <div class="form-grid-2col">
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="programTier">
+                  Program Tier
+                </label>
+                <div class="select-wrapper-athlete">
+                  <select id="programTier" name="tier" class="form-select-athlete">
+                    <option value="90-day-mentorship" selected>90-Day Mentorship (Selective)</option>
+                    <option value="premium">Premium Academy Access</option>
+                    <option value="free">Free / Standard Program</option>
+                  </select>
+                  <div class="select-chevron" aria-hidden="true">
+                    <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group-athlete">
+                <label class="form-label-athlete" for="leagueDivision">
+                  League / Division
+                </label>
+                <div class="select-wrapper-athlete">
+                  <select id="leagueDivision" name="leagueDivision" class="form-select-athlete">
+                    <option value="Regional Stars U18" selected>Regional Stars U18</option>
+                    <option value="U16 Academy Elite">U16 Academy Elite</option>
+                    <option value="U14 Junior Development">U14 Junior Development</option>
+                    <option value="High School Varsity">High School Varsity</option>
+                    <option value="Collegiate / Semi-Pro">Collegiate / Semi-Pro</option>
+                  </select>
+                  <div class="select-chevron" aria-hidden="true">
+                    <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ASSIGN DEDICATED COACH (Figma #33275:6252) -->
+            <div class="form-group-athlete">
+              <label class="form-label-athlete" for="assignedCoach">
+                Assign Dedicated Coach
+              </label>
+              <div class="select-wrapper-athlete">
+                <select id="assignedCoach" name="assignedCoach" class="form-select-athlete">
+                  <option value="">Coach Rivera (Mental Performance Specialist) — 4/10 Active</option>
+                  <!-- Dynamically populated from backend -->
+                </select>
+                <div class="select-chevron" aria-hidden="true">
+                  <img src="/icons/dropdown-icon.svg" alt="" width="10" height="6">
+                </div>
+              </div>
+            </div>
+
+            <!-- PARENT / GUARDIAN INFO (Figma #33275:6265) -->
+            <div class="parent-info-card">
+              <div class="parent-info-header">
+                Parent / Guardian Info <span class="parent-info-sub">(For Parent Dashboard)</span>
+              </div>
+              <div class="form-grid-2col">
+                <div class="form-group-athlete">
+                  <input 
+                    type="text" 
+                    id="parentFullName" 
+                    name="parentFullName" 
+                    class="form-input-athlete" 
+                    placeholder="Parent Full Name"
+                    autocomplete="name"
+                  >
+                </div>
+                <div class="form-group-athlete">
+                  <input 
+                    type="email" 
+                    id="parentEmail" 
+                    name="parentEmail" 
+                    class="form-input-athlete" 
+                    placeholder="Parent Email"
+                    autocomplete="email"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- INTAKE NOTES & FOCUS GOALS (Figma #33275:6275) -->
+            <div class="form-group-athlete">
+              <label class="form-label-athlete" for="intakeNotes">
+                Intake Notes & Focus Goals
+              </label>
+              <textarea 
+                id="intakeNotes" 
+                name="intakeNotes" 
+                class="form-textarea-athlete" 
+                placeholder="e.g. Athlete struggled with pre-game anxiety in state finals. Goal: build 5-step composure habit."
+              ></textarea>
+            </div>
+
+          </div>
+
+          <!-- MODAL ACTIONS / FOOTER (Figma #33275:6304) -->
+          <footer class="athlete-modal-footer">
+            <button type="button" class="btn-athlete-cancel" id="cancelBtn">
+              Cancel
+            </button>
+            <button type="submit" class="btn-athlete-submit" id="submitBtn">
+              <img src="/icons/athlete-check-icon.svg" alt="" width="16" height="16">
+              <span>Complete Intake</span>
+            </button>
+          </footer>
+        </form>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- SUCCESS NOTIFICATION OVERLAY -->
+  <div class="success-overlay" id="successOverlay" role="dialog" aria-modal="true" aria-labelledby="successTitle" style="display: none;">
+    <div class="success-card">
+      <div class="success-badge-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#E8A820" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+
+      <h2 class="success-title" id="successTitle">Athlete Intake Complete!</h2>
+      <p class="success-desc">The athlete has been enrolled into the DSM Academy and assigned to their dedicated mindset coach.</p>
+
+      <div class="credential-box">
+        <div class="cred-row">
+          <span class="cred-label">Athlete:</span>
+          <span class="cred-val" id="dispAthleteName">Marcus Sterling</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Email:</span>
+          <span class="cred-val" id="dispAthleteEmail">athlete@example.com</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Program Tier:</span>
+          <span class="cred-val" id="dispAthleteTier" style="color: #E8A820; font-weight: 700;">90-Day Mentorship</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Assigned Coach:</span>
+          <span class="cred-val" id="dispAssignedCoach">Coach Rivera</span>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label">Temporary Pass:</span>
+          <span class="cred-val" id="dispAthletePass" style="font-family: monospace;">DSMAthlete2026!</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <button type="button" class="btn-secondary-toast" id="successCloseBtn">Close</button>
+        <button type="button" class="btn-primary-toast" id="successAddAnotherBtn">Intake Another Athlete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- SCRIPT -->
+  <script src="/js/athlete.js"></script>
+</body>
+</html>

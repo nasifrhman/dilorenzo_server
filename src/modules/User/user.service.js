@@ -297,6 +297,369 @@ const getUserHomeFeedService = async (userId, queryParams = {}) => {
   };
 };
 
+const createCoachService = async (coachData) => {
+  const fullName = coachData.fullName || coachData.name;
+  const email = coachData.email;
+  const phoneNumber = coachData.phoneNumber || coachData.phone || '';
+  const roleTitle = coachData.roleTitle || coachData.designation || 'High-Performance Mindset Coach';
+  const bio = coachData.bio || coachData.coachingPhilosophy || '';
+  const coachingPhilosophy = coachData.coachingPhilosophy || coachData.bio || '';
+  const experienceYears = Number(coachData.experienceYears ?? coachData.experience ?? 0);
+  const maxAthleteCapacity = Number(coachData.maxAthleteCapacity ?? coachData.capacity ?? 15);
+  const operationalTimezone = coachData.operationalTimezone || coachData.timezone || 'Europe/London (GMT+1)';
+  const specialties = Array.isArray(coachData.specialties) ? coachData.specialties : [];
+  const certifications = Array.isArray(coachData.certifications) ? coachData.certifications : [];
+  const username = coachData.username;
+  const password = coachData.password || 'DSMCoach2026!';
+  const coachPermissions = Array.isArray(coachData.coachPermissions)
+    ? coachData.coachPermissions
+    : (Array.isArray(coachData.permissions) ? coachData.permissions : ['Assign Habits & Drills', '3-Way Group Voice/Chat']);
+  const sendWelcomeEmail = coachData.sendWelcomeEmail !== undefined
+    ? Boolean(coachData.sendWelcomeEmail)
+    : (coachData.welcomeEmailSent !== undefined ? Boolean(coachData.welcomeEmailSent) : true);
+  const avatarColor = coachData.avatarColor || '#C27AFF';
+  const avatarInitials = coachData.avatarInitials || (fullName ? fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'CR');
+
+  if (email) {
+    const existingEmail = await userModel.findOne({ email: email.toLowerCase() });
+    if (existingEmail) {
+      const error = new Error("A coach with this email address already exists.");
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  const cleanUsername = username ? username.replace(/^@\s*/, '').trim().toLowerCase() : undefined;
+  if (cleanUsername) {
+    const existingUsername = await userModel.findOne({ username: cleanUsername });
+    if (existingUsername) {
+      const error = new Error("A coach with this username already exists.");
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
+  const newCoach = new userModel({
+    fullName,
+    email: email ? email.toLowerCase() : undefined,
+    phoneNumber,
+    role: 'coach',
+    roleTitle,
+    bio,
+    coachingPhilosophy,
+    experienceYears,
+    maxAthleteCapacity,
+    operationalTimezone,
+    specialties,
+    certifications,
+    username: cleanUsername,
+    password,
+    coachPermissions,
+    welcomeEmailSent: sendWelcomeEmail,
+    avatarColor,
+    avatarInitials,
+  });
+
+  await newCoach.save();
+  return newCoach;
+};
+
+const getCoachesService = async () => {
+  return await userModel.find({ role: 'coach', isDeleted: false }).sort({ createdAt: -1 });
+};
+
+const createAthleteService = async (athleteData) => {
+  const fullName = athleteData.fullName || athleteData.name;
+  const email = athleteData.email;
+  const phoneNumber = athleteData.phoneNumber || athleteData.phone || '';
+
+  if (!fullName || !fullName.trim()) {
+    const error = new Error("Athlete full name is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!email || !email.trim()) {
+    const error = new Error("Athlete email is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existingEmail = await userModel.findOne({ email: email.trim().toLowerCase() });
+  if (existingEmail) {
+    const error = new Error("A user with this email address already exists.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Tier normalization
+  let tier = '90-day-mentorship';
+  const rawTier = (athleteData.tier || '').toLowerCase();
+  if (rawTier.includes('free') || rawTier.includes('standard')) {
+    tier = 'free';
+  } else if (rawTier.includes('prem')) {
+    tier = 'premium';
+  } else if (rawTier.includes('90') || rawTier.includes('mentor')) {
+    tier = '90-day-mentorship';
+  }
+
+  const leagueDivision = athleteData.leagueDivision || athleteData.division || athleteData.currentClub || 'Regional Stars U18';
+  const currentClub = athleteData.currentClub || leagueDivision;
+
+  // Dedicated coach assignment
+  let assignedCoachId = null;
+  const rawCoach = athleteData.assignedCoach || athleteData.coachId || athleteData.coach;
+  if (rawCoach) {
+    if (mongoose.isValidObjectId(rawCoach)) {
+      const coachExists = await userModel.findOne({ _id: rawCoach, role: 'coach' });
+      if (coachExists) {
+        assignedCoachId = coachExists._id;
+      }
+    } else if (typeof rawCoach === 'string') {
+      const coachNamePart = rawCoach.split('(')[0].replace(/^Coach\s+/i, '').trim();
+      const coachDoc = await userModel.findOne({
+        role: 'coach',
+        $or: [
+          { fullName: new RegExp(coachNamePart, 'i') },
+          { roleTitle: new RegExp(coachNamePart, 'i') }
+        ]
+      });
+      if (coachDoc) {
+        assignedCoachId = coachDoc._id;
+      }
+    }
+  }
+
+  // Parent / Guardian Info
+  let parentUser = null;
+  const parentFullName = athleteData.parentFullName || athleteData.parentName || athleteData.guardianName;
+  const parentEmail = athleteData.parentEmail || athleteData.guardianEmail;
+
+  if (parentEmail && parentEmail.trim()) {
+    const cleanParentEmail = parentEmail.trim().toLowerCase();
+    parentUser = await userModel.findOne({ email: cleanParentEmail });
+    console.log({athleteData})
+    console.log(athleteData.parentPassword)
+    if (!parentUser) {
+      parentUser = new userModel({
+        fullName: parentFullName || 'Parent Guardian',
+        email: cleanParentEmail,
+        role: 'parent',
+        password: athleteData.parentPassword || 'hello123',
+        athletes: [],
+      });
+      await parentUser.save();
+    }
+  }
+
+  const intakeNotes = athleteData.intakeNotes || athleteData.focusGoals || athleteData.notes || athleteData.note || '';
+  const focusGoals = athleteData.focusGoals || intakeNotes;
+  const password = athleteData.parentPassword || 'hello123';
+
+  const newAthlete = new userModel({
+    fullName: fullName.trim(),
+    email: email.trim().toLowerCase(),
+    phoneNumber,
+    role: 'athlete',
+    tier,
+    currentClub,
+    leagueDivision,
+    assignedCoach: assignedCoachId,
+    parents: parentUser ? [parentUser._id] : [],
+    intakeNotes,
+    focusGoals,
+    note: intakeNotes,
+    mentorshipPhase: tier === '90-day-mentorship' ? 'foundation' : undefined,
+    mentorshipDay: tier === '90-day-mentorship' ? 1 : undefined,
+    mentorshipStartDate: tier === '90-day-mentorship' ? new Date() : undefined,
+    password,
+  });
+
+  await newAthlete.save();
+
+  if (parentUser) {
+    if (!parentUser.athletes) {
+      parentUser.athletes = [];
+    }
+    if (!parentUser.athletes.includes(newAthlete._id)) {
+      parentUser.athletes.push(newAthlete._id);
+      await parentUser.save();
+    }
+  }
+
+  const populatedAthlete = await userModel.findById(newAthlete._id)
+    .populate('assignedCoach', 'fullName email roleTitle maxAthleteCapacity avatarColor avatarInitials')
+    .populate('parents', 'fullName email phoneNumber');
+
+  return populatedAthlete;
+};
+
+const getAthletesService = async () => {
+  return await userModel.find({ role: 'athlete', isDeleted: false })
+    .populate('assignedCoach', 'fullName email roleTitle avatarColor avatarInitials')
+    .populate('parents', 'fullName email phoneNumber')
+    .sort({ createdAt: -1 });
+};
+
+const ChatRoom = require('../Chat/chatRoom.model');
+const Message = require('../Chat/message.model');
+
+const assignCoachService = async (data) => {
+  const {
+    athleteId,
+    coachId,
+    tier = '90-Day Mentorship (Elite 1-on-1)',
+    startingPhase = 'Phase 1: Foundation (Days 1 – 30)',
+    habits = [],
+    autoLaunchGroupChat = true,
+    adminWelcomeMessage = 'Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.'
+  } = data;
+
+  // 1. Resolve Athlete strictly by ID
+  if (!athleteId) {
+    const error = new Error("athleteId is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!mongoose.isValidObjectId(athleteId)) {
+    const error = new Error("Invalid athleteId. athleteId must be a valid MongoDB ObjectId.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const athleteDoc = await userModel.findOne({ _id: athleteId, isDeleted: false });
+  if (!athleteDoc) {
+    const error = new Error("Athlete not found with the provided athleteId.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // 2. Resolve Coach strictly by ID
+  if (!coachId) {
+    const error = new Error("coachId is required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!mongoose.isValidObjectId(coachId)) {
+    const error = new Error("Invalid coachId. coachId must be a valid MongoDB ObjectId.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const coachDoc = await userModel.findOne({ _id: coachId, role: 'coach', isDeleted: false });
+  if (!coachDoc) {
+    const error = new Error("Coach not found with the provided coachId.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // 3. Normalize Tier & Phase
+  let normalizedTier = '90-day-mentorship';
+  const tierLower = String(tier).toLowerCase();
+  if (tierLower.includes('free') || tierLower.includes('standard')) {
+    normalizedTier = 'free';
+  } else if (tierLower.includes('prem')) {
+    normalizedTier = 'premium';
+  } else if (tierLower.includes('90') || tierLower.includes('mentor')) {
+    normalizedTier = '90-day-mentorship';
+  }
+
+  let normalizedPhase = 'foundation';
+  const phaseLower = String(startingPhase).toLowerCase();
+  if (phaseLower.includes('accel') || phaseLower.includes('2')) {
+    normalizedPhase = 'acceleration';
+  } else if (phaseLower.includes('master') || phaseLower.includes('3')) {
+    normalizedPhase = 'mastery';
+  }
+
+  // 4. Update Athlete
+  athleteDoc.assignedCoach = coachDoc._id;
+  athleteDoc.tier = normalizedTier;
+  athleteDoc.startingPhase = startingPhase;
+  athleteDoc.mentorshipPhase = normalizedPhase;
+  athleteDoc.assignedHabits = Array.isArray(habits) && habits.length > 0 ? habits : [
+    'Ball mastery / Dribbling (5x/week)',
+    'Send action steps feedback (3x/week)',
+    'Morning Mindset Journal (Daily)',
+    'Breathing Reset 4-7-8 Protocol (Pre-training)'
+  ];
+  athleteDoc.autoLaunchGroupChat = Boolean(autoLaunchGroupChat);
+  athleteDoc.adminWelcomeMessage = adminWelcomeMessage;
+  if (!athleteDoc.mentorshipStartDate) {
+    athleteDoc.mentorshipStartDate = new Date();
+  }
+  await athleteDoc.save();
+
+  // 5. Auto-Launch 3-Way Group Chat
+  let chatRoom = null;
+  if (autoLaunchGroupChat) {
+    const adminUser = await userModel.findOne({ role: 'admin' });
+    const participantIds = [athleteDoc._id, coachDoc._id];
+    if (adminUser) participantIds.push(adminUser._id);
+
+    chatRoom = await ChatRoom.findOne({
+      athlete: athleteDoc._id,
+      coach: coachDoc._id,
+      type: '3-way'
+    });
+
+    if (!chatRoom) {
+      chatRoom = new ChatRoom({
+        name: `3-Way Mentorship Group (${athleteDoc.fullName} & ${coachDoc.fullName})`,
+        type: '3-way',
+        participants: participantIds,
+        athlete: athleteDoc._id,
+        coach: coachDoc._id,
+        parent: athleteDoc.parents?.[0] || null,
+        isActive: true
+      });
+      await chatRoom.save();
+    }
+
+    if (adminWelcomeMessage && adminWelcomeMessage.trim()) {
+      const senderId = adminUser?._id || coachDoc._id;
+      const newMsg = new Message({
+        chatRoom: chatRoom._id,
+        sender: senderId,
+        messageType: 'text',
+        content: adminWelcomeMessage.trim()
+      });
+      await newMsg.save();
+
+      chatRoom.lastMessage = newMsg._id;
+      chatRoom.lastMessageAt = new Date();
+      await chatRoom.save();
+    }
+  }
+
+  const result = await userModel.findById(athleteDoc._id)
+    .populate('assignedCoach', 'fullName email roleTitle maxAthleteCapacity avatarColor avatarInitials')
+    .populate('parents', 'fullName email phoneNumber');
+
+  return {
+    athlete: result,
+    coach: coachDoc,
+    chatRoom,
+    tier: normalizedTier,
+    startingPhase,
+    assignedHabits: athleteDoc.assignedHabits,
+    adminWelcomeMessage
+  };
+};
+
+const getAssignedCoachesOverviewService = async () => {
+  const athletes = await userModel.find({ role: 'athlete', isDeleted: false })
+    .populate('assignedCoach', 'fullName email roleTitle avatarColor avatarInitials maxAthleteCapacity')
+    .sort({ createdAt: -1 });
+
+  const coaches = await userModel.find({ role: 'coach', isDeleted: false })
+    .sort({ createdAt: -1 });
+
+  return { athletes, coaches };
+};
+
 module.exports = {
   suspendUserService,
   activeUserService,
@@ -312,5 +675,11 @@ module.exports = {
   bulkActiveUserService,
   togglePushNotificationService,
   getPushNotificationService,
-  getUserHomeFeedService
+  getUserHomeFeedService,
+  createCoachService,
+  getCoachesService,
+  createAthleteService,
+  getAthletesService,
+  assignCoachService,
+  getAssignedCoachesOverviewService,
 };
