@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Portal — Athlete Profile &amp; Management Suite | Di Lorenzo Soccer</title>
+  <meta name="description" content="DSM Coach Athlete Profile Management: Track 90-day progress, active habits, assignments, training, video submissions, 3-way group chats, and 1-on-1 sessions.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/coach-player-detail.css">
+</head>
+<body>
+  <!-- App Shell Container -->
+  <div class="app-layout">
+    
+    <!-- Top Global Navigation Bar -->
+    <header class="top-nav">
+      <div class="top-nav-left">
+        <a href="/coach-dashboard" class="btn-back" id="btnBackToOverview">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Overview
+        </a>
+        <div class="brand-badge">
+          <span class="brand-logo-circle">DSM</span>
+          <span class="brand-text">COACH HUB</span>
+        </div>
+      </div>
+
+      <div class="top-nav-center">
+        <div class="global-search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737378" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="globalSearchInput" placeholder="Search tasks, habits, sessions..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="top-nav-right">
+        <div class="coach-profile-chip" id="coachProfileChip">
+          <div class="coach-avatar" id="coachAvatarEmoji"></div>
+          <div class="coach-meta">
+            <div class="coach-name" id="coachNameDisplay"></div>
+            <div class="coach-club" id="coachClubDisplay"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      
+      <!-- Athlete Profile Header Hero Banner (Figma node 33044:13763) -->
+      <section class="athlete-hero-card" id="athleteHeroCard">
+        <div class="hero-top-row">
+          <div class="athlete-identity-left">
+            <div class="athlete-avatar-box">
+              <span class="athlete-avatar-emoji" id="heroAthleteEmoji"></span>
+              <span class="status-indicator-dot online"></span>
+            </div>
+            <div class="athlete-title-info">
+              <div class="tier-pill-badge" id="heroTierBadge">MENTORSHIP CLIENT</div>
+              <h1 class="athlete-full-name" id="heroAthleteName">—</h1>
+              <div class="athlete-club-text" id="heroAthleteClub"></div>
+            </div>
+          </div>
+
+          <!-- Stats Ribbon (Day, Level, XP, Streak) -->
+          <div class="hero-stats-ribbon">
+            <div class="stat-pill-block">
+              <div class="stat-pill-val" id="heroStatDay">—</div>
+              <div class="stat-pill-lbl">Day</div>
+            </div>
+            <div class="stat-pill-block">
+              <div class="stat-pill-val" id="heroStatLevel">0</div>
+              <div class="stat-pill-lbl">Level</div>
+            </div>
+            <div class="stat-pill-block">
+              <div class="stat-pill-val" id="heroStatXp">0</div>
+              <div class="stat-pill-lbl">XP</div>
+            </div>
+            <div class="stat-pill-block">
+              <div class="stat-pill-val flame" id="heroStatStreak">0d</div>
+              <div class="stat-pill-lbl">Streak</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="hero-action-buttons">
+            <button class="btn-secondary" id="btnHeroMessage">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Message
+            </button>
+            <button class="btn-primary" id="btnHeroGiveFeedback">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Give Feedback
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Ribbon -->
+        <div class="hero-progress-section">
+          <div class="progress-meta-row">
+            <span class="progress-status-text" id="heroProgressCaption">—</span>
+            <span class="progress-pct-badge" id="heroProgressPercentBadge">0%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="heroProgressBarFill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9-Tab Navigation Bar -->
+      <nav class="tabs-nav-bar" id="tabsNavBar">
+        <button class="tab-btn active" data-tab="overview" id="tabBtnOverview">Overview</button>
+        <button class="tab-btn" data-tab="habits" id="tabBtnHabits">Goals &amp; Habits</button>
+        <button class="tab-btn" data-tab="tasks" id="tabBtnTasks">Tasks</button>
+        <button class="tab-btn" data-tab="training" id="tabBtnTraining">Training</button>
+        <button class="tab-btn" data-tab="action-steps" id="tabBtnActionSteps">
+          Action Steps <span class="tab-badge" id="badgePendingActionSteps">1</span>
+        </button>
+        <button class="tab-btn" data-tab="feedback" id="tabBtnFeedback">Feedback</button>
+        <button class="tab-btn" data-tab="progress" id="tabBtnProgress">Progress</button>
+        <button class="tab-btn" data-tab="group" id="tabBtnGroup">Group</button>
+        <button class="tab-btn" data-tab="sessions" id="tabBtnSessions">Sessions</button>
+      </nav>
+
+      <!-- TAB CONTENT WRAPPER -->
+      <div class="tab-panes-wrapper">
+
+        <!-- ==================== TAB 1: OVERVIEW ==================== -->
+        <section class="tab-pane active" id="pane-overview">
+          <div class="overview-grid">
+            
+            <!-- Left Col: Upcoming Call & Recent Submissions -->
+            <div class="overview-col-left">
+              <!-- Next Session Card -->
+              <div class="panel-card next-session-highlight" id="overviewNextSessionCard">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">📹</span>
+                    <h3>Next Scheduled Session</h3>
+                  </div>
+                  <span class="badge-status-upcoming" id="ovNextSessionBadge">UPCOMING</span>
+                </div>
+                <div class="next-session-body">
+                  <div class="session-hero-title" id="ovNextSessionTitle">Session 4 — Resilience</div>
+                  <div class="session-hero-time" id="ovNextSessionTime">Today · 3:00 PM</div>
+                  <div class="session-btn-row">
+                    <a href="javascript:void(0)" class="btn-join-gold" id="btnOvJoinSession">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                      Join Session
+                    </a>
+                    <button class="btn-outline-gold" id="btnOvAddNotes">Add Notes</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submissions from Player (Action Steps Recap) -->
+              <div class="panel-card">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">📝</span>
+                    <h3>Recent Submissions</h3>
+                  </div>
+                  <button class="link-btn-gold" onclick="window.switchTab('action-steps')">View All</button>
+                </div>
+                <div class="submissions-recap-list" id="ovSubmissionsList">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Col: Active Habits & Daily Checklist -->
+            <div class="overview-col-right">
+              <!-- Active Habits Quickview -->
+              <div class="panel-card">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">🔥</span>
+                    <h3>Active Habits</h3>
+                  </div>
+                  <button class="link-btn-gold" onclick="window.openNewHabitModal()">+ New Habit</button>
+                </div>
+                <div class="habits-quick-list" id="ovHabitsList">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <!-- Pending Tasks Quickview -->
+              <div class="panel-card">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">✅</span>
+                    <h3>Assigned Tasks</h3>
+                  </div>
+                  <button class="link-btn-gold" onclick="window.openAssignTaskModal()">+ Assign Task</button>
+                </div>
+                <div class="tasks-quick-list" id="ovTasksList">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== TAB 2: GOALS & HABITS (33044:14910) ==================== -->
+        <section class="tab-pane" id="pane-habits">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="habitsTitle">Active Habits</h2>
+              <p class="pane-subtitle">Track consistency, streaks, and weekly check-ins across the 90-day program.</p>
+            </div>
+            <button class="btn-primary" id="btnOpenNewHabitModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              New Habit
+            </button>
+          </div>
+
+          <div class="habits-full-list" id="habitsFullList">
+            <!-- Dynamically populated habits with weekly check bubbles -->
+          </div>
+        </section>
+
+        <!-- ==================== TAB 3: TASKS (33061:1545) ==================== -->
+        <section class="tab-pane" id="pane-tasks">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="tasksTitle">Tasks</h2>
+              <p class="pane-subtitle">Direct assignments, match tape audits, and weekly mental checklists.</p>
+            </div>
+            <button class="btn-primary" id="btnOpenAssignTaskModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Assign Task
+            </button>
+          </div>
+
+          <div class="tasks-toolbar">
+            <div class="filter-pills" id="taskFilterPills">
+              <button class="filter-pill active" data-filter="all">All Tasks</button>
+              <button class="filter-pill" data-filter="pending">Pending</button>
+              <button class="filter-pill" data-filter="completed">Completed</button>
+            </div>
+          </div>
+
+          <div class="tasks-full-list" id="tasksFullList">
+            <!-- Dynamically populated tasks -->
+          </div>
+        </section>
+
+        <!-- ==================== TAB 4: TRAINING (33074:1628) ==================== -->
+        <section class="tab-pane" id="pane-training">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title">Assigned Training Program</h2>
+              <p class="pane-subtitle">Curated video drills, positional tactical breakdowns, and recovery modules.</p>
+            </div>
+            <button class="btn-primary" id="btnOpenAssignTrainingModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Assign Training
+            </button>
+          </div>
+
+          <div class="training-table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Duration</th>
+                  <th>Week</th>
+                  <th>Video</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="trainingTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 5: ACTION STEPS (33078:3424) ==================== -->
+        <section class="tab-pane" id="pane-action-steps">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="actionStepsTitle">Submissions</h2>
+              <p class="pane-subtitle">Player post-match reflections, mental reports, and match recordings awaiting review.</p>
+            </div>
+          </div>
+
+          <div class="action-steps-split-layout">
+            <!-- Left: Submissions List -->
+            <div class="as-sidebar-list" id="actionStepsSidebarList">
+              <!-- Dynamically populated submissions -->
+            </div>
+
+            <!-- Right: Selected Submission Detail -->
+            <div class="as-detail-panel" id="actionStepDetailPanel">
+              <div class="as-detail-placeholder" id="asDetailPlaceholder">Select a submission from the list to review.</div>
+              <div class="as-detail-content" id="asDetailContent" style="display: none;">
+                <div class="as-detail-header">
+                  <div>
+                    <h3 class="as-detail-title" id="asDetailTitle"></h3>
+                    <div class="as-detail-meta" id="asDetailMeta"></div>
+                  </div>
+                  <span class="badge-status-pending" id="asDetailStatusBadge">PENDING REVIEW</span>
+                </div>
+
+                <div class="as-reflection-box">
+                  <div class="as-reflect-item">
+                    <div class="as-reflect-label">Mentality Used</div>
+                    <div class="as-reflect-val" id="asDetailMentality">—</div>
+                  </div>
+                  <div class="as-reflect-item">
+                    <div class="as-reflect-label">What Went Well</div>
+                    <div class="as-reflect-val" id="asDetailWentWell">—</div>
+                  </div>
+                  <div class="as-reflect-item">
+                    <div class="as-reflect-label">Area to Improve</div>
+                    <div class="as-reflect-val" id="asDetailImprove">—</div>
+                  </div>
+                </div>
+
+                <!-- Existing Coach Feedback if any -->
+                <div class="as-feedback-section" id="asDetailFeedbackSection">
+                  <h4 class="as-section-subhead">Coach Feedback</h4>
+                  <div class="as-feedback-card" id="asDetailFeedbackCard">
+                    <div class="as-feedback-text" id="asDetailFeedbackText">No feedback provided yet.</div>
+                  </div>
+                </div>
+
+                <!-- Review Actions -->
+                <div class="as-actions-footer">
+                  <button class="btn-primary" id="btnOpenReviewActionStepModal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                    Give Feedback / Review
+                  </button>
+                  <button class="btn-secondary" id="btnQuickApproveActionStep">Mark Reviewed</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 6: FEEDBACK (33078:4755) ==================== -->
+        <section class="tab-pane" id="pane-feedback">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="feedbackTitle">Feedback</h2>
+              <p class="pane-subtitle">Direct tactical guidance, session notes, and growth milestone reviews.</p>
+            </div>
+            <button class="btn-primary" id="btnOpenFeedbackModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Give Feedback
+            </button>
+          </div>
+
+          <div class="feedback-cards-grid" id="feedbackCardsGrid">
+            <!-- Dynamically populated feedback cards -->
+          </div>
+        </section>
+
+        <!-- ==================== TAB 7: PROGRESS (33086:7191) ==================== -->
+        <section class="tab-pane" id="pane-progress">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="progressTitle">Progress Analytics</h2>
+              <p class="pane-subtitle">Real-time completion metrics, habit consistency rate, and 90-day phase advancement.</p>
+            </div>
+            <div class="filter-pills" id="progressTimeframePills">
+              <button class="filter-pill" data-tf="week">Week</button>
+              <button class="filter-pill" data-tf="month">Month</button>
+              <button class="filter-pill active" data-tf="program">Program</button>
+            </div>
+          </div>
+
+          <!-- Key Metrics Quad Grid -->
+          <div class="metrics-quad-grid">
+            <div class="metric-card">
+              <div class="metric-num gold" id="progValProgress">0%</div>
+              <div class="metric-label">90-Day Progress</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num blue" id="progValTaskComp">0%</div>
+              <div class="metric-label">Task Completion</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num green" id="progValHabitCons">0%</div>
+              <div class="metric-label">Habit Consistency</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-num purple" id="progValTrainingDone">0%</div>
+              <div class="metric-label">Training Done</div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="progress-charts-row">
+            <!-- Weekly Task Completion Rate Chart (Figma node 33086:7191) -->
+            <div class="panel-card chart-panel">
+              <div class="panel-header">
+                <h3>Weekly Task Completion Rate</h3>
+              </div>
+              <div class="weekly-bar-chart" id="weeklyBarChart">
+                <!-- Dynamically populated weekly bars -->
+              </div>
+            </div>
+
+            <!-- 90-Day Program Phases Progress -->
+            <div class="panel-card chart-panel">
+              <div class="panel-header">
+                <h3>90-Day Program Phases</h3>
+              </div>
+              <div class="phases-breakdown-list">
+                <div class="phase-item">
+                  <div class="phase-meta-row">
+                    <span class="phase-title">Foundation (Days 1–30)</span>
+                    <span class="phase-pct" id="phaseFoundationPct">0%</span>
+                  </div>
+                  <div class="phase-bar-track">
+                    <div class="phase-bar-fill" id="phaseFoundationBar" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="phase-item">
+                  <div class="phase-meta-row">
+                    <span class="phase-title">Development (Days 31–60)</span>
+                    <span class="phase-pct" id="phaseDevelopmentPct">0%</span>
+                  </div>
+                  <div class="phase-bar-track">
+                    <div class="phase-bar-fill" id="phaseDevelopmentBar" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="phase-item">
+                  <div class="phase-meta-row">
+                    <span class="phase-title">Performance (Days 61–90)</span>
+                    <span class="phase-pct" id="phasePerformancePct">0%</span>
+                  </div>
+                  <div class="phase-bar-track">
+                    <div class="phase-bar-fill" id="phasePerformanceBar" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 8: GROUP 3-WAY CHAT (33086:8034) ==================== -->
+        <section class="tab-pane" id="pane-group">
+          <div class="chat-container-card">
+            <!-- Group Header -->
+            <div class="chat-header-bar">
+              <div class="chat-title-info">
+                <h3>Private Group</h3>
+                <span class="members-count" id="groupMemberCount"></span>
+              </div>
+              <div class="group-members-ribbon" id="groupMembersRibbon">
+                <!-- Dynamically populated members -->
+              </div>
+            </div>
+
+            <!-- Chat Message Feed -->
+            <div class="chat-feed" id="chatFeed">
+              <!-- Dynamically populated messages -->
+            </div>
+
+            <!-- Message Input Area -->
+            <form class="chat-input-bar" id="groupChatForm">
+              <input type="text" id="groupMessageInput" placeholder="Message the group..." autocomplete="off">
+              <button type="submit" class="btn-send-gold" id="btnSendGroupMsg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 9: SESSIONS (33092:10372) ==================== -->
+        <section class="tab-pane" id="pane-sessions">
+          <div class="pane-header-row">
+            <div>
+              <h2 class="pane-title" id="sessionsTitle">Coaching Sessions</h2>
+              <p class="pane-subtitle">1-on-1 mentorship calls, zoom audits, and match mentality reviews.</p>
+            </div>
+            <button class="btn-primary" id="btnOpenScheduleSessionModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Schedule Session
+            </button>
+          </div>
+
+          <div class="sessions-full-list" id="sessionsFullList">
+            <!-- Dynamically populated sessions -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. NEW HABIT MODAL (Figma node 33044:16326) -->
+  <div class="modal-backdrop" id="modalNewHabit">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>New Habit</h3>
+        <button class="btn-modal-close" data-close="modalNewHabit">✕</button>
+      </div>
+      <form id="formNewHabit" class="modal-body">
+        <div class="form-group">
+          <label for="habitNameInput">Habit Name</label>
+          <input type="text" id="habitNameInput" placeholder="e.g. Daily Visualization" required>
+        </div>
+        <div class="form-group">
+          <label for="habitFrequencySelect">Frequency</label>
+          <select id="habitFrequencySelect">
+            <option value="daily">Daily (7×/week)</option>
+            <option value="weekly">Weekly (2×/week)</option>
+            <option value="match-day">Match-day</option>
+            <option value="custom">Weekdays (5×)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="habitStartDateInput">Start Date</label>
+          <input type="date" id="habitStartDateInput" required>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ASSIGN TASK MODAL (Figma node 33074:1589) -->
+  <div class="modal-backdrop" id="modalAssignTask">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Assign Task</h3>
+        <button class="btn-modal-close" data-close="modalAssignTask">✕</button>
+      </div>
+      <form id="formAssignTask" class="modal-body">
+        <div class="form-group">
+          <label for="taskTitleInput">Task Title</label>
+          <input type="text" id="taskTitleInput" placeholder="e.g. Complete Ball Mastery Session" required>
+        </div>
+        <div class="form-group">
+          <label for="taskDueDateInput">Due Date</label>
+          <input type="date" id="taskDueDateInput">
+        </div>
+        <div class="form-group">
+          <label for="taskFrequencySelect">Frequency</label>
+          <select id="taskFrequencySelect">
+            <option value="Once">Once</option>
+            <option value="Weekdays (5×)">Weekdays (5×)</option>
+            <option value="Daily">Daily</option>
+            <option value="Match-day">Match-day</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Assign Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. ASSIGN TRAINING MODAL (Figma node 33078:3174) -->
+  <div class="modal-backdrop" id="modalAssignTraining">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Assign Training</h3>
+        <button class="btn-modal-close" data-close="modalAssignTraining">✕</button>
+      </div>
+      <form id="formAssignTraining" class="modal-body">
+        <div class="form-group">
+          <label for="trainingTitleInput">Video Title</label>
+          <input type="text" id="trainingTitleInput" placeholder="e.g. Ball Mastery Phase 2" required>
+        </div>
+        <div class="form-group">
+          <label for="trainingVideoUrlInput">Video URL</label>
+          <input type="url" id="trainingVideoUrlInput" placeholder="https://youtube.com/watch?v=..." required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="trainingCategorySelect">Category</label>
+            <select id="trainingCategorySelect">
+              <option value="Technical">Technical</option>
+              <option value="Tactical">Tactical</option>
+              <option value="Physical">Physical</option>
+              <option value="Mental">Mental</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="trainingDurationInput">Duration</label>
+            <input type="text" id="trainingDurationInput" placeholder="e.g. 20 min" value="20 min">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="trainingWeekInput">Week</label>
+          <input type="number" id="trainingWeekInput" min="1" max="12" value="1">
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Save &amp; Assign</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. GIVE FEEDBACK MODAL (Figma node 33078:6781) -->
+  <div class="modal-backdrop" id="modalGiveFeedback">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>New Feedback</h3>
+        <button class="btn-modal-close" data-close="modalGiveFeedback">✕</button>
+      </div>
+      <form id="formGiveFeedback" class="modal-body">
+        <div class="form-group">
+          <label for="feedbackTitleInput">Title</label>
+          <input type="text" id="feedbackTitleInput" placeholder="e.g. Session 4 Review" required>
+        </div>
+        <div class="form-group">
+          <label>Tags</label>
+          <div class="tags-selector" id="feedbackTagsContainer">
+            <span class="tag-chip active" data-tag="Focus">Focus</span>
+            <span class="tag-chip active" data-tag="Composure">Composure</span>
+            <span class="tag-chip" data-tag="Routine">Routine</span>
+            <span class="tag-chip" data-tag="Consistency">Consistency</span>
+            <span class="tag-chip" data-tag="Mindset">Mindset</span>
+            <span class="tag-chip" data-tag="Goals">Goals</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="feedbackRatingSelect">Rating (1 to 5 Stars)</label>
+          <select id="feedbackRatingSelect" class="form-select">
+            <option value="">No rating</option>
+            <option value="5" selected>★★★★★ (5 - Excellent)</option>
+            <option value="4">★★★★☆ (4 - Very Good)</option>
+            <option value="3">★★★☆☆ (3 - Good)</option>
+            <option value="2">★★☆☆☆ (2 - Needs Improvement)</option>
+            <option value="1">★☆☆☆☆ (1 - Poor)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="feedbackMessageTextarea">Full feedback message...</label>
+          <textarea id="feedbackMessageTextarea" rows="4" placeholder="Full feedback message..." required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Send Feedback</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. ADD NOTES MODAL (Figma node 33092:10752) -->
+  <div class="modal-backdrop" id="modalAddNotes">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add Notes</h3>
+        <button class="btn-modal-close" data-close="modalAddNotes">✕</button>
+      </div>
+      <form id="formAddNotes" class="modal-body">
+        <input type="hidden" id="notesSessionIdInput" value="">
+        <div class="form-group">
+          <textarea id="sessionNotesTextarea" rows="4" placeholder="Add your note here..." required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Add Notes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. SCHEDULE SESSION MODAL (Figma node 33092:10372) -->
+  <div class="modal-backdrop" id="modalScheduleSession">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Schedule Session</h3>
+        <button class="btn-modal-close" data-close="modalScheduleSession">✕</button>
+      </div>
+      <form id="formScheduleSession" class="modal-body">
+        <div class="form-group">
+          <label for="sessionTitleInput">Session Title</label>
+          <input type="text" id="sessionTitleInput" placeholder="e.g. Session 5 — Match Mentality" required>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="sessionDateInput">Date</label>
+            <input type="date" id="sessionDateInput" required>
+          </div>
+          <div class="form-group">
+            <label for="sessionTimeInput">Start Time</label>
+            <input type="time" id="sessionTimeInput" value="15:00" required>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="sessionDurationInput">Duration</label>
+            <input type="text" id="sessionDurationInput" value="45 min">
+          </div>
+          <div class="form-group">
+            <label for="sessionPlatformSelect">Platform</label>
+            <select id="sessionPlatformSelect">
+              <option value="Zoom">Zoom</option>
+              <option value="Google Meet">Google Meet</option>
+              <option value="WhatsApp Call">WhatsApp Call</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="sessionMeetingLinkInput">Meeting Link</label>
+          <input type="url" id="sessionMeetingLinkInput" placeholder="https://zoom.us/j/...">
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Schedule Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. REVIEW ACTION STEP MODAL (Figma node 33078:3424) -->
+  <div class="modal-backdrop" id="modalReviewActionStep">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Review Action Step</h3>
+        <button class="btn-modal-close" data-close="modalReviewActionStep">✕</button>
+      </div>
+      <form id="formReviewActionStep" class="modal-body">
+        <input type="hidden" id="reviewActionStepIdInput" value="">
+        <div class="form-group">
+          <label for="reviewStatusSelect">Status</label>
+          <select id="reviewStatusSelect">
+            <option value="reviewed">Reviewed &amp; Approved</option>
+            <option value="needs-revision">Needs Revision / Follow-Up</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="reviewTextNotesTextarea">Feedback Notes</label>
+          <textarea id="reviewTextNotesTextarea" rows="4" placeholder="Provide tactical feedback or mental routine adjustment..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="reviewVideoUrlInput">Feedback Video / Loom URL (Optional)</label>
+          <input type="url" id="reviewVideoUrlInput" placeholder="https://www.loom.com/share/...">
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary btn-full">Submit Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main JavaScript Controller -->
+  <script src="/js/coach-player-detail.js"></script>
+</body>
+</html>

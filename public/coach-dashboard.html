@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coach Dashboard & Overview | Di Lorenzo Soccer Academy</title>
+  <meta name="description" content="DSM Coach Web Dashboard: Monitor assigned athletes, mentorship progression, action step reviews, and live coaching calls.">
+  <link rel="icon" type="image/png" href="/icons/dsm_coach_logo.png">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Core Theme Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    :root {
+      --bg-dark: #0B0E14;
+      --bg-sidebar: #0D1117;
+      --bg-card: #131820;
+      --bg-card-hover: #171E29;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-active: rgba(201, 145, 26, 0.25);
+      --gold-primary: #E8A820;
+      --gold-glow: rgba(232, 168, 32, 0.15);
+      --text-white: #FFFFFF;
+      --text-muted: #BFBFBF;
+      --text-dim: #737378;
+      --text-dark-dim: #4B5563;
+      --accent-blue: #3B82F6;
+      --accent-green: #27C281;
+      --accent-red: #FF5C5C;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOPBAR PORTAL SWITCHER */
+    .portal-topbar {
+      background: #080A0F;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      z-index: 100;
+    }
+
+    .portal-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .portal-nav-link {
+      color: #9CA3AF;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .portal-nav-link:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .portal-nav-link.active {
+      color: var(--gold-primary);
+      background: rgba(232, 168, 32, 0.12);
+      font-weight: 600;
+      border: 1px solid rgba(232, 168, 32, 0.25);
+    }
+
+    /* COACH DASHBOARD LAYOUT */
+    .coach-layout {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 45px);
+    }
+
+    /* SIDEBAR */
+    .coach-sidebar {
+      width: 220px;
+      min-width: 220px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 90;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .sidebar-brand-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      color: var(--text-white);
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .sidebar-item:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sidebar-item.active {
+      color: var(--gold-primary);
+      background: rgba(201, 145, 26, 0.12);
+      border: 1px solid var(--border-active);
+      font-weight: 600;
+    }
+
+    .sidebar-item-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-badge {
+      margin-left: auto;
+      background: var(--gold-primary);
+      color: #FFFFFF;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 12px;
+      line-height: 1.2;
+    }
+
+    .sidebar-footer {
+      padding: 16px 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: #0B0E14;
+    }
+
+    .coach-profile-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      padding: 6px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    .coach-profile-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .coach-avatar-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(232, 168, 32, 0.15);
+      border: 1px solid rgba(232, 168, 32, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .coach-info-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-white);
+      line-height: 1.2;
+    }
+
+    .coach-info-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* MAIN CONTENT VIEWPORT */
+    .coach-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-dark);
+      min-width: 0;
+    }
+
+    /* TOP SEARCH & ACTIONS HEADER */
+    .dashboard-topbar {
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--bg-dark);
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      gap: 20px;
+    }
+
+    .search-input-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px 16px;
+      width: 100%;
+      max-width: 420px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input-box:focus-within {
+      border-color: rgba(232, 168, 32, 0.4);
+      box-shadow: 0 0 0 3px rgba(232, 168, 32, 0.1);
+    }
+
+    .search-input-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-white);
+      font-family: inherit;
+      font-size: 13.5px;
+      width: 100%;
+    }
+
+    .search-input-box input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .topbar-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-icon-square {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: #9CA3AF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-square:hover {
+      color: #FFFFFF;
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .notification-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-primary);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      box-shadow: 0 0 8px var(--gold-primary);
+    }
+
+    /* DASHBOARD CONTENT BODY */
+    .dashboard-body {
+      padding: 28px 32px 60px;
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* HEADER TITLES */
+    .header-eyebrow {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .header-main-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      color: var(--text-white);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    /* STAT CARDS (4 COLUMNS) */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 124px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-white);
+    }
+
+    .stat-card-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1;
+      margin: 10px 0 6px;
+    }
+
+    .stat-card-number.gold { color: var(--gold-primary); }
+    .stat-card-number.red { color: var(--accent-red); }
+    .stat-card-number.blue { color: var(--accent-blue); }
+    .stat-card-number.green { color: var(--accent-green); }
+
+    .stat-card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* SECTION LABELS */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* PLAYERS 2x2 GRID */
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .player-card:hover {
+      border-color: rgba(232, 168, 32, 0.3);
+      background: var(--bg-card-hover);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .player-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .player-avatar-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .player-title-box {
+      flex: 1;
+    }
+
+    .player-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .player-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .player-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-active {
+      color: var(--accent-green);
+      background: rgba(39, 194, 129, 0.12);
+    }
+
+    .badge-attention {
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.13);
+    }
+
+    .badge-finishing {
+      color: var(--gold-primary);
+      background: rgba(201, 145, 26, 0.13);
+    }
+
+    .player-club {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 4-COLUMN STATS INSIDE PLAYER CARD */
+    .player-stats-cols {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      text-align: center;
+      padding: 12px 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat-col-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--gold-primary);
+    }
+
+    .stat-col-val.red {
+      color: var(--accent-red);
+    }
+
+    .stat-col-lbl {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* PROGRESS BAR */
+    .player-progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .player-progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .player-card-caption {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* BOTTOM 2-COLUMN SPLIT (ACTIVITY & SESSIONS) */
+    .bottom-split-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .activity-container, .sessions-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .activity-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .activity-row:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .activity-text-box {
+      flex: 1;
+    }
+
+    .activity-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    .activity-action {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .activity-action.alert-red {
+      color: var(--accent-red);
+      font-weight: 500;
+    }
+
+    .activity-time {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* UPCOMING SESSIONS LIST */
+    .session-item-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s;
+    }
+
+    .session-item-card.featured {
+      background: rgba(59, 130, 246, 0.05);
+      border-color: rgba(59, 130, 246, 0.28);
+    }
+
+    .session-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .session-info {
+      flex: 1;
+    }
+
+    .session-athlete-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-white);
+    }
+
+    .session-time-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-join-session {
+      background: rgba(59, 130, 246, 0.14);
+      color: var(--accent-blue);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-join-session:hover {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(59, 130, 246, 0.4);
+    }
+
+    /* PLAYER MODAL DRAWER */
+    .player-drawer-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .player-drawer-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .player-drawer-modal {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      transform: scale(0.95);
+      transition: transform 0.25s ease;
+    }
+
+    .player-drawer-backdrop.active .player-drawer-modal {
+      transform: scale(1);
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 1100px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .bottom-split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .coach-sidebar {
+        display: none;
+      }
+      .players-grid {
+        grid-template-columns: 1fr;
+      }
+      .dashboard-body {
+        padding: 20px 16px 40px;
+      }
+      .dashboard-topbar {
+        padding: 12px 16px;
+      }
+    }
+    /* ==========================================================================
+       VIEW PANES & SWITCHING
+       ========================================================================== */
+    .dashboard-view-pane {
+      display: none;
+      animation: fadeInView 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dashboard-view-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeInView {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ==========================================================================
+       FIGMA #33097:12108: TASKS VIEW STYLES
+       ========================================================================== */
+    .tasks-players-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .task-player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .task-player-card:hover {
+      border-color: rgba(232, 168, 32, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .task-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .task-player-avatar {
+      font-size: 22px;
+    }
+
+    .task-player-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .task-pending-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.03em;
+    }
+
+    .task-pending-badge.overdue,
+    .task-pending-badge.badge-red {
+      color: #FF5C5C;
+      background: rgba(239, 68, 68, 0.13);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    .task-pending-badge.pending,
+    .task-pending-badge.badge-gold {
+      color: #E8A820;
+      background: rgba(201, 145, 26, 0.13);
+      border: 1px solid rgba(201, 145, 26, 0.25);
+    }
+
+    .task-pending-badge.completed,
+    .task-pending-badge.badge-green {
+      color: #27C281;
+      background: rgba(34, 197, 94, 0.13);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .task-progress-track {
+      height: 6px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .task-progress-fill {
+      height: 100%;
+      background: var(--gold-primary);
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+
+    /* ==========================================================================
+       FIGMA #33097:13469: TRAINING PROGRAMS VIEW STYLES
+       ========================================================================== */
+    .training-players-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .training-players-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .training-player-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 124px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .training-player-card:hover {
+      border-color: rgba(232, 168, 32, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .training-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .training-player-avatar {
+      font-size: 24px;
+    }
+
+    .training-player-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .training-player-club {
+      font-size: 12px;
+      color: #BFBFBF;
+      margin-top: 2px;
+    }
+
+    .training-progress-track {
+      height: 6px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 9999px;
+      margin: 14px 0 8px;
+      overflow: hidden;
+    }
+
+    .training-progress-fill {
+      height: 100%;
+      background: var(--gold-primary);
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+
+    .training-card-caption {
+      font-size: 12px;
+      color: #BFBFBF;
+    }
+
+    /* ==========================================================================
+       FIGMA #33092:10786: MY PLAYERS VIEW STYLES
+       ========================================================================== */
+    .players-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      margin-bottom: 8px;
+    }
+
+    .players-search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px 16px;
+      width: 320px;
+    }
+
+    .players-search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #FFFFFF;
+      font-size: 13.5px;
+      width: 100%;
+    }
+
+    .roster-filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .roster-pill {
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .roster-pill:hover {
+      color: #FFFFFF;
+    }
+
+    .roster-pill.active {
+      background: rgba(232, 168, 32, 0.15);
+      color: var(--gold-primary);
+      border: 1px solid rgba(232, 168, 32, 0.25);
+    }
+
+    .roster-table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .roster-table-header {
+      padding: 14px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: grid;
+      grid-template-columns: 2.2fr 1.5fr 1.6fr 0.9fr 0.9fr 1.1fr 1.5fr;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #BFBFBF;
+    }
+
+    .roster-row {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: grid;
+      grid-template-columns: 2.2fr 1.5fr 1.6fr 0.9fr 0.9fr 1.1fr 1.5fr;
+      align-items: center;
+      font-size: 13.5px;
+      transition: background 0.15s ease;
+    }
+
+    .roster-row:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .roster-player-col {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .roster-player-avatar {
+      font-size: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(201, 145, 26, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .roster-player-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #FFFFFF;
+      line-height: 1.2;
+    }
+
+    .roster-player-club {
+      font-size: 12px;
+      color: #BFBFBF;
+      margin-top: 2px;
+    }
+
+    .roster-program-day {
+      font-size: 14px;
+      color: #FFFFFF;
+      line-height: 1.2;
+    }
+
+    .roster-program-track {
+      font-size: 12px;
+      color: #BFBFBF;
+      margin-top: 2px;
+    }
+
+    .roster-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .roster-progress-mini-track {
+      width: 100px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .roster-progress-mini-fill {
+      height: 100%;
+      background: #3B82F6;
+      border-radius: 9999px;
+    }
+
+    .roster-progress-pct {
+      font-size: 12px;
+      font-weight: 600;
+      color: #3B82F6;
+    }
+
+    .roster-level-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+
+    .roster-pending-text {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .roster-pending-text.red {
+      color: #FF5C5C;
+    }
+
+    .roster-pending-text.gold {
+      color: #E8A820;
+    }
+
+    .roster-pending-text.gray {
+      color: #9CA3AF;
+    }
+
+    .roster-lastactive-text {
+      font-size: 14px;
+      color: #BFBFBF;
+    }
+
+    .roster-actions-col {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .btn-roster-view {
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(59, 130, 246, 0.12);
+      color: #3B82F6;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-roster-view:hover {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    .btn-roster-feedback {
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(201, 145, 26, 0.12);
+      color: #E8A820;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-roster-feedback:hover {
+      background: #E8A820;
+      color: #000000;
+    }
+
+    /* Shared Notification Cards */
+    .notif-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+    .notif-card-item:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: var(--bg-card-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN PORTAL GLOBAL NAV SWITCHER -->
+  <nav class="portal-topbar" aria-label="Global Admin Navigation">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; color: #E8A820; letter-spacing: 0.05em;">DI LORENZO SOCCER</span>
+      <span style="color: #4B5563;">|</span>
+      <span style="color: #9CA3AF; font-size: 12px;">Staff Portal</span>
+    </div>
+
+    <div class="portal-nav-links">
+      <a href="/coach-dashboard" class="portal-nav-link active" title="Coach Web Dashboard (Figma #33026:13150)">
+        <span>🎯</span> Coach Dashboard
+      </a>
+      <a href="/coach-player-detail" class="portal-nav-link" title="Player Profile & 9-Tab Management (Figma #33044-13763)">
+        <span>🏃</span> Player Profile (9 Tabs)
+      </a>
+      <a href="/add-coach" class="portal-nav-link" title="Provision Staff & Coaches">
+        <span>👨‍💼</span> Provision Coach
+      </a>
+      <a href="/add-athlete" class="portal-nav-link" title="Intake New Athletes">
+        <span>🏃</span> Athlete Intake
+      </a>
+      <a href="/assign-coach" class="portal-nav-link" title="Assign Dedicated Coach">
+        <span>🤝</span> Assign Coach
+      </a>
+      <a href="/challenges" class="portal-nav-link" title="Community Challenges">
+        <span>🏆</span> Challenges
+      </a>
+      <a href="/scheduling" class="portal-nav-link" title="Sessions & Admission Calls">
+        <span>📅</span> Scheduling
+      </a>
+      <a href="/master-libraries" class="portal-nav-link" title="Master Libraries">
+        <span>📚</span> Master Libraries
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN COACH LAYOUT -->
+  <div class="coach-layout">
+    
+    <!-- LEFT SIDEBAR (Figma Node #33026:13201) -->
+    <aside class="coach-sidebar" aria-label="Coach Navigation Sidebar">
+      <div>
+        <div class="sidebar-header">
+          <img src="/icons/dsm_coach_logo.png" alt="DSM Coach Logo" class="sidebar-logo">
+          <span class="sidebar-brand-text">DSM COACH</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="javascript:void(0)" class="sidebar-item active" data-view="dashboard">
+            <span class="sidebar-item-icon">📊</span>
+            <span>Dashboard</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="players">
+            <span class="sidebar-item-icon">👥</span>
+            <span>My Players</span>
+            <span class="sidebar-badge" id="sidebarPlayersCount">4</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="tasks">
+            <span class="sidebar-item-icon">📋</span>
+            <span>Tasks</span>
+            <span class="sidebar-badge" id="sidebarTasksCount">6</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="training">
+            <span class="sidebar-item-icon">⚡</span>
+            <span>Training</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="action-steps">
+            <span class="sidebar-item-icon">🎯</span>
+            <span>Action Steps</span>
+            <span class="sidebar-badge" id="sidebarActionStepsCount">2</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="feedback">
+            <span class="sidebar-item-icon">💬</span>
+            <span>Feedback</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="groups">
+            <span class="sidebar-item-icon">📱</span>
+            <span>Groups</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="sessions">
+            <span class="sidebar-item-icon">📅</span>
+            <span>Sessions</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" data-view="notifications">
+            <span class="sidebar-item-icon">🔔</span>
+            <span>Notifications</span>
+            <span class="sidebar-badge" id="sidebarNotificationsCount">3</span>
+          </a>
+          <a href="javascript:void(0)" class="sidebar-item" onclick="alert('Coach operational settings and availability windows.')">
+            <span class="sidebar-item-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- COACH PROFILE CARD (Figma Node #33026:13322) -->
+      <div class="sidebar-footer">
+        <div class="coach-profile-card">
+          <div class="coach-avatar-box">🎯</div>
+          <div>
+            <div class="coach-info-name" id="sidebarCoachName">Coach Rivera</div>
+            <div class="coach-info-sub" id="sidebarCoachSub">DSM Soccer</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="coach-main">
+      
+      <!-- TOP SEARCH BAR (Figma Node #33078:4741) -->
+      <header class="dashboard-topbar">
+        <div class="search-input-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737378" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="dashboardSearchInput" placeholder="Search players, tasks, sessions..." aria-label="Search dashboard">
+        </div>
+
+        <div class="topbar-right-controls">
+          <button type="button" class="btn-icon-square" id="refreshBtn" title="Reload live dashboard metrics">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button type="button" class="btn-icon-square" title="Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="notification-dot"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: DASHBOARD OVERVIEW (Figma Node #33026:13359) -->
+      <section class="dashboard-view-pane active" id="view-dashboard">
+        <div class="dashboard-body">
+          <!-- TITLE HEADER (Figma Node #33026:13361) -->
+          <div>
+            <div class="header-eyebrow">COACH DASHBOARD</div>
+            <h1 class="header-main-title">OVERVIEW</h1>
+          </div>
+
+          <!-- 4 STAT CARDS (Figma Node #33026:13369) -->
+          <section class="metrics-grid" aria-label="Key Performance Metrics">
+            <article class="stat-card">
+              <span class="stat-card-title">Assigned Players</span>
+              <div class="stat-card-number gold" id="metricAssignedCount">4</div>
+              <div class="stat-card-sub" id="metricAssignedSub">All active</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Needs Attention</span>
+              <div class="stat-card-number red" id="metricAttentionCount">1</div>
+              <div class="stat-card-sub" id="metricAttentionSub">Jordan Lee</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Pending Action Steps</span>
+              <div class="stat-card-number blue" id="metricPendingCount">9</div>
+              <div class="stat-card-sub" id="metricPendingSub">Across all players</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Sessions Today</span>
+              <div class="stat-card-number green" id="metricSessionsCount">1</div>
+              <div class="stat-card-sub" id="metricSessionsSub">3:00 PM — Alex</div>
+            </article>
+          </section>
+
+          <!-- MY PLAYERS SECTION (Figma Node #33026:13410) -->
+          <section id="playersSection" aria-labelledby="myPlayersLabel">
+            <div class="section-label" id="myPlayersLabel">
+              <span>👥</span> My Players
+            </div>
+            <!-- 2x2 PLAYERS GRID (Figma Node #33026:13414) -->
+            <div class="players-grid" id="playersGrid">
+              <!-- Dynamically Rendered via JS -->
+            </div>
+          </section>
+
+          <!-- SPLIT BOTTOM SECTION: RECENT ACTIVITY & UPCOMING SESSIONS (Figma Node #33026:13628) -->
+          <section class="bottom-split-grid">
+            <div class="activity-container">
+              <div class="section-label" style="margin-bottom: 4px;">
+                <span>⚡</span> Recent Activity
+              </div>
+              <div id="recentActivityList">
+                <!-- Dynamically Rendered via JS -->
+              </div>
+            </div>
+            <div class="sessions-container">
+              <div class="section-label" style="margin-bottom: 4px;">
+                <span>📅</span> Upcoming Sessions
+              </div>
+              <div id="upcomingSessionsList" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Dynamically Rendered via JS -->
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- VIEW 2: MY PLAYERS ROSTER (Figma Node #33092:10786) -->
+      <section class="dashboard-view-pane" id="view-players">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">MENTORSHIP CLIENTS</div>
+            <h1 class="header-main-title">MY PLAYERS</h1>
+          </div>
+
+          <div class="players-filter-bar">
+            <div class="players-search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#737378" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="rosterSearchInput" placeholder="Search players..." aria-label="Search roster players">
+            </div>
+            <div class="roster-filter-pills" id="rosterFilterPills">
+              <button class="roster-pill active" data-filter="all">All</button>
+              <button class="roster-pill" data-filter="active">Active</button>
+              <button class="roster-pill" data-filter="attention">Needs Attention</button>
+              <button class="roster-pill" data-filter="finishing">Finishing</button>
+            </div>
+          </div>
+
+          <div class="roster-table-card">
+            <div class="roster-table-header">
+              <div>Player</div>
+              <div>Program</div>
+              <div>Progress</div>
+              <div>Level</div>
+              <div>Pending</div>
+              <div>Last Active</div>
+              <div style="text-align: right;">Actions</div>
+            </div>
+            <div id="rosterTableBody">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: TASKS VIEW (Figma Node #33097:12108) -->
+      <section class="dashboard-view-pane" id="view-tasks">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">ALL PLAYERS</div>
+            <h1 class="header-main-title">TASKS</h1>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="stat-card">
+              <span class="stat-card-title">Today</span>
+              <div class="stat-card-number gold" id="tasksStatToday">3</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Upcoming</span>
+              <div class="stat-card-number blue" id="tasksStatUpcoming">8</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Overdue</span>
+              <div class="stat-card-number red" id="tasksStatOverdue">2</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Completed</span>
+              <div class="stat-card-number green" id="tasksStatCompleted">41</div>
+            </article>
+          </div>
+
+          <div class="tasks-players-list" id="tasksPlayersList">
+            <!-- Dynamically populated via JS matching Figma #33097:12108 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: TRAINING PROGRAMS VIEW (Figma Node #33097:13469) -->
+      <section class="dashboard-view-pane" id="view-training">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">ALL PLAYERS</div>
+            <h1 class="header-main-title">TRAINING PROGRAMS</h1>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="stat-card">
+              <span class="stat-card-title">Today</span>
+              <div class="stat-card-number gold" id="trainingStatToday">3</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Upcoming</span>
+              <div class="stat-card-number blue" id="trainingStatUpcoming">8</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Overdue</span>
+              <div class="stat-card-number red" id="trainingStatOverdue">2</div>
+            </article>
+            <article class="stat-card">
+              <span class="stat-card-title">Completed</span>
+              <div class="stat-card-number green" id="trainingStatCompleted">41</div>
+            </article>
+          </div>
+
+          <div class="training-players-grid" id="trainingPlayersGrid">
+            <!-- Dynamically populated via JS matching Figma #33097:13469 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: ACTION STEPS OVERVIEW (Figma Node #33099:14400) -->
+      <section class="dashboard-view-pane" id="view-action-steps">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">ALL PLAYERS</div>
+            <h1 class="header-main-title">ACTION STEPS</h1>
+          </div>
+          <div id="actionStepsOverviewContainer">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: FEEDBACK OVERVIEW (Figma Node #33101:65) -->
+      <section class="dashboard-view-pane" id="view-feedback">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">COACH</div>
+            <h1 class="header-main-title">FEEDBACK</h1>
+            <p style="font-size: 14px; color: #9CA3AF; margin-top: 6px; line-height: 1.5;" id="feedbackOverviewDesc">
+              Select a player to give or view feedback. Click any player card to open their full profile.
+            </p>
+          </div>
+          <div class="feedback-players-grid" id="feedbackPlayersGrid">
+            <!-- Dynamically populated via JS matching Figma #33101:65 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 7: COACHING SESSIONS (Figma Node #33102:688) -->
+      <section class="dashboard-view-pane" id="view-sessions">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">SCHEDULE</div>
+            <h1 class="header-main-title">COACHING SESSIONS</h1>
+          </div>
+          
+          <div class="sessions-group-section">
+            <h2 class="sessions-group-title">Upcoming</h2>
+            <div class="sessions-group-list" id="sessionsUpcomingList">
+              <!-- Dynamically populated via JS matching Figma #33102:688 -->
+            </div>
+          </div>
+
+          <div class="sessions-group-section" style="margin-top: 20px;">
+            <h2 class="sessions-group-title">Completed</h2>
+            <div class="sessions-group-list" id="sessionsCompletedList">
+              <!-- Dynamically populated via JS matching Figma #33102:688 -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 8: NOTIFICATIONS INBOX (Figma Node #33102:1009) -->
+      <section class="dashboard-view-pane" id="view-notifications">
+        <div class="dashboard-body">
+          <div>
+            <div class="header-eyebrow">INBOX</div>
+            <h1 class="header-main-title">NOTIFICATIONS</h1>
+          </div>
+          <div id="notificationsContainer">
+            <div class="notif-card-item">
+              <span style="font-size: 22px;">📋</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #FFFFFF;">New Action Step Submission</div>
+                <div style="font-size: 13px; color: #BFBFBF;">Alex Thompson submitted Post-Practice Feedback video</div>
+              </div>
+              <span style="font-size: 12px; color: #737378;">2h ago</span>
+            </div>
+            <div class="notif-card-item">
+              <span style="font-size: 22px;">✅</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #FFFFFF;">Task Completed</div>
+                <div style="font-size: 13px; color: #BFBFBF;">Marcus Silva completed Ball Mastery Session</div>
+              </div>
+              <span style="font-size: 12px; color: #737378;">5h ago</span>
+            </div>
+            <div class="notif-card-item">
+              <span style="font-size: 22px;">⚠️</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #FF5C5C;">Overdue Task Alert</div>
+                <div style="font-size: 13px; color: #BFBFBF;">Jordan Lee has missed 2 assignments this week</div>
+              </div>
+              <span style="font-size: 12px; color: #737378;">1d ago</span>
+            </div>
+            <div class="notif-card-item">
+              <span style="font-size: 22px;">📅</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #FFFFFF;">Upcoming Session</div>
+                <div style="font-size: 13px; color: #BFBFBF;">Mentorship session with Alex Thompson scheduled for 3:00 PM</div>
+              </div>
+              <span style="font-size: 12px; color: #737378;">Today</span>
+            </div>
+            <div class="notif-card-item">
+              <span style="font-size: 22px;">🏆</span>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #FFFFFF;">Streak Milestone</div>
+                <div style="font-size: 13px; color: #BFBFBF;">Sam Davies achieved a 21-day consistency streak!</div>
+              </div>
+              <span style="font-size: 12px; color: #737378;">Yesterday</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PLAYER DETAILS MODAL / DRAWER -->
+  <div class="player-drawer-backdrop" id="playerModalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="player-drawer-modal">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="player-avatar-circle" id="modalPlayerAvatar">🏃</div>
+          <div>
+            <h2 id="modalPlayerName" style="font-size: 18px; font-weight: 700; color: #FFFFFF; line-height: 1.2;">Player Name</h2>
+            <div id="modalPlayerClub" style="font-size: 12px; color: #9CA3AF;">Club Name</div>
+          </div>
+        </div>
+        <button type="button" id="closePlayerModalBtn" style="background: none; border: none; color: #9CA3AF; cursor: pointer; font-size: 20px; padding: 4px;">&times;</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 14px; text-align: center; margin-bottom: 18px;">
+        <div>
+          <div id="modalPlayerDay" style="font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 900; color: #E8A820;">34/90</div>
+          <div style="font-size: 10px; color: #737378; text-transform: uppercase;">Day</div>
+        </div>
+        <div>
+          <div id="modalPlayerLvl" style="font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 900; color: #E8A820;">12</div>
+          <div style="font-size: 10px; color: #737378; text-transform: uppercase;">Level</div>
+        </div>
+        <div>
+          <div id="modalPlayerStreak" style="font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 900; color: #E8A820;">7d</div>
+          <div style="font-size: 10px; color: #737378; text-transform: uppercase;">Streak</div>
+        </div>
+        <div>
+          <div id="modalPlayerPending" style="font-family: 'Barlow Condensed'; font-size: 22px; font-weight: 900; color: #FF5C5C;">3</div>
+          <div style="font-size: 10px; color: #737378; text-transform: uppercase;">Pending</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #BFBFBF; margin-bottom: 6px;">
+          <span>Mentorship Progress</span>
+          <span id="modalPlayerProgressText">38% Complete</span>
+        </div>
+        <div style="height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden;">
+          <div id="modalProgressBar" style="height: 100%; width: 38%; background: #3B82F6; border-radius: 10px;"></div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="btn-join-session" style="flex: 1; text-align: center; padding: 10px; font-size: 13px;" onclick="alert('Opening 3-Way Group Voice / Chat channel...')">
+          💬 Open 3-Way Chat
+        </button>
+        <button type="button" style="background: rgba(232, 168, 32, 0.15); color: #E8A820; border: 1px solid rgba(232, 168, 32, 0.3); border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer;" onclick="alert('Reviewing Pending Action Steps...')">
+          🎯 Review Steps
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION NOTES MODAL (For Completed Sessions in Figma #33102:688) -->
+  <div class="player-drawer-backdrop" id="sessionNotesModalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="player-drawer-modal">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="player-avatar-circle" id="sessionNotesAvatar">🏃</div>
+          <div>
+            <h2 id="sessionNotesAthleteName" style="font-size: 18px; font-weight: 700; color: #FFFFFF; line-height: 1.2;">Player Name</h2>
+            <div id="sessionNotesTopic" style="font-size: 12px; color: #E8A820;">Session Topic</div>
+          </div>
+        </div>
+        <button type="button" id="closeSessionNotesBtn" style="background: none; border: none; color: #9CA3AF; cursor: pointer; font-size: 20px; padding: 4px;">&times;</button>
+      </div>
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #9CA3AF; font-weight: 700; margin-bottom: 4px;">Date &amp; Time</div>
+        <div id="sessionNotesDateTime" style="font-size: 13.5px; color: #FFFFFF; font-weight: 600;">Aug 5 · 2:30 PM</div>
+      </div>
+      <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
+        <div style="font-size: 11px; text-transform: uppercase; color: #9CA3AF; font-weight: 700; margin-bottom: 6px;">Coach Session Notes</div>
+        <div id="sessionNotesContent" style="font-size: 13.5px; color: #E5E7EB; line-height: 1.6;">No notes recorded for this session.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Client Controller -->
+  <script src="/js/coach-dashboard.js"></script>
+</body>
+</html>

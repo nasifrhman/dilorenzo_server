@@ -78,14 +78,14 @@ const userSchema = new mongoose.Schema(
 
     // Coach Specific Fields
     username: { type: String, unique: true, sparse: true, trim: true, lowercase: true },
-    avatarColor: { type: String, default: '#C27AFF' },
-    avatarInitials: { type: String, default: 'CR' },
+    avatarColor: { type: String, default: '' },
+    avatarInitials: { type: String, default: '' },
     roleTitle: { type: String, default: '' }, // e.g. "High-Performance Mindset Coach"
     bio: { type: String, default: '' },
     coachingPhilosophy: { type: String, default: '' },
     experienceYears: { type: Number, default: 0 },
-    maxAthleteCapacity: { type: Number, default: 15 },
-    operationalTimezone: { type: String, default: 'Europe/London (GMT+1)' },
+    maxAthleteCapacity: { type: Number, default: 0 },
+    operationalTimezone: { type: String, default: '' },
     specialties: [{ type: String }], // ['Pre-Game Routines', 'Mistake Recovery / Goldfish Reset', etc.]
     certifications: [{ type: String }],
     coachPermissions: [{ type: String }], // ['Assign Habits & Drills', '3-Way Group Voice/Chat']

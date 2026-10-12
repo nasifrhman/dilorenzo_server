@@ -116,6 +116,16 @@ app.get(["/master-libraries", "/libraries", "/library", "/admin/master-libraries
   res.sendFile(path.join(__dirname, "../public/master-libraries.html"));
 });
 
+// Coach Web Dashboard Page (Figma node 33026-13150)
+app.get(["/coach-dashboard", "/coach/dashboard", "/dsm-coach", "/coach-portal"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/coach-dashboard.html"));
+});
+
+// Coach Athlete Detail & Management Suite (Figma nodes 33044-13763 to 33092-10752)
+app.get(["/coach-player-detail", "/coach/player", "/coach-player", "/player-detail"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/coach-player-detail.html"));
+});
+
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.json([{

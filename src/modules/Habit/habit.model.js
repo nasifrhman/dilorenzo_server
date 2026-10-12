@@ -29,6 +29,9 @@ const habitSchema = new mongoose.Schema(
     },
     isMasterLibrary: { type: Boolean, default: false }, // Available across academy
     assignedCoaches: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    assignedAthletes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    startDate: { type: Date, default: null },
+    currentStreak: { type: Number, default: 0 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     isActive: { type: Boolean, default: true },
   },

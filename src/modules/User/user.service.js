@@ -403,8 +403,8 @@ const createAthleteService = async (athleteData) => {
     tier = '90-day-mentorship';
   }
 
-  const leagueDivision = athleteData.leagueDivision || athleteData.division || athleteData.currentClub || 'Regional Stars U18';
-  const currentClub = athleteData.currentClub || leagueDivision;
+  const leagueDivision = athleteData.leagueDivision || athleteData.division || athleteData.currentClub || '';
+  const currentClub = athleteData.currentClub || leagueDivision || '';
 
   // Dedicated coach assignment
   let assignedCoachId = null;
@@ -442,7 +442,7 @@ const createAthleteService = async (athleteData) => {
     console.log(athleteData.parentPassword)
     if (!parentUser) {
       parentUser = new userModel({
-        fullName: parentFullName || 'Parent Guardian',
+        fullName: parentFullName || '',
         email: cleanParentEmail,
         role: 'parent',
         password: athleteData.parentPassword || 'hello123',

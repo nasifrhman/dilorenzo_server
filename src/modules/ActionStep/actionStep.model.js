@@ -33,6 +33,9 @@ const actionStepSchema = new mongoose.Schema(
       },
     ],
     submissionNotes: { type: String, default: '' },
+    mentalityUsed: { type: String, default: '' },
+    whatWentWell: { type: String, default: '' },
+    areaToImprove: { type: String, default: '' },
     submittedAt: { type: Date, default: Date.now },
     status: {
       type: String,

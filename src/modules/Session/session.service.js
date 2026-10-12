@@ -78,8 +78,8 @@ const getSessionsOverviewService = async (query = {}) => {
     .populate('athlete', 'fullName email image');
 
   const sessions = rawSessions.map((s, idx) => {
-    const athleteName = s.athlete?.fullName || s.athleteName || 'Athlete';
-    const coachName = s.coach?.fullName || s.coachName || 'Coach Rivera';
+    const athleteName = s.athlete?.fullName || s.athleteName || '';
+    const coachName = s.coach?.fullName || s.coachName || '';
 
     let dateFormatted = '';
     if (s.date) {
@@ -97,9 +97,9 @@ const getSessionsOverviewService = async (query = {}) => {
       sessionType: s.sessionType,
       typeBadge,
       date: dateFormatted,
-      startTime: s.startTime || '10:00 AM',
-      duration: s.duration || '45 min',
-      platform: s.platform || 'Zoom',
+      startTime: s.startTime || '',
+      duration: s.duration || '',
+      platform: s.platform || '',
       coach: {
         _id: s.coach?._id || null,
         fullName: coachName,
@@ -175,8 +175,8 @@ const createSessionService = async (payload) => {
     User.findById(athleteId),
   ]);
 
-  const coachName = coachUser ? coachUser.fullName : 'Coach Rivera';
-  const athleteName = athleteUser ? athleteUser.fullName : 'Athlete';
+  const coachName = coachUser ? coachUser.fullName : '';
+  const athleteName = athleteUser ? athleteUser.fullName : '';
 
   // Normalize Session Type for overview category filtering
   const lowerType = rawSessionType.toLowerCase();
@@ -256,8 +256,8 @@ const getSessionByIdService = async (sessionId) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Session not found.');
   }
 
-  const athleteName = s.athlete?.fullName || s.athleteName || 'Athlete';
-  const coachName = s.coach?.fullName || s.coachName || 'Coach Rivera';
+  const athleteName = s.athlete?.fullName || s.athleteName || '';
+  const coachName = s.coach?.fullName || s.coachName || '';
 
   let typeBadge = 'SESSION';
   if (s.sessionType === 'assignment') typeBadge = 'ASSIGNMENT';
