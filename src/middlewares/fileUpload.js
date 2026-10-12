@@ -24,7 +24,7 @@ module.exports = function (UPLOADS_FOLDER) {
   const upload = multer({
     storage: storage,
     limits: {
-      fileSize: 200 * 1024 * 1024, // 200 MB
+      fileSize: 500 * 1024 * 1024, // 500 MB
     },
     fileFilter: (req, file, cb) => {
       const field = file.fieldname.toLowerCase();
@@ -44,7 +44,13 @@ module.exports = function (UPLOADS_FOLDER) {
       const videoTypes = [
         "video/mp4",
         "video/webm",
-        "video/ogg"
+        "video/ogg",
+        "video/quicktime",
+        "video/mov",
+        "video/x-matroska",
+        "video/mkv",
+        "video/avi",
+        "video/x-msvideo"
       ];
 
       // AUDIO/VOICE CHECK
@@ -75,11 +81,21 @@ module.exports = function (UPLOADS_FOLDER) {
       } else if (/audio|voice/i.test(field)) {
         if (audioTypes.includes(file.mimetype)) cb(null, true);
         else cb(new Error("Only audio/voice formats are allowed!"));
-      } else if (/doc|file/i.test(field)) {
+      } else if (/doc/i.test(field)) {
         if (docTypes.includes(file.mimetype)) cb(null, true);
         else cb(new Error("Only document formats are allowed!"));
       } else {
-        cb(null, true); // accept other fields optionally
+        // General or 'file' field: allow valid image, video, audio, or doc
+        const allAllowed = [...imageTypes, ...videoTypes, ...audioTypes, ...docTypes];
+        if (
+          allAllowed.includes(file.mimetype) ||
+          file.mimetype.startsWith("video/") ||
+          file.mimetype.startsWith("image/")
+        ) {
+          cb(null, true);
+        } else {
+          cb(new Error("Unsupported file format!"));
+        }
       }
     },
   });

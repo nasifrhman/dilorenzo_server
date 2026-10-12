@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Libraries | Di Lorenzo Soccer Academy</title>
+  <meta name="description" content="Manage standardized performance habits, video drill bank, reflection assessment forms, and 90-day mindset curriculums.">
+  <link rel="icon" type="image/svg+xml" href="/icons/coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* MASTER LIBRARIES FIGMA STYLES (#33302:24339, #33304:673, #33304:1357, #33304:2397) */
+    .library-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+    }
+
+    .library-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .library-sub-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #E8A820;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .library-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 40px;
+      color: #101828;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .btn-gold-primary {
+      background: #E8A820;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 16px;
+      height: 38px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-gold-primary:hover {
+      background: #D49615;
+      transform: translateY(-1px);
+    }
+
+    /* 4 MASTER CATEGORY TABS (#33302:24339) */
+    .library-tabs-bar {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid #E5E7EB;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .library-tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 4px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #6A7282;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .library-tab-btn:hover {
+      color: #101828;
+    }
+
+    .library-tab-btn.active {
+      color: #101828;
+      border-bottom-color: #E8A820;
+    }
+
+    /* SUB-HEADER ACTION BAR */
+    .library-action-subbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .library-sub-count-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #6A7282;
+      font-weight: 500;
+    }
+
+    .btn-secondary-action {
+      background: #FFFFFF;
+      color: #374151;
+      border: 1px solid #D1D5DC;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 0 14px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary-action:hover {
+      border-color: #E8A820;
+      color: #101828;
+    }
+
+    /* SEARCH FILTER BAR */
+    .library-search-row {
+      margin-bottom: 20px;
+    }
+
+    .library-search-input {
+      width: 100%;
+      max-width: 380px;
+      height: 36px;
+      padding: 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      outline: none;
+      background: #FFFFFF;
+    }
+
+    .library-search-input:focus {
+      border-color: #E8A820;
+    }
+
+    /* CARDS GRID */
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .lib-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      min-height: 200px;
+      position: relative;
+    }
+
+    .lib-card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      border-color: #D1D5DC;
+    }
+
+    .lib-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .lib-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .badge-mindset { background: #FEF3C6; color: #B45309; border: 1px solid #FDE68A; }
+    .badge-technical { background: #EFF6FF; color: #1447E6; border: 1px solid #BFDBFE; }
+    .badge-recovery { background: #CBFBF1; color: #00786F; border: 1px solid #99F6E4; }
+    .badge-physical { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .badge-curriculum { background: #FFF1F2; color: #E11D48; border: 1px solid #FECDD3; }
+
+    .lib-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lib-xp-pill {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #E8A820;
+    }
+
+    .lib-btn-delete {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .lib-btn-delete:hover {
+      color: #DC2626;
+    }
+
+    .lib-card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #101828;
+      margin: 0 0 8px;
+      line-height: 1.35;
+    }
+
+    .lib-card-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      color: #4A5565;
+      line-height: 1.45;
+      margin: 0 0 14px;
+    }
+
+    .lib-card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #6A7282;
+      border-top: 1px solid #F3F4F6;
+      padding-top: 12px;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    /* VIDEO DRILL SPECIFIC STYLES (#33304:673) */
+    .video-cover-box {
+      height: 120px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1A2F1A 0%, #2D4A1E 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .video-play-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .video-duration-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .video-coach-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #E8A820;
+      margin-bottom: 8px;
+    }
+
+    .video-teaching-points {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .video-teaching-points li {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: #4A5565;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .video-teaching-points li::before {
+      content: "•";
+      color: #E8A820;
+      font-weight: bold;
+    }
+
+    /* REFLECTION SPECIFIC STYLES (#33304:1357) */
+    .reflection-questions-list {
+      list-style: decimal;
+      padding-left: 18px;
+      margin: 0 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .reflection-questions-list li {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #4A5565;
+      line-height: 1.35;
+    }
+
+    /* CURRICULUM SPECIFIC STYLES (#33304:2397) */
+    .curriculum-tier-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #E8A820;
+      margin-bottom: 8px;
+    }
+
+    .curriculum-phases-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 0 0 12px;
+    }
+
+    .curriculum-phase-pill {
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: #374151;
+      line-height: 1.35;
+    }
+
+    /* MODAL STYLES (#33302:25759, #33304:569, #33304:2141, #33304:3116) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(13, 17, 23, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 540px;
+      overflow: hidden;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .modal-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .modal-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #101828;
+      margin: 0;
+    }
+
+    .modal-type-badge {
+      background: #E8A820;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .modal-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #6A7282;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #99A1AF;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    /* MODAL CONTENT TYPE SWITCHER TABS */
+    .modal-type-switcher {
+      display: flex;
+      padding: 12px 24px;
+      gap: 6px;
+      border-bottom: 1px solid #E5E7EB;
+      background: #F9FAFB;
+      overflow-x: auto;
+    }
+
+    .modal-switch-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #6A7282;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .modal-switch-btn:hover {
+      color: #101828;
+    }
+
+    .modal-switch-btn.active {
+      background: #FFFFFF;
+      border-color: #E8A820;
+      color: #E8A820;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      border: 1px solid #D1D5DC;
+      border-radius: 8px;
+      background: #FFFFFF;
+      color: #101828;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-control:focus {
+      border-color: #E8A820;
+    }
+
+    textarea.form-control {
+      height: 80px;
+      padding: 10px 12px;
+      resize: vertical;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      background: #F9FAFB;
+      border-top: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border: 1px solid #D1D5DC;
+      color: #374151;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 16px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-submit-library {
+      background: #E8A820;
+      border: none;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 18px;
+      height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-submit-library:hover {
+      background: #D49615;
+    }
+
+    /* FILE UPLOAD DROPZONE STYLES */
+    .file-upload-box {
+      border: 1.5px dashed #D1D5DC;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #F9FAFB;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .file-upload-box:hover {
+      border-color: #E8A820;
+      background: #FFFDF5;
+    }
+
+    .file-upload-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .file-upload-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-upload-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #101828;
+      margin-bottom: 2px;
+    }
+
+    .file-upload-sub {
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: #6A7282;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-preview-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid #E5E7EB;
+      display: none;
+    }
+
+    /* VIDEO PREVIEW OVERLAY */
+    .video-lightbox-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      padding: 20px;
+    }
+
+    .video-lightbox-overlay.open {
+      display: flex;
+    }
+
+    .video-lightbox-content {
+      position: relative;
+      max-width: 800px;
+      width: 100%;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .video-lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    /* TOAST */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #101828;
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Coach Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+      <a href="/challenges" class="nav-tab-link" title="Community Challenges">
+        <span style="font-size: 14px;">🏆</span>
+        Challenges
+      </a>
+      <a href="/scheduling" class="nav-tab-link" title="Sessions & Admission Calls">
+        <span style="font-size: 14px;">📅</span>
+        Scheduling
+      </a>
+      <a href="/master-libraries" class="nav-tab-link active" title="Master Libraries Content">
+        <span style="font-size: 14px;">📚</span>
+        Master Libraries
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="crumb-link" style="color:#6A7282; text-decoration:none;">Dashboard</a>
+      <span style="color:#99A1AF; margin: 0 6px;">/</span>
+      <span style="color:#101828; font-weight:600;">Master Libraries</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn-ghost-sm" id="topQuickAddBtn" style="cursor:pointer; background:#F3F4F6; border:1px solid #D1D5DC; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600;">
+        + Fast Add
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN MASTER LIBRARIES CONTAINER -->
+  <main class="library-container">
+    
+    <div class="library-header-row">
+      <div>
+        <div class="library-sub-label">MASTER</div>
+        <h1 class="library-title">LIBRARIES</h1>
+      </div>
+
+      <button type="button" class="btn-gold-primary" id="openMainModalBtn">
+        <span style="font-size: 16px;">+</span> Add to Master Library
+      </button>
+    </div>
+
+    <!-- 4 MASTER CATEGORY TABS (#33302:24339) -->
+    <nav class="library-tabs-bar" aria-label="Master Library Tabs">
+      <button type="button" class="library-tab-btn active" data-type="habit" id="tabHabits">
+        Master Habits (0)
+      </button>
+      <button type="button" class="library-tab-btn" data-type="video-drill" id="tabVideos">
+        Video Drill Bank (0)
+      </button>
+      <button type="button" class="library-tab-btn" data-type="reflection" id="tabReflections">
+        Reflection Forms (0)
+      </button>
+      <button type="button" class="library-tab-btn" data-type="curriculum" id="tabCurriculums">
+        90-Day Curriculums (0)
+      </button>
+    </nav>
+
+    <!-- SUB-HEADER BAR -->
+    <div class="library-action-subbar">
+      <div class="library-sub-count-text" id="subbarCountLabel">
+        Showing standard performance habits
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" class="library-search-input" id="librarySearchInput" placeholder="Search library items...">
+        <button type="button" class="btn-secondary-action" id="subbarActionBtn">
+          + Add New Habit Template
+        </button>
+      </div>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div class="library-grid" id="libraryGrid">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: #fff; border-radius: 14px; border: 1px dashed #D1D5DC;">
+        <span style="font-size: 32px;">⏳</span>
+        <p style="font-size: 13.5px; color: #6A7282; margin: 8px 0 0;">Loading master library content...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: ADD NEW MASTER LIBRARY CONTENT (#33302:25759, #33304:569, #33304:2141, #33304:3116) -->
+  <div class="modal-overlay" id="libraryModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title-row">
+            <h2 class="modal-title">Add New Master Library Content</h2>
+            <span class="modal-type-badge" id="modalTypeBadge">HABIT</span>
+          </div>
+          <p class="modal-desc">Standardized template deployed across athlete dashboards & coaching assignments.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeLibraryModalBtn">✕</button>
+      </div>
+
+      <!-- TYPE SWITCHER TABS IN MODAL -->
+      <div class="modal-type-switcher">
+        <button type="button" class="modal-switch-btn active" data-type="habit" id="modalSwitchHabit">
+          🔥 Habit
+        </button>
+        <button type="button" class="modal-switch-btn" data-type="video-drill" id="modalSwitchVideo">
+          📹 Video Drill
+        </button>
+        <button type="button" class="modal-switch-btn" data-type="reflection" id="modalSwitchReflection">
+          📝 Reflection
+        </button>
+        <button type="button" class="modal-switch-btn" data-type="curriculum" id="modalSwitchCurriculum">
+          📖 Curriculum
+        </button>
+      </div>
+
+      <form id="libraryContentForm">
+        <div class="modal-body">
+          
+          <!-- HABIT FORM FIELDS (#33302:25759) -->
+          <div class="form-type-section" id="formSectionHabit">
+            <div class="form-group">
+              <label for="habitTitle">Habit / Action Step Title</label>
+              <input type="text" class="form-control" id="habitTitle" placeholder="e.g. Diaphragmatic Breathwork & Vagal Reset" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="habitCategory">Pillar Category</label>
+                <select class="form-control" id="habitCategory">
+                  <option value="Mindset" selected>Mindset</option>
+                  <option value="Technical">Technical</option>
+                  <option value="Tactical">Tactical</option>
+                  <option value="Physical">Physical</option>
+                  <option value="Recovery">Recovery</option>
+                  <option value="Nutrition">Nutrition</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="habitFrequency">Target Frequency</label>
+                <select class="form-control" id="habitFrequency">
+                  <option value="Daily (7x a week)" selected>Daily (7x a week)</option>
+                  <option value="5x a week">5x a week</option>
+                  <option value="3x a week">3x a week</option>
+                  <option value="Pre-game">Pre-game</option>
+                  <option value="Match days">Match days</option>
+                  <option value="Post-game">Post-game</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="habitCheckInWindow">Check-in Window</label>
+                <input type="text" class="form-control" id="habitCheckInWindow" placeholder="Morning (8:00 AM)" value="Morning (8:00 AM)">
+              </div>
+
+              <div class="form-group">
+                <label for="habitXpReward">XP Reward Points</label>
+                <input type="number" class="form-control" id="habitXpReward" placeholder="50" value="50">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="habitInstructions">Athlete Instructions & Cue</label>
+              <textarea class="form-control" id="habitInstructions" placeholder="Describe the physical drill or mental cue the athlete must perform to mark this habit complete..."></textarea>
+            </div>
+          </div>
+
+          <!-- VIDEO DRILL FORM FIELDS (#33304:569) -->
+          <div class="form-type-section" id="formSectionVideo" style="display: none;">
+            <div class="form-group">
+              <label for="videoTitle">Video Title</label>
+              <input type="text" class="form-control" id="videoTitle" placeholder="e.g. 1v1 Body Feints & Change of Pace">
+            </div>
+
+            <!-- VIDEO FILE UPLOAD & COVER THUMBNAIL UPLOAD -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <!-- Video File Upload Box -->
+              <div class="form-group">
+                <label>Upload Video File</label>
+                <div class="file-upload-box" id="videoUploadBox" onclick="document.getElementById('videoFileInput').click()">
+                  <span class="file-upload-icon" id="videoUploadIcon">📹</span>
+                  <div class="file-upload-info">
+                    <div class="file-upload-title" id="videoFileTitle">Choose Video</div>
+                    <div class="file-upload-sub" id="videoFileSub">MP4, WEBM, MOV (Max 500MB)</div>
+                  </div>
+                </div>
+                <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/mov,video/*" style="display: none;">
+              </div>
+
+              <!-- Cover Image Upload Box -->
+              <div class="form-group">
+                <label>Cover Image / Thumbnail</label>
+                <div class="file-upload-box" id="imageUploadBox" onclick="document.getElementById('imageFileInput').click()">
+                  <img src="" id="imagePreviewThumb" class="file-preview-thumb" alt="Preview">
+                  <span class="file-upload-icon" id="imageUploadIcon">🖼️</span>
+                  <div class="file-upload-info">
+                    <div class="file-upload-title" id="imageFileTitle">Upload Image</div>
+                    <div class="file-upload-sub" id="imageFileSub">PNG, JPG, WEBP</div>
+                  </div>
+                </div>
+                <input type="file" id="imageFileInput" accept="image/*" style="display: none;">
+              </div>
+            </div>
+
+            <!-- Optional external URL fallback -->
+            <div class="form-group" style="margin-top: 10px;">
+              <label for="videoUrl" style="font-size: 11px; color: #6A7282;">Or External Video URL (Optional fallback)</label>
+              <input type="text" class="form-control" id="videoUrl" placeholder="https://vimeo.com/... or https://youtube.com/..." style="font-size: 12px; height: 32px;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="videoCategory">Category</label>
+                <select class="form-control" id="videoCategory">
+                  <option value="Mindset" selected>Mindset</option>
+                  <option value="Technical">Technical</option>
+                  <option value="Tactical">Tactical</option>
+                  <option value="Physical">Physical</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="videoPhase">Phase</label>
+                <select class="form-control" id="videoPhase">
+                  <option value="Foundation (Phase 1)" selected>Foundation (Phase 1)</option>
+                  <option value="Development (Phase 2)">Development (Phase 2)</option>
+                  <option value="Performance (Phase 3)">Performance (Phase 3)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="videoDuration">Duration</label>
+                <input type="text" class="form-control" id="videoDuration" placeholder="e.g. 8:30 min" value="10:00 min">
+              </div>
+
+              <div class="form-group">
+                <label for="videoXpReward">XP Reward Points</label>
+                <input type="number" class="form-control" id="videoXpReward" placeholder="100" value="100">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="videoCoachName">Coach / Presenter</label>
+              <input type="text" class="form-control" id="videoCoachName" placeholder="e.g. Valentino Di Lorenzo" value="Valentino Di Lorenzo">
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="videoTeachingPoints">Key Teaching Points (one per line)</label>
+              <textarea class="form-control" id="videoTeachingPoints" placeholder="Drop shoulder before weight transfer&#10;Explosive exit on second touch"></textarea>
+            </div>
+          </div>
+
+          <!-- REFLECTION FORM FIELDS (#33304:2141) -->
+          <div class="form-type-section" id="formSectionReflection" style="display: none;">
+            <div class="form-group">
+              <label for="reflectionTitle">Reflection Form Title</label>
+              <input type="text" class="form-control" id="reflectionTitle" placeholder="e.g. Post-Match Mentality Reflection">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="reflectionFormType">Form Type</label>
+                <select class="form-control" id="reflectionFormType">
+                  <option value="Match Audit" selected>Match Audit</option>
+                  <option value="Weekly Review">Weekly Review</option>
+                  <option value="Intake Assessment">Intake Assessment</option>
+                  <option value="Pre-Game Prep">Pre-Game Prep</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="reflectionCompletionTime">Est. Completion Time</label>
+                <input type="text" class="form-control" id="reflectionCompletionTime" placeholder="e.g. 5 min" value="5 min">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="reflectionQuestions">Reflection Prompts (one per line)</label>
+              <textarea class="form-control" id="reflectionQuestions" style="height: 100px;" placeholder="Rate your composure during peak game pressure...&#10;How did you execute the 3-second mistake reset...&#10;What was your primary tactical victory today?"></textarea>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+              <input type="checkbox" id="reflectionAutoPost" checked>
+              <label for="reflectionAutoPost" style="font-size: 12px; color: #4A5565; cursor: pointer;">
+                Auto-post to 3-Way Group Chat on submission
+              </label>
+            </div>
+          </div>
+
+          <!-- CURRICULUM FORM FIELDS (#33304:3116) -->
+          <div class="form-type-section" id="formSectionCurriculum" style="display: none;">
+            <div class="form-group">
+              <label for="curriculumTitle">Curriculum Title</label>
+              <input type="text" class="form-control" id="curriculumTitle" placeholder="e.g. 90-Day Elite Mentality Acceleration">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="curriculumType">Curriculum Type</label>
+                <select class="form-control" id="curriculumType">
+                  <option value="Flagship 90-Day" selected>Flagship 90-Day</option>
+                  <option value="Self-Paced Pro">Self-Paced Pro</option>
+                  <option value="Intensive Camp">Intensive Camp</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="curriculumDuration">Duration</label>
+                <input type="text" class="form-control" id="curriculumDuration" placeholder="e.g. 12 Weeks (90 Days)" value="12 Weeks (90 Days)">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+              <div class="form-group">
+                <label for="curriculumTier">Tier / Pricing</label>
+                <input type="text" class="form-control" id="curriculumTier" placeholder="e.g. Mentorship 90 Tier" value="Mentorship 90 Tier">
+              </div>
+
+              <div class="form-group">
+                <label for="curriculumModuleCount">Total Mindset Modules</label>
+                <input type="number" class="form-control" id="curriculumModuleCount" placeholder="24" value="24">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 12px;">
+              <label for="curriculumPhases">Phase Architecture (one phase per line)</label>
+              <textarea class="form-control" id="curriculumPhases" style="height: 100px;" placeholder="Phase 1 (Days 1–30): Foundation Mindset, Daily Priming & Non-Negotiable Habits&#10;Phase 2 (Days 31–60): In-Game Composure, Goldfish Mistake Resets & Scanning Mastery&#10;Phase 3 (Days 61–90): Pro Showcase Readiness, High-Pressure Execution & Contract Mentality"></textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelLibraryModalBtn">Cancel</button>
+          <button type="submit" class="btn-submit-library" id="submitLibraryModalBtn">Save to Master HABITS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- VIDEO LIGHTBOX OVERLAY -->
+  <div class="video-lightbox-overlay" id="videoLightbox">
+    <div class="video-lightbox-content">
+      <button type="button" class="video-lightbox-close" id="closeVideoLightboxBtn">✕</button>
+      <video id="lightboxVideoPlayer" controls style="width: 100%; display: block; max-height: 70vh;" playsinline></video>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-popup" id="toastNotification">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Action completed successfully!</span>
+  </div>
+
+  <!-- SCRIPT -->
+  <script src="/js/master-libraries.js"></script>
+</body>
+</html>

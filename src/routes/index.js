@@ -5,6 +5,7 @@ const staticContentRoutes = require('../modules/StaticContent/staticContent.rout
 const userRoutes = require('../modules/User/user.route');
 const challengeRoutes = require('../modules/Challenge/challenge.route');
 const sessionRoutes = require('../modules/Session/session.route');
+const libraryRoutes = require('../modules/Library/library.route');
 
 
 const moduleRoutes = [
@@ -27,6 +28,14 @@ const moduleRoutes = [
   {
     path: '/scheduling',
     route: sessionRoutes
+  },
+  {
+    path: '/library',
+    route: libraryRoutes
+  },
+  {
+    path: '/master-libraries',
+    route: libraryRoutes
   },
   {
     path: '/static-contents',

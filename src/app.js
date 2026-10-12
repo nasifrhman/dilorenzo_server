@@ -111,6 +111,11 @@ app.get(["/scheduling", "/admin/scheduling", "/sessions", "/admin/sessions"], (r
   res.sendFile(path.join(__dirname, "../public/scheduling.html"));
 });
 
+// Master Libraries Management Page (Figma nodes 33302-24339, 33302-25759, 33304-673, 33304-569, 33304-1357, 33304-2141, 33304-2397, 33304-3116)
+app.get(["/master-libraries", "/libraries", "/library", "/admin/master-libraries", "/admin/libraries"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/master-libraries.html"));
+});
+
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.json([{
