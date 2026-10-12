@@ -96,6 +96,21 @@ app.get(["/assign-coach", "/admin/assign-coach", "/coach-assignment"], (req, res
   res.sendFile(path.join(__dirname, "../public/assign-coach.html"));
 });
 
+// Challenges Dashboard & Create Challenge Wizard (Figma nodes 33299-22507, 33368-577, 33384-2128, 33373-1468, 33384-3578)
+app.get(["/challenges", "/admin/challenges", "/create-challenge"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/challenges.html"));
+});
+
+// Manage Challenge Detail Page (Figma nodes 33384-4219, 33384-5212, 33384-5694, 33384-6692)
+app.get(["/manage-challenge", "/admin/manage-challenge"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/manage-challenge.html"));
+});
+
+// Sessions & Admission Calls Scheduling Page (Figma node 33305-3332, 33305-4485)
+app.get(["/scheduling", "/admin/scheduling", "/sessions", "/admin/sessions"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/scheduling.html"));
+});
+
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.json([{

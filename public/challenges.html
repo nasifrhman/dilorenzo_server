@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Challenges | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Manage and create multi-step community challenges, habit sprints, and leaderboards on Di Lorenzo Soccer.">
+  <link rel="icon" type="image/svg+xml" href="/icons/coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Academy Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+      <a href="/challenges" class="nav-tab-link active" title="Community Challenges">
+        <span style="font-size: 14px;">🏆</span>
+        Challenges
+      </a>
+      <a href="/scheduling" class="nav-tab-link" title="Sessions & Admission Calls">
+        <span style="font-size: 14px;">📅</span>
+        Scheduling
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="crumb-link">Dashboard</a>
+      <span class="crumb-sep">/</span>
+      <span class="crumb-current">Challenges</span>
+    </nav>
+  </header>
+
+  <!-- MAIN CHALLENGES HUB (Figma #33299:22507) -->
+  <main class="page-container" style="max-width: 1240px; margin: 0 auto; padding: 24px 20px 60px;">
+    
+    <!-- Top Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; color: #101828; margin: 0;">
+          Community Challenges
+        </h1>
+        <p style="font-family: 'Inter', sans-serif; font-size: 13.5px; color: #6A7282; margin: 4px 0 0;">
+          Gamified habit sprints, mental toughness programs, and competitive XP leaderboards.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-dsm-gold" id="topCreateBtn" style="padding: 10px 20px; font-size: 13px; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">+</span> Create Challenge
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Stats Summary Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 28px;">
+      <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #99A1AF;">Active Sprints</span>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; color: #101828; margin-top: 4px;" id="statActiveCount">0</div>
+        <span style="font-size: 11.5px; color: #00BC7D; font-weight: 600;">● Live now</span>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #99A1AF;">Total Enrolled Athletes</span>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; color: #101828; margin-top: 4px;" id="statParticipantsCount">0</div>
+        <span style="font-size: 11.5px; color: #6A7282;">Across all active challenges</span>
+      </div>
+
+      <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #99A1AF;">Available XP Pool</span>
+        <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 800; color: #E8A820; margin-top: 4px;" id="statXpCount">0</div>
+        <span style="font-size: 11.5px; color: #BB4D00; font-weight: 600;">Gamified rewards</span>
+      </div>
+    </div>
+
+    <!-- Challenges Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;" id="challengesGrid">
+      <!-- Challenge Cards dynamically injected here -->
+    </div>
+
+  </main>
+
+  <!-- =========================================================================
+       MULTI-STEP WIZARD MODAL (Figma #33368:577, #33384:2128, #33373:1468, #33384:3578)
+       ========================================================================= -->
+  <div class="wizard-modal-overlay" id="wizardOverlay">
+    <div class="wizard-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="wizardTitle">
+      
+      <!-- Wizard Header -->
+      <div class="wizard-modal-header">
+        <div class="wizard-title-box">
+          <h2 id="wizardTitle">Create Challenge</h2>
+          <p id="wizardStepSub">Step 1 of 4</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn-ghost-sm" id="wizardQuickFillBtn" title="Fill with Figma mock values" style="font-size: 11.5px; padding: 4px 10px; background: #FFFBEB; border: 1px solid #FEE685; color: #BB4D00; border-radius: 6px; cursor: pointer;">
+            ⚡ Figma Mock Data
+          </button>
+          <button type="button" class="wizard-close-btn" id="closeWizardBtn" aria-label="Close dialog">×</button>
+        </div>
+      </div>
+
+      <!-- Step Indicator Bar -->
+      <div class="wizard-steps-bar">
+        <div class="wizard-step-node active" id="stepNode1">
+          <div class="wizard-step-circle">1</div>
+          <span class="wizard-step-label">Setup</span>
+        </div>
+        <div class="wizard-step-divider" id="stepDiv1"></div>
+
+        <div class="wizard-step-node" id="stepNode2">
+          <div class="wizard-step-circle">2</div>
+          <span class="wizard-step-label">Activities</span>
+        </div>
+        <div class="wizard-step-divider" id="stepDiv2"></div>
+
+        <div class="wizard-step-node" id="stepNode3">
+          <div class="wizard-step-circle">3</div>
+          <span class="wizard-step-label">Athletes</span>
+        </div>
+        <div class="wizard-step-divider" id="stepDiv3"></div>
+
+        <div class="wizard-step-node" id="stepNode4">
+          <div class="wizard-step-circle">4</div>
+          <span class="wizard-step-label">Launch</span>
+        </div>
+      </div>
+
+      <!-- Wizard Modal Body (Scrollable) -->
+      <div class="wizard-modal-body">
+
+        <!-- ==================== STEP 1: SETUP (Figma #33368:577) ==================== -->
+        <div class="wizard-step-pane active" id="stepPane1">
+          
+          <!-- Icon Picker -->
+          <div class="wizard-field-group">
+            <label class="wizard-field-label">Challenge Icon</label>
+            <div class="icon-picker-grid" id="iconPicker">
+              <button type="button" class="icon-btn-opt selected" data-icon="🏆">🏆</button>
+              <button type="button" class="icon-btn-opt" data-icon="⚡">⚡</button>
+              <button type="button" class="icon-btn-opt" data-icon="🔥">🔥</button>
+              <button type="button" class="icon-btn-opt" data-icon="🎯">🎯</button>
+              <button type="button" class="icon-btn-opt" data-icon="💪">💪</button>
+              <button type="button" class="icon-btn-opt" data-icon="🧠">🧠</button>
+              <button type="button" class="icon-btn-opt" data-icon="🏅">🏅</button>
+            </div>
+            <input type="hidden" id="selectedIcon" value="🏆">
+          </div>
+
+          <!-- Challenge Name -->
+          <div class="wizard-field-group">
+            <label for="challengeNameInput" class="wizard-field-label">Challenge Title *</label>
+            <input type="text" id="challengeNameInput" class="wizard-field-input" placeholder="e.g. Mental Toughness Week" required>
+          </div>
+
+          <!-- Category Pills -->
+          <div class="wizard-field-group">
+            <label class="wizard-field-label">Category</label>
+            <div class="pill-selector-group" id="categoryPillGroup">
+              <button type="button" class="pill-opt-btn selected" data-val="mental">Mental</button>
+              <button type="button" class="pill-opt-btn" data-val="technical">Technical</button>
+              <button type="button" class="pill-opt-btn" data-val="resilience">Resilience</button>
+              <button type="button" class="pill-opt-btn" data-val="recovery">Recovery</button>
+              <button type="button" class="pill-opt-btn" data-val="tactical">Tactical</button>
+              <button type="button" class="pill-opt-btn" data-val="custom">Custom</button>
+            </div>
+            <input type="hidden" id="selectedCategory" value="mental">
+          </div>
+
+          <!-- Difficulty Level -->
+          <div class="wizard-field-group">
+            <label class="wizard-field-label">Difficulty Tier</label>
+            <div class="pill-selector-group" id="difficultyPillGroup">
+              <button type="button" class="pill-opt-btn" data-val="easy">Easy</button>
+              <button type="button" class="pill-opt-btn selected" data-val="medium">Medium</button>
+              <button type="button" class="pill-opt-btn" data-val="hard">Hard</button>
+              <button type="button" class="pill-opt-btn" data-val="elite">Elite</button>
+            </div>
+            <input type="hidden" id="selectedDifficulty" value="medium">
+          </div>
+
+          <!-- Description -->
+          <div class="wizard-field-group">
+            <label for="challengeDescInput" class="wizard-field-label">Description / Objective</label>
+            <textarea id="challengeDescInput" class="wizard-field-textarea" rows="3" placeholder="Explain what athletes will achieve during this sprint..."></textarea>
+          </div>
+
+        </div>
+
+        <!-- ==================== STEP 2: DURATION & ACTIVITIES (Figma #33384:2128 & #33373:1468) ==================== -->
+        <div class="wizard-step-pane" id="stepPane2">
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="wizard-field-group">
+              <label for="startDateInput" class="wizard-field-label">Start Date *</label>
+              <input type="date" id="startDateInput" class="wizard-field-input" required>
+            </div>
+            <div class="wizard-field-group">
+              <label for="endDateInput" class="wizard-field-label">End Date *</label>
+              <input type="date" id="endDateInput" class="wizard-field-input" required>
+            </div>
+          </div>
+
+          <!-- XP Goal -->
+          <div class="wizard-field-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label for="xpGoalInput" class="wizard-field-label">Completion XP Goal *</label>
+              <span style="font-size: 11px; color: #E8A820; font-weight: 700;">⚡ Target XP</span>
+            </div>
+            <input type="number" id="xpGoalInput" class="wizard-field-input" value="300" min="50" step="50" required>
+          </div>
+
+          <!-- Activities Section -->
+          <div class="wizard-field-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="wizard-field-label" id="activitiesHeaderLabel">Challenge Activities (0)</label>
+              <button type="button" class="btn-ghost-sm" id="showAddActivityBtn" style="color: #E8A820; font-size: 12px; font-weight: 700; background: none; border: none; cursor: pointer;">
+                + Add Activity
+              </button>
+            </div>
+
+            <!-- Inline Activity Form (Hidden by default) -->
+            <div class="new-activity-box" id="newActivityBox" style="display: none;">
+              <span class="new-activity-header">New Activity Task</span>
+              <input type="text" id="newActTitle" class="wizard-field-input" placeholder="e.g. Morning Mindset Journal...">
+              
+              <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px;">
+                <input type="text" id="newActDesc" class="wizard-field-input" placeholder="Short description...">
+                <div style="position: relative;">
+                  <input type="number" id="newActXp" class="wizard-field-input" value="50" min="10" step="5" style="padding-right: 40px;">
+                  <span style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 700; color: #E8A820;">XP</span>
+                </div>
+              </div>
+
+              <!-- Activity Category Pills -->
+              <div class="pill-selector-group" id="actCategoryPills">
+                <button type="button" class="pill-opt-btn selected" data-actcat="mindset">Mindset</button>
+                <button type="button" class="pill-opt-btn" data-actcat="technical">Technical</button>
+                <button type="button" class="pill-opt-btn" data-actcat="reflection">Reflection</button>
+                <button type="button" class="pill-opt-btn" data-actcat="recovery">Recovery</button>
+                <button type="button" class="pill-opt-btn" data-actcat="mental">Mental</button>
+                <button type="button" class="pill-opt-btn" data-actcat="tactical">Tactical</button>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button type="button" class="btn-wizard-next" id="saveInlineActivityBtn" style="padding: 6px 14px; font-size: 12px;">Save Activity</button>
+                <button type="button" class="btn-ghost-sm" id="cancelInlineActivityBtn" style="padding: 6px 12px; font-size: 12px;">Cancel</button>
+              </div>
+            </div>
+
+            <!-- List of Added Activities -->
+            <div id="addedActivitiesList" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+              <!-- Rendered items -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== STEP 3: PARTICIPANTS (Assign Athletes) ==================== -->
+        <div class="wizard-step-pane" id="stepPane3">
+          
+          <div class="wizard-field-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label class="wizard-field-label">Select Participating Athletes</label>
+              <span id="selectedAthletesCountBadge" style="font-size: 11.5px; font-weight: 600; color: #E8A820;">0 selected</span>
+            </div>
+            <div id="athletesSelectList" style="max-height: 280px; overflow-y: auto; border: 1px solid #E5E7EB; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; background: #FAFAFA;">
+              <!-- Athlete items with checkboxes -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==================== STEP 4: REVIEW & LAUNCH (Figma #33384:3578) ==================== -->
+        <div class="wizard-step-pane" id="stepPane4">
+          
+          <!-- Summary Card with Amber Background -->
+          <div style="background: #FFFBEB; border: 1px solid #FEE685; border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="challenge-icon-box" id="revIcon" style="background: #FFFFFF; width: 48px; height: 48px; font-size: 26px;">🏆</div>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h3 id="revTitle" style="font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: #101828; margin: 0;">Challenge Title</h3>
+                  <span class="badge-difficulty medium" id="revDifficulty">Medium</span>
+                </div>
+                <p id="revDesc" style="font-family: 'Inter', sans-serif; font-size: 12px; color: #6A7282; margin: 0;">Challenge description summary.</p>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 18px; font-family: 'Inter', sans-serif; font-size: 12px; color: #4A5565; padding-top: 4px; border-top: 1px solid #FEE685;">
+              <span id="revDates">📅 2026-09-01 → 2026-09-30</span>
+              <span id="revXpGoal" style="color: #BB4D00; font-weight: 700;">⚡ 300 XP Goal</span>
+              <span id="revAthletesCount">👥 0 Athletes</span>
+            </div>
+          </div>
+
+          <!-- Activities Breakdown -->
+          <div class="wizard-field-group">
+            <span class="wizard-field-label" id="revActivitiesLabel">Activities (0) · 0 Total XP</span>
+            <div id="revActivitiesList" style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+              <!-- Review list -->
+            </div>
+          </div>
+
+          <!-- Participants Breakdown -->
+          <div class="wizard-field-group">
+            <span class="wizard-field-label" id="revParticipantsLabel">Participants (0)</span>
+            <div id="revParticipantsChips" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px;">
+              <!-- Review chips -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Wizard Modal Footer Buttons -->
+      <div class="wizard-modal-footer">
+        <button type="button" class="btn-wizard-back" id="wizardBackBtn" style="display: none;">
+          ← Back
+        </button>
+        <div style="margin-left: auto; display: flex; gap: 8px;">
+          <button type="button" class="btn-wizard-next" id="wizardNextBtn">
+            Continue →
+          </button>
+          <button type="button" class="btn-wizard-launch" id="wizardLaunchBtn" style="display: none;">
+            🚀 Launch Challenge
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastNotification" style="position: fixed; bottom: 24px; right: 24px; background: #101828; color: #FFFFFF; padding: 12px 20px; border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; display: none; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9999;">
+    <span id="toastIcon">🚀</span>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/challenges.js"></script>
+</body>
+</html>

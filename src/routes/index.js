@@ -3,6 +3,8 @@ const router = express.Router();
 const authRoutes = require('../modules/Auth/auth.route');
 const staticContentRoutes = require('../modules/StaticContent/staticContent.route');
 const userRoutes = require('../modules/User/user.route');
+const challengeRoutes = require('../modules/Challenge/challenge.route');
+const sessionRoutes = require('../modules/Session/session.route');
 
 
 const moduleRoutes = [
@@ -13,6 +15,18 @@ const moduleRoutes = [
   {
     path: '/user',
     route: userRoutes
+  },
+  {
+    path: '/challenge',
+    route: challengeRoutes
+  },
+  {
+    path: '/session',
+    route: sessionRoutes
+  },
+  {
+    path: '/scheduling',
+    route: sessionRoutes
   },
   {
     path: '/static-contents',

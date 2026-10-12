@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sessions & Admission Calls | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Manage coaching mentorship sessions, admission screening calls, and match activations on Di Lorenzo Mindset Soccer Academy.">
+  <link rel="icon" type="image/svg+xml" href="/icons/coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* SCHEDULING SPECIFIC FIGMA STYLES (Node #33305:3332 & #33305:4485) */
+    .scheduling-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 24px 60px;
+    }
+
+    .scheduling-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .scheduling-sub-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #E8A820;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .scheduling-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      line-height: 40px;
+      color: #131820;
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .btn-schedule-session {
+      background: #E8A820;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 16px;
+      height: 38px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-schedule-session:hover {
+      background: #D49615;
+      transform: translateY(-1px);
+    }
+
+    /* FILTER TABS (Figma #33305:4251) */
+    .schedule-tabs-bar {
+      display: flex;
+      gap: 24px;
+      border-bottom: 1px solid #E5E7EB;
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .schedule-tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 4px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6A7282;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .schedule-tab-btn:hover {
+      color: #101828;
+    }
+
+    .schedule-tab-btn.active {
+      color: #101828;
+      border-bottom-color: #E8A820;
+    }
+
+    /* SESSION CARDS GRID (Figma #33305:4264) */
+    .sessions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .session-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      min-height: 190px;
+    }
+
+    .session-card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      border-color: #D1D5DC;
+    }
+
+    /* Highlight border for Admission Call */
+    .session-card.highlight-admission {
+      border: 1px solid #E8A820;
+      border-left: 3px solid #E8A820;
+    }
+
+    .session-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .session-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+
+    .badge-session {
+      background: #EFF6FF;
+      color: #2B7FFF;
+      border: 1px solid #BFDBFE;
+    }
+
+    .badge-assignment {
+      background: #CBFBF1;
+      color: #00786F;
+      border: 1px solid #99F6E4;
+    }
+
+    .badge-admission {
+      background: #FEF3C6;
+      color: #B45309;
+      border: 1px solid #FDE68A;
+    }
+
+    .badge-match {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .session-card-date {
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #6A7282;
+      font-weight: 500;
+    }
+
+    .session-card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #101828;
+      margin: 0 0 14px;
+      line-height: 1.35;
+    }
+
+    .session-athlete-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .session-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .session-athlete-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .session-athlete-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #101828;
+      line-height: 1.25;
+    }
+
+    .session-coach-name {
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      color: #6A7282;
+      line-height: 1.25;
+      margin-top: 2px;
+    }
+
+    .session-meta-footer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      color: #6A7282;
+      border-top: 1px solid #F3F4F6;
+      padding-top: 12px;
+      margin-top: auto;
+    }
+
+    .meta-clock-icon {
+      font-size: 13px;
+    }
+
+    .meta-time {
+      color: #4B5563;
+      font-weight: 500;
+    }
+
+    .meta-sep {
+      color: #9CA3AF;
+    }
+
+    .meta-duration {
+      color: #6A7282;
+    }
+
+    .meta-platform {
+      color: #2B7FFF;
+      font-weight: 500;
+    }
+
+    /* MODAL STYLES (Figma #33305:4485) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(13, 17, 23, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 520px;
+      overflow: hidden;
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #101828;
+      margin: 0;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #99A1AF;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: #101828;
+    }
+
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      border: 1px solid #D1D5DC;
+      border-radius: 8px;
+      background: #FFFFFF;
+      color: #101828;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease;
+    }
+
+    .form-control:focus {
+      border-color: #E8A820;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      background: #F9FAFB;
+      border-top: 1px solid #E5E7EB;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-secondary {
+      background: #FFFFFF;
+      border: 1px solid #D1D5DC;
+      color: #374151;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 16px;
+      height: 38px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #E8A820;
+      border: none;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 18px;
+      height: 38px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: #D49615;
+    }
+
+    /* TOAST */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #101828;
+      color: #FFFFFF;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Coach Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD PROVISIONING SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+      <a href="/challenges" class="nav-tab-link" title="Community Challenges">
+        <span style="font-size: 14px;">🏆</span>
+        Challenges
+      </a>
+      <a href="/scheduling" class="nav-tab-link active" title="Sessions & Admission Calls">
+        <span style="font-size: 14px;">📅</span>
+        Scheduling
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/" class="crumb-link" style="color:#6A7282; text-decoration:none;">Dashboard</a>
+      <span style="color:#99A1AF; margin: 0 6px;">/</span>
+      <span style="color:#101828; font-weight:600;">Scheduling</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <button type="button" class="btn-ghost-sm" id="topQuickScheduleBtn" style="cursor:pointer; background:#F3F4F6; border:1px solid #D1D5DC; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600;">
+        + Fast Schedule
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SCHEDULING PAGE (Figma #33305:3332) -->
+  <main class="scheduling-container">
+    
+    <div class="scheduling-header-row">
+      <div>
+        <div class="scheduling-sub-label">Sessions &</div>
+        <h1 class="scheduling-title">Admission Calls</h1>
+      </div>
+
+      <button type="button" class="btn-schedule-session" id="openScheduleModalBtn">
+        <span style="font-size: 16px;">+</span> Schedule Session
+      </button>
+    </div>
+
+    <!-- FILTER TABS WITH COUNTS (Figma #33305:4251) -->
+    <nav class="schedule-tabs-bar" aria-label="Session Filter Tabs">
+      <button type="button" class="schedule-tab-btn active" data-filter="all" id="tabAll">
+        All (0)
+      </button>
+      <button type="button" class="schedule-tab-btn" data-filter="sessions" id="tabSessions">
+        Sessions (0)
+      </button>
+      <button type="button" class="schedule-tab-btn" data-filter="assignments" id="tabAssignments">
+        Assignments (0)
+      </button>
+      <button type="button" class="schedule-tab-btn" data-filter="admission calls" id="tabAdmission">
+        Admission Calls (0)
+      </button>
+      <button type="button" class="schedule-tab-btn" data-filter="match activations" id="tabMatch">
+        Match Activations (0)
+      </button>
+    </nav>
+
+    <!-- SESSIONS LIST GRID (Figma #33305:4264) -->
+    <div class="sessions-grid" id="sessionsGrid">
+      <!-- Populated dynamically via JS -->
+      <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: #fff; border-radius: 14px; border: 1px dashed #D1D5DC;">
+        <span style="font-size: 32px;">⏳</span>
+        <p style="font-size: 13.5px; color: #6A7282; margin: 8px 0 0;">Loading scheduled sessions and calls...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: SCHEDULE COACHING CALL / SCREENING (Figma #33305:4485) -->
+  <div class="modal-overlay" id="scheduleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Schedule Coaching Call / Screening</h2>
+        <button type="button" class="modal-close-btn" id="closeScheduleModalBtn">✕</button>
+      </div>
+
+      <form id="scheduleSessionForm">
+        <div class="modal-body">
+          
+          <div class="form-group">
+            <label for="sessionTitle">Session Title</label>
+            <input type="text" class="form-control" id="sessionTitle" placeholder="e.g. Week 4 Match Mentality Audit" required>
+          </div>
+
+          <div class="form-group">
+            <label for="sessionType">Session Type</label>
+            <select class="form-control" id="sessionType" required>
+              <option value="admission-call" selected>ADMISSION CALL</option>
+              <option value="session">SESSION</option>
+              <option value="assignment">ASSIGNMENT</option>
+              <option value="match-activation">MATCH ACTIVATION</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="assignedCoach">Assigned Coach / Host</label>
+            <select class="form-control" id="assignedCoach" required>
+              <option value="6acb088d1585cdc26ae1d8b9" selected>Valentin Di Lorenzo (Head Coach)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="athleteName">Athlete Name</label>
+            <select class="form-control" id="athleteName" required>
+              <option value="6acb0c4bf0bd964d711f17a5" selected>Leo Bianchi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sessionDateTime">Date & Time</label>
+            <input type="text" class="form-control" id="sessionDateTime" placeholder="2026-10-11T04:10:51.557+00:00" required>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="cancelScheduleBtn">Cancel</button>
+          <button type="submit" class="btn-primary" id="confirmScheduleBtn">Confirm & Send Calendar Invites</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-popup" id="toastNotification">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Session scheduled successfully!</span>
+  </div>
+
+  <!-- SCRIPT -->
+  <script src="/js/scheduling.js"></script>
+</body>
+</html>

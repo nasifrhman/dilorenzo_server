@@ -33,22 +33,25 @@ graph TD
 ```
 
 ### 2.1. Player Mobile App (Athlete)
+
 - **Onboarding & Auth:** 3-step value walkthrough, Email/Password, OTP verification, password reset.
 - **Tiers:**
   - **Free Tier:** Introductory mindset & ball-mastery drills, basic streaks.
   - **Premium Tier:** Full drill library, weekly live webinars, calendar sync.
-  - **90-Day Mentorship (Flagship):** Dedicated 1-on-1 coach, 3 progression phases (*Phase 1: Foundation Days 1–30*, *Phase 2: Acceleration Days 31–60*, *Phase 3: Mastery Days 61–90*), daily habit checklist, action step submissions.
+  - **90-Day Mentorship (Flagship):** Dedicated 1-on-1 coach, 3 progression phases (_Phase 1: Foundation Days 1–30_, _Phase 2: Acceleration Days 31–60_, _Phase 3: Mastery Days 61–90_), daily habit checklist, action step submissions.
 - **Gamification & XP:** Daily streaks, XP points ledger, level tiers (Rookie to Elite 🏅), challenge leaderboards.
 - **Community:** Private cohort/team group channels, academy announcements.
 
 ### 2.2. Parent Mobile App
+
 - **Athlete Monitoring:** Real-time visibility into child's habit consistency, mindset journal status, and drill completions.
 - **3-Way Communication:** Direct voice note, video, and text channel between Player, Parent, and Coach.
 - **Calendar:** Synchronized match days, scheduled 1-on-1 coaching calls, and reminders.
 - **Notifications & Billing:** Instant alerts when coaches post reviews; invoice view.
 
 ### 2.3. Coach Web Dashboard
-- **Roster Overview ("My Players"):** Active athletes grid with progress bars, active tier, and day counter (e.g. *Day 12/90*).
+
+- **Roster Overview ("My Players"):** Active athletes grid with progress bars, active tier, and day counter (e.g. _Day 12/90_).
 - **Player Deep-Dive:**
   - **Feedback Tab:** Review athlete action step submissions, upload video/voice critiques, grade performance.
   - **Progress Analytics:** Habit compliance charts, session logs, XP progression.
@@ -56,8 +59,9 @@ graph TD
   - **Group Threads:** 3-way parent-player-coach messaging.
 
 ### 2.4. Admin Web Dashboard (DSM Coach Admin)
+
 - **Roster & Members:** Intake new athletes, assign dedicated coaches, manage parent links.
-- **Coach Directory:** Track coach workload, timezone, capacity (default 10–15 athletes), and coaching specialties (*Pre-Game Routines, Mistake Recovery / Goldfish Reset, Composure Under Pressure, Confidence Conditioning*).
+- **Coach Directory:** Track coach workload, timezone, capacity (default 10–15 athletes), and coaching specialties (_Pre-Game Routines, Mistake Recovery / Goldfish Reset, Composure Under Pressure, Confidence Conditioning_).
 - **4-Step Challenge Wizard:** Step 1 (Icon, Title, Difficulty) -> Step 2 (Dates, XP Goal, Activity Checklist) -> Step 3 (Athletes & Coaches) -> Step 4 (Review & Publish).
 - **Billing & Stripe:** One-off invoice issuance in **£ GBP** (e.g. £450 90-Day Mentorship admission), subscription management.
 - **Master Libraries:** Reusable master drills, habits, and 90-day program templates.
@@ -98,6 +102,7 @@ graph TD
 - **Logging & Errors:** Winston logger + custom `ApiError` + `catchAsync` helper
 
 ### Modular Directory Structure
+
 All domain features live under `src/modules/<ModuleName>/`:
 
 ```
@@ -109,16 +114,18 @@ src/modules/<ModuleName>/
 ```
 
 ### Response Standard (`src/helpers/response.js`)
+
 All controllers must respond using the standardized response helper:
+
 ```javascript
 res.status(status.OK).json(
   response({
-    status: 'success',
+    status: "success",
     statusCode: status.OK,
-    type: 'User',
-    message: 'Operation description here',
+    type: "User",
+    message: "Operation description here",
     data: result,
-  })
+  }),
 );
 ```
 
@@ -129,6 +136,7 @@ res.status(status.OK).json(
 All models are located under `src/modules/` and exported via standard Mongoose syntax:
 
 ### 5.1. Authentication & Users
+
 1. **`User`** (`src/modules/User/user.model.js`):
    - **Roles:** `['user', 'athlete', 'parent', 'coach', 'admin']` (default: `'user'`)
    - **Athlete Profile:** `position`, `currentClub`, `preferredFoot`, `age`, `dob`, `gender`, `nationality`
@@ -145,6 +153,7 @@ All models are located under `src/modules/` and exported via standard Mongoose s
    - Terms, Privacy Policy, About Us, Support, Cancellation Policy.
 
 ### 5.2. Mentorship, Habits & Action Steps
+
 5. **`Habit`** (`src/modules/Habit/habit.model.js`):
    - `title`, `description`, `category` (`mindset`, `technical`, `physical`, `recovery`, `nutrition`, `tactical`), `frequency` (`daily`, `weekly`, `match-day`, `pre-training`, `custom`), `timesPerWeek`, `xpReward`, `isMasterLibrary`, `targetPhase`, `targetTier`.
 6. **`HabitLog`** (`src/modules/Habit/habitLog.model.js`):
@@ -153,20 +162,23 @@ All models are located under `src/modules/` and exported via standard Mongoose s
    - `athlete`, `coach`, `title`, `description`, `dayNumber`, `phase`, `submissionMedia` (video/audio/image URLs), `submissionNotes`, `submittedAt`, `status` (`pending`, `in-review`, `reviewed`, `needs-revision`, `approved`), `coachFeedback` (videoUrl, audioUrl, textNotes, rating, reviewedAt, reviewedBy), `xpAwarded`.
 
 ### 5.3. Training Drills & Programs
+
 8. **`Drill`** (`src/modules/Drill/drill.model.js`):
    - `title`, `description`, `videoUrl`, `thumbnail`, `duration` (mins), `category` (`ball-mastery`, `dribbling`, `passing`, `finishing`, `agility`, `mindset`, `tactical`), `difficulty` (`beginner`, `intermediate`, `advanced`, `elite`), `tierRequired`, `xpReward`, `isMasterLibrary`.
 9. **`Program`** (`src/modules/Program/program.model.js`):
    - `title`, `description`, `tierRequired`, `phase`, `totalDays` (e.g. 90), `schedule` array with days, drills, habits, notes, and XP totals.
 
 ### 5.4. Challenges & XP Gamification
+
 10. **`Challenge`** (`src/modules/Challenge/challenge.model.js`):
-    - Matches Figma 4-step wizard: `title`, `description`, `icon` (🏆, ⚡, 🔥, 🎯, 💪, 🧠, 🏅), `difficulty`, `startDate`, `endDate`, `xpGoal` (default: 300), `activities` list, `assignedAthletes`, `assignedCoaches`, `status`.
+    - Matches Figma 4-step wizard: `title`, `description`, `icon` (🏆, ⚡, 🔥, 🎯, 💪, 🧠, 🏅), `difficulty`, `startDate`, `endDate`, `xpGoal` (default: 300), `activities` list, `assignedAthletes`, `status`.
 11. **`ChallengeParticipant`** (`src/modules/Challenge/challengeParticipant.model.js`):
     - `challenge`, `athlete`, `earnedXp`, `completedActivities`, `isGoalReached`, `completedAt`.
 12. **`XpTransaction`** (`src/modules/Xp/xpTransaction.model.js`):
     - Immutable XP ledger: `athlete`, `amount`, `source` (`habit`, `action-step`, `drill`, `challenge`, `streak-bonus`, `manual-reward`, `onboarding`), `referenceId`, `description`, `balanceAfter`.
 
 ### 5.5. Academy Cohorts, Sessions & Messaging
+
 13. **`Group`** (`src/modules/Group/group.model.js`):
     - Cohorts, teams (e.g. "Regional Stars U18"), private groups with assigned coaches and athletes.
 14. **`Session`** (`src/modules/Session/session.model.js`):
@@ -177,12 +189,14 @@ All models are located under `src/modules/` and exported via standard Mongoose s
     - Messages supporting text, voice notes (with audio duration), video, images, file attachments, and read receipts.
 
 ### 5.6. Billing & Invoicing (Stripe)
+
 17. **`Payment`** (`src/modules/Payment/payment.model.js`):
     - One-off Stripe invoices (e.g. £450.00 GBP 90-Day Mentorship admission), status (`pending`, `paid`, `failed`, `refunded`), Stripe IDs, PDF invoices, and issuing admin.
 18. **`Subscription`** (`src/modules/Payment/subscription.model.js`):
     - Recurring plan tiers (`free`, `premium-monthly`, `premium-annual`, `90-day-mentorship`), Stripe customer ID, subscription ID, period start/end, auto-renew status.
 
 ### 5.7. Communications & Admissions
+
 19. **`Announcement`** (`src/modules/Announcement/announcement.model.js`):
     - Academy broadcasts filtered by target audience (`all`, `athletes`, `parents`, `coaches`, `specific-group`).
 20. **`Notification`** (`src/modules/Notification/notification.model.js`):
@@ -211,4 +225,4 @@ When writing controllers, services, and routes for any module:
 
 ---
 
-*Document created for Antigravity AI pair programming and future development assistance.*
+_Document created for Antigravity AI pair programming and future development assistance._

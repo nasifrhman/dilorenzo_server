@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Challenge | Di Lorenzo Soccer Admin</title>
+  <meta name="description" content="Track athlete progress, manage activities, award XP, and monitor leaderboards on Di Lorenzo Soccer.">
+  <link rel="icon" type="image/svg+xml" href="/icons/coach-icon.svg">
+
+  <!-- Google Fonts: Inter & Barlow Condensed -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,900;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ADMIN TOPBAR CHROME -->
+  <header class="admin-topbar">
+    <div class="admin-brand">
+      <div class="brand-crest">DL</div>
+      <div class="brand-text">
+        <span class="brand-title">Di Lorenzo Soccer</span>
+        <span class="brand-sub">DSM Academy Administration</span>
+      </div>
+    </div>
+
+    <!-- TAB SWITCHER BETWEEN DASHBOARD SCREENS -->
+    <div class="admin-nav-tabs">
+      <a href="/add-coach" class="nav-tab-link" title="Provision Staff & Coaches">
+        <img src="/icons/coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Provision Coach
+      </a>
+      <a href="/add-athlete" class="nav-tab-link" title="Intake New Athletes">
+        <img src="/icons/athlete-intake-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Athlete Intake
+      </a>
+      <a href="/assign-coach" class="nav-tab-link" title="Assign Dedicated Coach & Program">
+        <img src="/icons/assign-coach-icon.svg" width="14" height="14" alt="" style="filter: brightness(0.8);">
+        Assign Coach
+      </a>
+      <a href="/challenges" class="nav-tab-link active" title="Community Challenges">
+        <span style="font-size: 14px;">🏆</span>
+        Challenges
+      </a>
+      <a href="/scheduling" class="nav-tab-link" title="Sessions & Admission Calls">
+        <span style="font-size: 14px;">📅</span>
+        Scheduling
+      </a>
+    </div>
+
+    <nav class="admin-breadcrumbs" aria-label="Breadcrumb">
+      <span>Admin Portal</span>
+      <span class="separator">/</span>
+      <a href="/challenges" style="color: inherit; text-decoration: none;">Challenges</a>
+      <span class="separator">/</span>
+      <span class="active">Manage Challenge</span>
+    </nav>
+
+    <div class="topbar-actions">
+      <a href="/challenges" class="btn-ghost-sm" style="color: #6A7282; text-decoration: none;">
+        ← Back to Challenges
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN MANAGE CHALLENGE CONTAINER (Figma Nodes 33384:4219, 5212, 5694, 6692) -->
+  <main class="page-container" style="justify-content: flex-start; padding: 0;">
+    <div class="challenges-main-layout">
+      
+      <!-- Top Challenge Header Card (Figma #33384:4557) -->
+      <section class="manage-header-card" aria-label="Challenge Header">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <a href="/challenges" class="manage-back-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            All Challenges
+          </a>
+          <button type="button" class="btn-ghost-sm" id="deleteChallengeBtn" style="color: #EF4444; font-size: 11.5px;">
+            🗑️ Delete Challenge
+          </button>
+        </div>
+
+        <div class="manage-title-hero">
+          <div class="manage-title-left">
+            <div class="challenge-icon-box" id="detailIcon" style="width: 52px; height: 52px; font-size: 28px;">🏆</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <h1 style="font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 700; color: #101828; margin: 0;" id="detailTitle">
+                  Loading Challenge...
+                </h1>
+                <span class="badge-difficulty elite" id="detailDifficulty">Elite</span>
+                <span style="font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; background: #CBFBF1; color: #00786F; border: 1px solid #96F7E4; padding: 2px 8px; border-radius: 9999px;">
+                  ACTIVE
+                </span>
+              </div>
+              <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #6A7282; margin: 0; max-width: 680px;" id="detailDesc">
+                Challenge description loading...
+              </p>
+            </div>
+          </div>
+
+          <div class="manage-actions-right">
+            <button type="button" class="btn-ghost-sm" id="editChallengeBtn" style="padding: 7px 14px; font-size: 12.5px; border: 1px solid #E5E7EB; background: #fff; color: #4A5565;">
+              ✏️ Edit
+            </button>
+            <button type="button" class="btn-award-xp" id="openAwardXpModalBtn">
+              ⚡ Award XP
+            </button>
+          </div>
+        </div>
+
+        <!-- Four Stats Columns (Figma #33384:4587) -->
+        <div class="manage-stats-row">
+          <div class="manage-stat-box">
+            <span class="lbl">Participants</span>
+            <span class="val" id="detailParticipantsVal">0</span>
+            <span class="sub" id="detailCoachesSub">Active athletes</span>
+          </div>
+
+          <div class="manage-stat-box">
+            <span class="lbl">XP Goal</span>
+            <span class="val" id="detailXpGoalVal">300</span>
+            <span class="sub" style="color: #E8A820; font-weight: 600;">points to complete</span>
+          </div>
+
+          <div class="manage-stat-box">
+            <span class="lbl">Activities</span>
+            <span class="val" id="detailActivitiesVal">0</span>
+            <span class="sub">tasks assigned</span>
+          </div>
+
+          <div class="manage-stat-box">
+            <span class="lbl">Days Remaining</span>
+            <span class="val" id="detailDaysRemainingVal">0</span>
+            <span class="sub" id="detailEndsSub" style="color: #009689; font-weight: 600;">ends soon</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Manage Tabs Container (Figma Nodes 33384:4617, 5212, 5694, 6692) -->
+      <section class="manage-tabs-container">
+        
+        <!-- Tabs Header Navigation -->
+        <nav class="manage-tabs-nav" aria-label="Challenge sections">
+          <button type="button" class="manage-tab-btn active" data-tab="overview">
+            ⚡ Overview
+          </button>
+          <button type="button" class="manage-tab-btn" data-tab="activities">
+            ✓ Activities
+          </button>
+          <button type="button" class="manage-tab-btn" data-tab="participants">
+            👥 Participants
+          </button>
+          <button type="button" class="manage-tab-btn" data-tab="leaderboard">
+            🏆 Leaderboard
+          </button>
+          <button type="button" class="manage-tab-btn" data-tab="chat">
+            💬 Group Chat
+            <span style="width: 8px; height: 8px; border-radius: 9999px; background: #00BBA7; display: inline-block;"></span>
+          </button>
+        </nav>
+
+        <div class="manage-tab-body">
+          
+          <!-- ==================== TAB 1: OVERVIEW (Figma #33384:4619) ==================== -->
+          <div class="manage-tab-panel active" id="tabPanelOverview">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <!-- Duration Card -->
+              <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <span class="wizard-field-label">Duration</span>
+                <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+                  <span style="font-size: 20px;">📅</span>
+                  <div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: #101828;" id="overviewDates">
+                      2026-09-01 → 2026-09-30
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #6A7282;" id="overviewDaysMeta">
+                      13 days active · 17 days remaining
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Group Chat Preview Card -->
+              <div style="background: #F0FDFA; border: 1px solid #96F7E4; border-radius: 12px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 36px; height: 36px; border-radius: 8px; background: #00BBA7; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    💬
+                  </div>
+                  <div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: #00786F;" id="chatCardTitle">
+                      Mental Toughness Week – Group
+                    </div>
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #00BBA7;" id="chatCardMembers">
+                      5 members · Auto-created
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn-ghost-sm" id="btnOpenChatTab" style="color: #00786F; font-weight: 700; border: none; background: none; font-size: 12.5px;">
+                  Open →
+                </button>
+              </div>
+            </div>
+
+            <!-- Activities Summary -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+              <span class="wizard-field-label">Activities Summary</span>
+              <div id="overviewActivitiesList" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Summary items -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ==================== TAB 2: ACTIVITIES (Figma #33384:5212) ==================== -->
+          <div class="manage-tab-panel" id="tabPanelActivities">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: #364153;" id="activitiesSubHeader">
+                3 activities · 155 total XP available
+              </span>
+              <button type="button" class="btn-award-xp" id="openAddActivityModalBtn" style="background: #FFFFFF; border: 1px solid #E5E7EB; color: #E8A820;">
+                <span>+</span> Add Activity
+              </button>
+            </div>
+
+            <div id="activitiesCardsList" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Activities Cards with Progress Bars -->
+            </div>
+
+          </div>
+
+          <!-- ==================== TAB 3: PARTICIPANTS (Figma #33384:5694) ==================== -->
+          <div class="manage-tab-panel" id="tabPanelParticipants">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: #364153;" id="participantsSubHeader">
+                0 participants enrolled
+              </span>
+              <button type="button" class="btn-award-xp" id="openAddParticipantModalBtn" style="background: #FFFFFF; border: 1px solid #E5E7EB; color: #E8A820;">
+                <span>+</span> Add Participant
+              </button>
+            </div>
+
+            <div id="participantsCardsGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
+              <!-- Participant Cards -->
+            </div>
+
+          </div>
+
+          <!-- ==================== TAB 4: LEADERBOARD (Figma #33384:6692) ==================== -->
+          <div class="manage-tab-panel" id="tabPanelLeaderboard">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: #364153;">
+                Live Challenge Leaderboard
+              </span>
+              <span style="font-family: 'Inter', sans-serif; font-size: 12px; color: #99A1AF;">
+                Ranked by XP earned in this challenge
+              </span>
+            </div>
+
+            <div class="leaderboard-list" id="leaderboardList">
+              <!-- Leaderboard rows -->
+            </div>
+
+          </div>
+
+          <!-- ==================== TAB 5: GROUP CHAT ==================== -->
+          <div class="manage-tab-panel" id="tabPanelChat">
+            <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px; text-align: center;">
+              <span style="font-size: 32px;">💬</span>
+              <h3 style="font-size: 16px; font-weight: 700; color: #101828; margin: 8px 0 4px;" id="chatDiscussionTitle">
+                Challenge Group Discussion
+              </h3>
+              <p style="font-size: 13px; color: #6A7282; margin: 0 0 16px;">
+                Athletes and supervising coaches can communicate, share drill video submissions, and keep each other accountable.
+              </p>
+              <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px; max-width: 460px; margin: 0 auto; text-align: left;">
+                <div style="font-size: 12px; font-weight: 700; color: #E8A820; margin-bottom: 4px;">System Notification</div>
+                <div style="font-size: 12.5px; color: #364153; line-height: 1.4;">
+                  Group channel created with 1 supervising coach and participants. Ready for daily check-ins.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================================
+       MODAL: AWARD XP (Figma #33384:4219 Action)
+       ========================================================================== -->
+  <div class="wizard-modal-overlay" id="awardXpModal">
+    <div class="wizard-modal-dialog" style="max-width: 480px;">
+      <div class="wizard-modal-header">
+        <div class="wizard-title-box">
+          <h2>⚡ Award Challenge XP</h2>
+          <p>Credit points to an athlete for completing tasks</p>
+        </div>
+        <button type="button" class="wizard-close-btn" id="closeAwardXpBtn">✕</button>
+      </div>
+
+      <form id="awardXpForm" class="wizard-modal-body">
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">Select Athlete</label>
+          <select id="awardAthleteSelect" class="wizard-field-input" required>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">Activity / Reason</label>
+          <input type="text" id="awardActivityTitleInput" class="wizard-field-input" placeholder="e.g. Goldfish Reset Protocol" list="challengeActivitiesDatalist">
+          <datalist id="challengeActivitiesDatalist">
+            <!-- Populated with challenge activities -->
+          </datalist>
+        </div>
+
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">XP Amount to Award</label>
+          <div style="position: relative;">
+            <input type="number" id="awardXpAmountInput" class="wizard-field-input" value="50" min="5" step="5" required style="padding-right: 50px;">
+            <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-weight: 700; color: #E8A820;">XP</span>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+          <button type="button" class="btn-ghost-sm" id="cancelAwardXpBtn">Cancel</button>
+          <button type="submit" class="btn-wizard-next" style="background: #E8A820; color: #101828;">Award Points →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: ADD ACTIVITY TO CHALLENGE
+       ========================================================================== -->
+  <div class="wizard-modal-overlay" id="addActivityModal">
+    <div class="wizard-modal-dialog" style="max-width: 480px;">
+      <div class="wizard-modal-header">
+        <div class="wizard-title-box">
+          <h2>+ Add Activity Task</h2>
+          <p>Add a new required or optional drill to this challenge</p>
+        </div>
+        <button type="button" class="wizard-close-btn" id="closeAddActModalBtn">✕</button>
+      </div>
+
+      <form id="addActivityForm" class="wizard-modal-body">
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">Activity Title <span style="color:#FF6467;">*</span></label>
+          <input type="text" id="modalActTitle" class="wizard-field-input" placeholder="e.g. Match Focus Sprint" required>
+        </div>
+
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">Description</label>
+          <input type="text" id="modalActDesc" class="wizard-field-input" placeholder="Execute pre-game routine flawlessly...">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="wizard-field-group">
+            <label class="wizard-field-label">XP Reward</label>
+            <input type="number" id="modalActXp" class="wizard-field-input" value="50" min="5" step="5">
+          </div>
+
+          <div class="wizard-field-group">
+            <label class="wizard-field-label">Category</label>
+            <select id="modalActCategory" class="wizard-field-input">
+              <option value="mindset">Mindset</option>
+              <option value="technical">Technical</option>
+              <option value="reflection">Reflection</option>
+              <option value="recovery">Recovery</option>
+              <option value="mental">Mental</option>
+              <option value="tactical">Tactical</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+          <button type="button" class="btn-ghost-sm" id="cancelAddActModalBtn">Cancel</button>
+          <button type="submit" class="btn-wizard-next">Save Activity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: ADD PARTICIPANT TO CHALLENGE
+       ========================================================================== -->
+  <div class="wizard-modal-overlay" id="addParticipantModal">
+    <div class="wizard-modal-dialog" style="max-width: 480px;">
+      <div class="wizard-modal-header">
+        <div class="wizard-title-box">
+          <h2>👥 Enroll Athlete</h2>
+          <p>Add an athlete to participate in this challenge</p>
+        </div>
+        <button type="button" class="wizard-close-btn" id="closeAddPartModalBtn">✕</button>
+      </div>
+
+      <form id="addParticipantForm" class="wizard-modal-body">
+        <div class="wizard-field-group">
+          <label class="wizard-field-label">Select Athlete to Enroll</label>
+          <select id="modalEnrollAthleteSelect" class="wizard-field-input" required>
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
+          <button type="button" class="btn-ghost-sm" id="cancelAddPartModalBtn">Cancel</button>
+          <button type="submit" class="btn-wizard-next">Enroll Athlete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" style="position: fixed; bottom: 24px; right: 24px; background: #101828; color: #FFFFFF; padding: 12px 20px; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 8px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.25);">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Operation successful!</span>
+  </div>
+
+  <script src="/js/manage-challenge.js"></script>
+</body>
+</html>

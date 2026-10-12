@@ -5,32 +5,30 @@ const sessionSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true }, // e.g. "Week 4 Match Mentality Audit"
     sessionType: {
       type: String,
-      enum: ['1-on-1-mentorship-call', 'screening-call', 'admission-call', 'match-audit', 'group-webinar'],
-      default: '1-on-1-mentorship-call',
+      default: 'admission-call',
+      index: true,
     },
+    dateTime: { type: Date, default: null },
     coach: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      default: null,
       index: true,
     },
+    coachName: { type: String, default: '' }, // e.g. "Coach Rivera", "Valentin Di Lorenzo (Head Coach)"
     athlete: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      default: null,
       index: true,
     },
-    parent: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      default: null,
-    },
-    date: { type: Date, required: true, index: true },
-    startTime: { type: String, required: true }, // e.g. "14:00"
-    endTime: { type: String, required: true }, // e.g. "14:45"
-    duration: { type: Number, default: 45 }, // in minutes
+    athleteName: { type: String, default: '' }, // e.g. "Andrew Vasquez", "Prospect — Tyler Jackson"
+    date: { type: Date, required: true, index: true }, // e.g. 2026-09-03
+    startTime: { type: String, default: '10:00 AM' }, // e.g. "10:00 AM" or "All Day"
+    endTime: { type: String, default: '' },
+    duration: { type: String, default: '45 min' }, // e.g. "45 min", "30 min", "—", "60 min"
+    platform: { type: String, default: 'Zoom' }, // e.g. "Zoom", "App Upload", "WhatsApp Call", "Google Meet"
     meetingLink: { type: String, default: '' },
-    location: { type: String, default: 'Online' },
     status: {
       type: String,
       enum: ['scheduled', 'in-progress', 'completed', 'cancelled', 'rescheduled', 'no-show'],
