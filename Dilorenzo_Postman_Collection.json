@@ -1,0 +1,2759 @@
+{
+  "info": {
+    "_postman_id": "aad45aaa-81c1-4bd7-ac73-6e1c0797c00d",
+    "name": "Dilorenzo",
+    "description": "Di Lorenzo Soccer API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "createdAt": "2026-10-10T04:30:58.000Z",
+    "updatedAt": "2026-10-13T10:11:20.000Z",
+    "lastUpdatedBy": "48870830",
+    "uid": "48870830-aad45aaa-81c1-4bd7-ac73-6e1c0797c00d"
+  },
+  "item": [
+    {
+      "name": "User Role",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Sign in",
+              "id": "beb04964-c5e7-47c5-b81a-108cc69d2bd3",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"password\": \"hello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:14.000Z",
+              "uid": "48870830-beb04964-c5e7-47c5-b81a-108cc69d2bd3"
+            },
+            {
+              "name": "Sign Up",
+              "id": "010b5583-c0cc-46c7-9a8d-6cac2fa88c48",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Nasif\",\n  \"email\": \"nasif@gmail.com\",\n  \"password\": \"hello123\",\n  \"confirmPassword\": \"hello123\",\n  \"role\": \"user\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:15.000Z",
+              "uid": "48870830-010b5583-c0cc-46c7-9a8d-6cac2fa88c48"
+            },
+            {
+              "name": "Verify OTP",
+              "id": "2d9fe4be-f6ae-4534-ac7e-bee5b870d5b4",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:16.000Z",
+              "uid": "48870830-2d9fe4be-f6ae-4534-ac7e-bee5b870d5b4"
+            },
+            {
+              "name": "my profile",
+              "id": "1b743686-4d12-4ca0-869d-a1a1501c2196",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-10T04:30:59.000Z",
+              "uid": "48870830-1b743686-4d12-4ca0-869d-a1a1501c2196"
+            },
+            {
+              "name": "Forget Password",
+              "id": "972a221c-87f5-451c-9bb8-03aae49edbe5",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nasif@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:17.000Z",
+              "uid": "48870830-972a221c-87f5-451c-9bb8-03aae49edbe5"
+            },
+            {
+              "name": "resend otp",
+              "id": "a2abf851-5949-4156-804b-4142feba975e",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nasif@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:18.000Z",
+              "uid": "48870830-a2abf851-5949-4156-804b-4142feba975e"
+            },
+            {
+              "name": "Reset Password",
+              "id": "11002220-b651-464a-bc0b-aa012c4890db",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:18.000Z",
+              "uid": "48870830-11002220-b651-464a-bc0b-aa012c4890db"
+            },
+            {
+              "name": "Change Password",
+              "id": "ab8cd81b-d259-4efb-ad47-a828d2a747cc",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"newhello123\",\n  \"confirmPassword\": \"newhello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:19.000Z",
+              "uid": "48870830-ab8cd81b-d259-4efb-ad47-a828d2a747cc"
+            },
+            {
+              "name": "Update My Profile",
+              "id": "6320a404-9654-4d26-b93d-ad5ce5cf2195",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-10T04:30:59.000Z",
+              "uid": "48870830-6320a404-9654-4d26-b93d-ad5ce5cf2195"
+            }
+          ],
+          "id": "5fdcd10a-3267-4c41-8dd1-184a16c77734",
+          "createdAt": "2026-10-10T04:30:59.000Z",
+          "updatedAt": "2026-10-10T04:32:30.000Z",
+          "uid": "48870830-5fdcd10a-3267-4c41-8dd1-184a16c77734"
+        }
+      ],
+      "id": "f59e14a8-2120-4315-a804-f0e9ca9070c8",
+      "createdAt": "2026-10-10T04:30:59.000Z",
+      "updatedAt": "2026-10-11T03:43:25.000Z",
+      "uid": "48870830-f59e14a8-2120-4315-a804-f0e9ca9070c8"
+    },
+    {
+      "name": "Admin Role",
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Sign in",
+              "id": "4a436b41-81c7-4e0d-a504-d4a5c3fe32d7",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\" : \"marcus.sterling1@example.com\",\r\n    \"password\" : \"hello123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/signin",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "signin"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T06:03:10.000Z",
+              "uid": "48870830-4a436b41-81c7-4e0d-a504-d4a5c3fe32d7"
+            },
+            {
+              "name": "Verify OTP",
+              "id": "0b543608-86e0-48be-83fd-697bc44565db",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:19.000Z",
+              "uid": "48870830-0b543608-86e0-48be-83fd-697bc44565db"
+            },
+            {
+              "name": "my profile",
+              "id": "a635e03b-eff5-4810-b838-eae2ca01ddf8",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-10T04:30:59.000Z",
+              "uid": "48870830-a635e03b-eff5-4810-b838-eae2ca01ddf8"
+            },
+            {
+              "name": "Forget Password",
+              "id": "896a8c7f-70c7-4507-aafa-7d4639395506",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:20.000Z",
+              "uid": "48870830-896a8c7f-70c7-4507-aafa-7d4639395506"
+            },
+            {
+              "name": "resend otp",
+              "id": "8ed263e0-2632-408d-8751-a35cb218b58d",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:21.000Z",
+              "uid": "48870830-8ed263e0-2632-408d-8751-a35cb218b58d"
+            },
+            {
+              "name": "Reset Password",
+              "id": "a8f86ad8-dc7d-4494-8e8b-ff523c6a0c13",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:21.000Z",
+              "uid": "48870830-a8f86ad8-dc7d-4494-8e8b-ff523c6a0c13"
+            },
+            {
+              "name": "Change Password",
+              "id": "c22618c5-e88a-4ac5-b6be-1eed8940c150",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"newhello123\",\n  \"confirmPassword\": \"newhello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-11T08:31:22.000Z",
+              "uid": "48870830-c22618c5-e88a-4ac5-b6be-1eed8940c150"
+            },
+            {
+              "name": "update profile",
+              "id": "1facad73-370f-4891-b550-2066bc5a1b3a",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-10T04:30:59.000Z",
+              "updatedAt": "2026-10-10T04:30:59.000Z",
+              "uid": "48870830-1facad73-370f-4891-b550-2066bc5a1b3a"
+            }
+          ],
+          "id": "72e36ba4-6322-4671-afbb-fa9d97238306",
+          "createdAt": "2026-10-10T04:30:59.000Z",
+          "updatedAt": "2026-10-10T04:30:59.000Z",
+          "uid": "48870830-72e36ba4-6322-4671-afbb-fa9d97238306"
+        },
+        {
+          "name": "Dashboard",
+          "item": [
+            {
+              "name": "Add Coach & Provision Staff Account",
+              "id": "9991d9f1-e46a-489c-a94a-02d2bfb670a0",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "value": "application/json",
+                    "key": "Content-Type"
+                  },
+                  {
+                    "value": "en",
+                    "key": "Accept-Language"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Coach Matteo Rossi\",\n  \"email\": \"m.rossi@dsmsoccer.com\",\n  \"phoneNumber\": \"+44 7700 900821\",\n  \"roleTitle\": \"High-Performance Mindset Coach\",\n  \"bio\": \"10+ years specializing in mental fortitude, cognitive reaction speed, and pre-match composure for elite European youth academy players.\",\n  \"coachingPhilosophy\": \"10+ years specializing in mental fortitude, cognitive reaction speed, and pre-match composure for elite European youth academy players.\",\n  \"experienceYears\": 5,\n  \"maxAthleteCapacity\": 15,\n  \"operationalTimezone\": \"Europe/London (GMT+1)\",\n  \"username\": \"coach.matteo\",\n  \"password\": \"DSMCoach2026!\",\n  \"specialties\": [\n    \"Pre-Game Routines\",\n    \"Composure Under Pressure\"\n  ],\n  \"certifications\": [\n    \"UEFA Mental Performance Coaching (MPC)\",\n    \"FA Level 2 Coaching in Football\",\n    \"Di Lorenzo Mindset Certified Specialist\"\n  ],\n  \"coachPermissions\": [\n    \"Assign Habits & Drills\",\n    \"3-Way Group Voice/Chat\"\n  ],\n  \"sendWelcomeEmail\": true,\n  \"avatarInitials\": \"MR\",\n  \"avatarColor\": \"#C27AFF\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/coach",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "coach"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-11T03:50:00.000Z",
+              "updatedAt": "2026-10-11T03:54:42.000Z",
+              "uid": "48870830-9991d9f1-e46a-489c-a94a-02d2bfb670a0"
+            },
+            {
+              "name": "Get Coaches List",
+              "id": "44c2062b-d8ec-480e-aa96-7912d096fff0",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/coach",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "coach"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-11T03:50:00.000Z",
+              "updatedAt": "2026-10-11T04:03:10.000Z",
+              "uid": "48870830-44c2062b-d8ec-480e-aa96-7912d096fff0"
+            },
+            {
+              "name": "Add Athlete & Complete Intake",
+              "id": "9e23c29c-a0cf-650d-3fd8-83482a37bec1",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Marcus Sterling\",\n  \"email\": \"marcus.sterling1@example.com\",\n  \"phoneNumber\": \"+1 (555) 000-0000\",\n  \"tier\": \"90-day-mentorship\",\n  \"leagueDivision\": \"Regional Stars U18\",\n  \"assignedCoach\": \"Coach Rivera (Mental Performance Specialist) — 4/10 Active\",\n  \"parentFullName\": \"David Sterling\",\n  \"parentEmail\": \"david.sterling@example.com\",\n  \"intakeNotes\": \"Athlete struggled with pre-game anxiety in state finals. Goal: build 5-step composure habit.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/athlete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "athlete"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-11T04:11:29.000Z",
+              "updatedAt": "2026-10-11T06:03:12.000Z",
+              "uid": "48870830-9e23c29c-a0cf-650d-3fd8-83482a37bec1"
+            },
+            {
+              "name": "Get Athletes List",
+              "id": "1637085f-4b60-8fef-e8fb-618a5a2df101",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "value": "en",
+                    "key": "Accept-Language"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/athlete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "athlete"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-11T04:11:34.000Z",
+              "updatedAt": "2026-10-11T04:11:34.000Z",
+              "uid": "48870830-1637085f-4b60-8fef-e8fb-618a5a2df101"
+            },
+            {
+              "name": "Assign Dedicated Coach & Program",
+              "id": "c31860ac-fc49-4a86-b91f-d4f06de18d97",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acb0c4bf0bd964d711f17a5\",\n  \"coachId\": \"6acb088d1585cdc26ae1d8b9\",\n  \"tier\": \"90-Day Mentorship (Elite 1-on-1)\",\n  \"startingPhase\": \"Phase 1: Foundation (Days 1 – 30)\",\n  \"habits\": [\n    \"Ball mastery / Dribbling (5x/week)\",\n    \"Send action steps feedback (3x/week)\",\n    \"Morning Mindset Journal (Daily)\",\n    \"Breathing Reset 4-7-8 Protocol (Pre-training)\"\n  ],\n  \"autoLaunchGroupChat\": true,\n  \"adminWelcomeMessage\": \"Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/assign-coach",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "assign-coach"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "d396da63-9297-a9af-b54f-99764585d316",
+                  "name": "200 OK - Dedicated Coach & Program Assigned Successfully",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"athleteId\": \"6acb0c4bf0bd964d711f17a5\",\n  \"coachId\": \"6acb088d1585cdc26ae1d8b9\",\n  \"tier\": \"90-Day Mentorship (Elite 1-on-1)\",\n  \"startingPhase\": \"Phase 1: Foundation (Days 1 – 30)\",\n  \"habits\": [\n    \"Ball mastery / Dribbling (5x/week)\",\n    \"Send action steps feedback (3x/week)\",\n    \"Morning Mindset Journal (Daily)\",\n    \"Breathing Reset 4-7-8 Protocol (Pre-training)\"\n  ],\n  \"autoLaunchGroupChat\": true,\n  \"adminWelcomeMessage\": \"Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/v1/user/assign-coach",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "user",
+                        "assign-coach"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "value": "application/json",
+                      "key": "Content-Type"
+                    }
+                  ],
+                  "cookie": [],
+                  "responseTime": null,
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"type\": \"CoachAssignment\",\n  \"message\": \"Dedicated coach and mentorship program assigned successfully\",\n  \"data\": {\n    \"athlete\": {\n      \"_id\": \"6708b5e28a9b1c0012e34567\",\n      \"fullName\": \"Andrew Vasquez\",\n      \"email\": \"andrew.vasquez@example.com\",\n      \"role\": \"athlete\",\n      \"tier\": \"90-day-mentorship\",\n      \"startingPhase\": \"Phase 1: Foundation (Days 1 – 30)\",\n      \"mentorshipPhase\": \"foundation\",\n      \"assignedHabits\": [\n        \"Ball mastery / Dribbling (5x/week)\",\n        \"Send action steps feedback (3x/week)\",\n        \"Morning Mindset Journal (Daily)\",\n        \"Breathing Reset 4-7-8 Protocol (Pre-training)\"\n      ],\n      \"assignedCoach\": {\n        \"_id\": \"6708b5e28a9b1c0012e34568\",\n        \"fullName\": \"Coach Rivera\",\n        \"roleTitle\": \"Mental Performance Specialist\",\n        \"maxAthleteCapacity\": 10,\n        \"avatarColor\": \"#C27AFF\",\n        \"avatarInitials\": \"CR\"\n      },\n      \"adminWelcomeMessage\": \"Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.\"\n    },\n    \"coach\": {\n      \"_id\": \"6708b5e28a9b1c0012e34568\",\n      \"fullName\": \"Coach Rivera\",\n      \"roleTitle\": \"Mental Performance Specialist\"\n    },\n    \"chatRoom\": {\n      \"_id\": \"6708b5e28a9b1c0012e34569\",\n      \"name\": \"3-Way Mentorship Group (Andrew Vasquez & Coach Rivera)\",\n      \"type\": \"3-way\",\n      \"isActive\": true\n    },\n    \"tier\": \"90-day-mentorship\",\n    \"startingPhase\": \"Phase 1: Foundation (Days 1 – 30)\",\n    \"assignedHabits\": [\n      \"Ball mastery / Dribbling (5x/week)\",\n      \"Send action steps feedback (3x/week)\",\n      \"Morning Mindset Journal (Daily)\",\n      \"Breathing Reset 4-7-8 Protocol (Pre-training)\"\n    ],\n    \"adminWelcomeMessage\": \"Welcome to your private 90-Day Mentorship group! Your coach has been assigned to your program. This is your space for all weekly habit accountability, video reviews, and session recordings.\"\n  }\n}",
+                  "createdAt": "2026-10-11T06:12:47.000Z",
+                  "updatedAt": "2026-10-11T06:12:47.000Z",
+                  "uid": "48870830-d396da63-9297-a9af-b54f-99764585d316"
+                }
+              ],
+              "createdAt": "2026-10-11T06:11:42.000Z",
+              "updatedAt": "2026-10-11T06:25:34.000Z",
+              "uid": "48870830-c31860ac-fc49-4a86-b91f-d4f06de18d97"
+            },
+            {
+              "name": "Get Assignment Overview",
+              "id": "f4f63798-3d20-b2bf-95bb-6dd6e953432c",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "value": "en",
+                    "key": "Accept-Language"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/assign-coach/overview",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "assign-coach",
+                    "overview"
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:12:53.000Z",
+              "updatedAt": "2026-10-11T06:12:53.000Z",
+              "uid": "48870830-f4f63798-3d20-b2bf-95bb-6dd6e953432c"
+            },
+            {
+              "name": "Get Community Challenges Page Overview",
+              "id": "d784763e-5e88-6ab2-9b49-569dff0aa275",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/overview",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "overview"
+                  ]
+                },
+                "description": "Figma node 33299:22507 - Community Challenges Dashboard page overview. Returns top KPI metrics (activeChallengesCount, totalParticipantsCount, xpAwardedThisMonth) and challenge cards strictly containing: _id, icon, title, difficulty, description, athletesCount, startDate, endDate, xpGoal, and assignedAthletes [{ _id, fullName, image, avatarInitials, avatarColor }]."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T10:44:58.000Z",
+              "updatedAt": "2026-10-11T11:00:11.000Z",
+              "uid": "48870830-d784763e-5e88-6ab2-9b49-569dff0aa275"
+            }
+          ],
+          "id": "e499a6d5-2cdd-4985-97fa-5589a7f58ee4",
+          "createdAt": "2026-10-11T03:50:00.000Z",
+          "updatedAt": "2026-10-11T10:44:58.000Z",
+          "uid": "48870830-e499a6d5-2cdd-4985-97fa-5589a7f58ee4"
+        },
+        {
+          "name": "Challenge",
+          "item": [
+            {
+              "name": "Delete Challenge",
+              "id": "edf0be3d-84fa-cbe4-5840-ba8284284ee4",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/6acb308394763fb3abb3887a",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "6acb308394763fb3abb3887a"
+                  ]
+                },
+                "description": "Permanently delete a challenge and clean up participant enrollment records."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:55.000Z",
+              "updatedAt": "2026-10-11T08:15:50.000Z",
+              "uid": "48870830-edf0be3d-84fa-cbe4-5840-ba8284284ee4"
+            },
+            {
+              "name": "Update Challenge",
+              "id": "91d85ef1-43c5-f3bb-0128-7ce848a9f8ec",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Mental Toughness Sprint Week\",\n  \"difficulty\": \"hard\",\n  \"xpGoal\": 600\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/6acb308394763fb3abb3887a",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "6acb308394763fb3abb3887a"
+                  ]
+                },
+                "description": "Update challenge title, dates, xp goal, or difficulty tier. (Manage Challenge > Edit)"
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:46.000Z",
+              "updatedAt": "2026-10-11T08:28:05.000Z",
+              "uid": "48870830-91d85ef1-43c5-f3bb-0128-7ce848a9f8ec"
+            },
+            {
+              "name": "Award XP to Challenge Participant",
+              "id": "beb53fd9-084c-436c-255a-6c6d5e0cb172",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acb269481bb041722d7e889\",\n  \"xpAmount\": 50,\n  \"activityTitle\": \"Morning Mindset Journal\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/6acb308394763fb3abb3887a/award-xp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "6acb308394763fb3abb3887a",
+                    "award-xp"
+                  ]
+                },
+                "description": "Award challenge XP points to an athlete, increment challenge progress, and update global leaderboard ranking. (Figma node 33384:4219)"
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:31.000Z",
+              "updatedAt": "2026-10-11T08:31:23.000Z",
+              "uid": "48870830-beb53fd9-084c-436c-255a-6c6d5e0cb172"
+            },
+            {
+              "name": "Add Participant to Challenge",
+              "id": "f16a8f16-d575-3eda-547d-2e76d88fc736",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acb0c4bf0bd964d711f17a5\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/:challengeId/participants",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    ":challengeId",
+                    "participants"
+                  ],
+                  "variable": [
+                    {
+                      "key": "challengeId",
+                      "value": "6acb5d77ebb3f8bc900a1c4a"
+                    }
+                  ]
+                },
+                "description": "Enroll an athlete into the challenge (Manage Challenge > Participants tab). (Figma node 33384:5694)"
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:24.000Z",
+              "updatedAt": "2026-10-11T10:35:07.000Z",
+              "uid": "48870830-f16a8f16-d575-3eda-547d-2e76d88fc736"
+            },
+            {
+              "name": "Add Activity to Challenge",
+              "id": "5093f21b-433d-4fce-54db-9f1c5bc6a4bb",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Match Focus Sprint\",\n  \"description\": \"Execute the 5-step pre-game routine and log 3 focus drills in 48 hours.\",\n  \"xpReward\": 50,\n  \"category\": \"technical\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/:challengeId/activities",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    ":challengeId",
+                    "activities"
+                  ],
+                  "variable": [
+                    {
+                      "key": "challengeId",
+                      "value": "6acb5d77ebb3f8bc900a1c4a"
+                    }
+                  ]
+                },
+                "description": "Add a new drill or task to an active challenge (Manage Challenge > Activities tab). (Figma node 33384:5212)"
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:14.000Z",
+              "updatedAt": "2026-10-11T10:05:42.000Z",
+              "uid": "48870830-5093f21b-433d-4fce-54db-9f1c5bc6a4bb"
+            },
+            {
+              "name": "Get Challenge Details & Management View",
+              "id": "b9dab365-2065-0c88-fecf-5a1a6dfa08f3",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/6acb5d77ebb3f8bc900a1c4a",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "6acb5d77ebb3f8bc900a1c4a"
+                  ]
+                },
+                "description": "Figma nodes 33384:4219 (Overview), 33384:5212 (Activities), 33384:5694 (Participants), and 33384:6692 (Leaderboard). Returns challenge top header metadata, activities with completion %, participants with avatar initials and colors, and live XP leaderboard rankings. Only necessary display fields returned."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:53:02.000Z",
+              "updatedAt": "2026-10-11T11:08:59.000Z",
+              "uid": "48870830-b9dab365-2065-0c88-fecf-5a1a6dfa08f3"
+            },
+            {
+              "name": "Create Challenge (Multi-Step Wizard)",
+              "id": "0526c56e-c5be-479d-f789-d91412d9d46b",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Mental Toughness Week\",\n  \"description\": \"Complete 7 consecutive daily mental drills and maintain 100% habit compliance under match conditions.\",\n  \"icon\": \"🏆\",\n  \"category\": \"mental\",\n  \"difficulty\": \"elite\",\n  \"startDate\": \"2026-09-01T00:00:00.000Z\",\n  \"endDate\": \"2026-09-30T00:00:00.000Z\",\n  \"xpGoal\": 500,\n  \"activities\": [\n    {\n      \"title\": \"Morning Mindset Journal\",\n      \"description\": \"Write 3 non-negotiables before training.\",\n      \"xpReward\": 50,\n      \"category\": \"mindset\"\n    },\n    {\n      \"title\": \"Goldfish Reset Protocol\",\n      \"description\": \"3-second memory purge after each mistake.\",\n      \"xpReward\": 75,\n      \"category\": \"mental\"\n    }\n  ],\n  \"assignedAthletes\": [\n    \"6acb269481bb041722d7e889\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge"
+                  ]
+                },
+                "description": "Create and launch a gamified academy challenge (Wizard Steps 1 to 4). (Figma nodes 33368:577, 33384:2128, 33373:1468, 33384:3578)"
+              },
+              "response": [],
+              "createdAt": "2026-10-11T06:52:46.000Z",
+              "updatedAt": "2026-10-11T10:05:52.000Z",
+              "uid": "48870830-0526c56e-c5be-479d-f789-d91412d9d46b"
+            },
+            {
+              "name": "Get Community Challenges Page Overview",
+              "id": "dbc5a32b-b98d-1411-3e76-b8046630ff6c",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/overview",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    "overview"
+                  ]
+                },
+                "description": "Figma node 33299:22507 - Community Challenges Dashboard page overview. Returns top KPI metrics (activeChallengesCount, totalParticipantsCount, xpAwardedThisMonth) and challenge cards strictly containing: _id, icon, title, difficulty, description, athletesCount, startDate, endDate, xpGoal, and assignedAthletes [{ _id, fullName, image, avatarInitials, avatarColor }]."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T10:44:51.000Z",
+              "updatedAt": "2026-10-11T11:00:03.000Z",
+              "uid": "48870830-dbc5a32b-b98d-1411-3e76-b8046630ff6c"
+            }
+          ],
+          "id": "b994dd8d-cb56-4249-9d94-206748d223a5",
+          "createdAt": "2026-10-11T08:04:06.000Z",
+          "updatedAt": "2026-10-11T11:02:39.000Z",
+          "uid": "48870830-b994dd8d-cb56-4249-9d94-206748d223a5"
+        },
+        {
+          "name": "Sessions & Admission Calls",
+          "item": [
+            {
+              "name": "Get Sessions & Admission Calls Overview",
+              "id": "0be3a85c-72b5-4ab9-a2e9-d5dcbaf0405b",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/session/overview?type=all",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "all",
+                      "description": "Filter category: all | sessions | assignments | admission calls | match activations"
+                    }
+                  ]
+                },
+                "description": "Get Sessions & Admission Calls overview with counts and session cards (Figma Node #33305:3332)."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T11:39:20.000Z",
+              "updatedAt": "2026-10-12T04:29:05.000Z",
+              "uid": "48870830-0be3a85c-72b5-4ab9-a2e9-d5dcbaf0405b"
+            },
+            {
+              "name": "Schedule Coaching Call or Screening",
+              "id": "5035015f-ba07-4d75-a6f9-94b317b5d348",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Week 4 Match Mentality Audit\",\n  \"sessionType\": \"ADMISSION CALL\",\n  \"coach\": \"6acb088d1585cdc26ae1d8b9\",\n  \"athlete\": \"6acb0c4bf0bd964d711f17a5\",\n  \"dateTime\": \"2026-10-11T04:10:51.557+00:00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/session",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session"
+                  ]
+                },
+                "description": "Schedule Coaching Call / Screening (Figma Node #33305:4485). Strictly contains only: title, sessionType, coach (User ID), athlete (User ID), dateTime (ISO format 2026-10-11T04:10:51.557+00:00)."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T11:39:20.000Z",
+              "updatedAt": "2026-10-11T11:39:20.000Z",
+              "uid": "48870830-5035015f-ba07-4d75-a6f9-94b317b5d348"
+            },
+            {
+              "name": "Get Session By ID",
+              "id": "d3ac0247-4112-4bfd-8f98-f6cd2fe0a837",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/session/:sessionId",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session",
+                    ":sessionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "sessionId",
+                      "value": "6acb7b205c663c7583b6250d",
+                      "description": "ID of the session"
+                    }
+                  ]
+                },
+                "description": "Get specific session details."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T11:39:20.000Z",
+              "updatedAt": "2026-10-12T04:27:06.000Z",
+              "uid": "48870830-d3ac0247-4112-4bfd-8f98-f6cd2fe0a837"
+            },
+            {
+              "name": "Update Session",
+              "id": "33f924b4-d4ab-4e42-917c-c50b449ff7d5",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Mentality Check-In\",\n  \"startTime\": \"6:00 PM\",\n  \"duration\": \"60 min\",\n  \"platform\": \"Google Meet\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/session/:sessionId",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session",
+                    ":sessionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "sessionId",
+                      "value": "6acb5d77ebb3f8bc900a1c4a"
+                    }
+                  ]
+                },
+                "description": "Update scheduled session details."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T11:39:20.000Z",
+              "updatedAt": "2026-10-11T11:39:20.000Z",
+              "uid": "48870830-33f924b4-d4ab-4e42-917c-c50b449ff7d5"
+            },
+            {
+              "name": "Delete Session",
+              "id": "0a97fedd-5649-44b3-b356-6f260cb96c66",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/session/:sessionId",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session",
+                    ":sessionId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "sessionId",
+                      "value": "6acb5d77ebb3f8bc900a1c4a"
+                    }
+                  ]
+                },
+                "description": "Remove scheduled session."
+              },
+              "response": [],
+              "createdAt": "2026-10-11T11:39:20.000Z",
+              "updatedAt": "2026-10-11T11:39:20.000Z",
+              "uid": "48870830-0a97fedd-5649-44b3-b356-6f260cb96c66"
+            }
+          ],
+          "id": "bb0038e9-367e-4b18-809f-e31d9d2a4019",
+          "createdAt": "2026-10-11T11:39:20.000Z",
+          "updatedAt": "2026-10-11T11:39:20.000Z",
+          "uid": "48870830-bb0038e9-367e-4b18-809f-e31d9d2a4019"
+        },
+        {
+          "name": "Master Libraries",
+          "item": [
+            {
+              "name": "Get Master Libraries Overview (Habits)",
+              "id": "e24ec0f9-fa2d-458e-ac89-ceb1234684b0",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/overview?type=habit",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "habit",
+                      "description": "Content category filter: habit | video-drill | reflection | curriculum | all"
+                    }
+                  ]
+                },
+                "description": "Get Master Libraries overview with dynamic MongoDB counts and habit items (Figma Node #33302:24339)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-e24ec0f9-fa2d-458e-ac89-ceb1234684b0"
+            },
+            {
+              "name": "Get Master Libraries Overview (Video Drills)",
+              "id": "6cb6330f-4534-40d2-a506-60460b48dcb2",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/overview?type=video-drill",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "video-drill"
+                    }
+                  ]
+                },
+                "description": "Get Master Libraries video drill bank cards (Figma Node #33304:673)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-6cb6330f-4534-40d2-a506-60460b48dcb2"
+            },
+            {
+              "name": "Get Master Libraries Overview (Reflection Forms)",
+              "id": "e1b25c40-1c21-462a-a5ae-67e362ffbe70",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/overview?type=reflection",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "reflection"
+                    }
+                  ]
+                },
+                "description": "Get Master Libraries reflection audit forms (Figma Node #33304:1357)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-e1b25c40-1c21-462a-a5ae-67e362ffbe70"
+            },
+            {
+              "name": "Get Master Libraries Overview (90-Day Curriculums)",
+              "id": "56f41196-62ef-444a-b50b-f3182b452a40",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/overview?type=curriculum",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "curriculum"
+                    }
+                  ]
+                },
+                "description": "Get Master Libraries 90-day curriculum architectures (Figma Node #33304:2397)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-56f41196-62ef-444a-b50b-f3182b452a40"
+            },
+            {
+              "name": "Create Master Habit Template",
+              "id": "7c1b09c8-fe46-4f95-b0b1-43f6b0aab55f",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"habit\",\n  \"title\": \"Diaphragmatic Breathwork & Vagal Reset\",\n  \"category\": \"Recovery\",\n  \"frequency\": \"Daily (7x a week)\",\n  \"checkInWindow\": \"Morning (8:00 AM)\",\n  \"xpReward\": 50,\n  \"instructions\": \"Perform 4-7-8 box breathing for 5 minutes prior to leaving bed. Activates parasympathetic nervous system.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library"
+                  ]
+                },
+                "description": "Save new habit template to Master Libraries (Figma Node #33302:25759)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-7c1b09c8-fe46-4f95-b0b1-43f6b0aab55f"
+            },
+            {
+              "name": "Create Master Video Drill (Data Bundle + Separate Video File)",
+              "id": "cfdc41b0-b413-4546-8b15-5e95ddfe3289",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "data",
+                      "value": "{\n  \"contentType\": \"video-drill\",\n  \"title\": \"1v1 Body Feints & Explosive Change of Pace\",\n  \"category\": \"Technical\",\n  \"phase\": \"Foundation (Phase 1)\",\n  \"duration\": \"8:30 min\",\n  \"xpReward\": 100,\n  \"coachName\": \"Valentino Di Lorenzo\",\n  \"teachingPoints\": [\n    \"Drop shoulder before weight transfer\",\n    \"Explosive exit on second touch\",\n    \"Keep low center of gravity\"\n  ]\n}",
+                      "type": "text",
+                      "description": "Bundle of all non-file data fields (JSON string)"
+                    },
+                    {
+                      "key": "video",
+                      "type": "file",
+                      "description": "Video file uploaded separately (mp4, mov, webm, mkv up to 500MB)",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library"
+                  ]
+                },
+                "description": "Upload all data fields as a bundle under \"data\" and upload video file separately as \"video\" (Figma Node #33304:569). Note: There is no image field in the Master Library API."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-cfdc41b0-b413-4546-8b15-5e95ddfe3289"
+            },
+            {
+              "name": "Upload File Separately (Standalone)",
+              "id": "228b2c46-8226-410d-a859-9930d2e80b4b",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "description": "Select video or image file to upload separately",
+                      "value": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library/upload",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    "upload"
+                  ]
+                },
+                "description": "Upload any video or image file separately to receive its static hosted URL path for subsequent assignments."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-228b2c46-8226-410d-a859-9930d2e80b4b"
+            },
+            {
+              "name": "Create Master Reflection Form",
+              "id": "2d475b64-696a-4925-9029-ff1c99663132",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"reflection\",\n  \"title\": \"Post-Match Mentality & Performance Audit\",\n  \"formType\": \"Match Audit\",\n  \"completionTime\": \"5 min\",\n  \"prompt\": [\n    \"Rate your composure during peak game pressure (1-10)\",\n    \"How quickly did you execute the 3-second mistake reset after errors?\",\n    \"What was your primary tactical victory and execution highlight today?\"\n  ],\n  \"autoPostToChat\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library"
+                  ]
+                },
+                "description": "Save new reflection form to Master Libraries (Figma Node #33304:2141)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-2d475b64-696a-4925-9029-ff1c99663132"
+            },
+            {
+              "name": "Create Master Curriculum Architecture",
+              "id": "b1d207c3-35c2-4412-81df-dbd6c4a60de1",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contentType\": \"curriculum\",\n  \"title\": \"90-Day Elite Mentality Acceleration\",\n  \"curriculumType\": \"Flagship 90-Day\",\n  \"duration\": \"12 Weeks (90 Days)\",\n  \"tier\": \"Mentorship 90 Tier\",\n  \"phases\": [\n    {\n      \"phaseNumber\": 1,\n      \"title\": \"Foundation Mindset, Daily Priming & Non-Negotiable Habits (Days 1–30)\",\n      \"description\": \"Establish core routines and mental toughness\"\n    },\n    {\n      \"phaseNumber\": 2,\n      \"title\": \"In-Game Composure, Mistake Resets & Scanning Mastery (Days 31–60)\",\n      \"description\": \"Execute calm under match-day pressure\"\n    },\n    {\n      \"phaseNumber\": 3,\n      \"title\": \"Pro Showcase Readiness & Contract Mentality (Days 61–90)\",\n      \"description\": \"Peak competitive output and trial performance\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library"
+                  ]
+                },
+                "description": "Save new 90-day curriculum architecture to Master Libraries (Figma Node #33304:3116)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:26:08.000Z",
+              "uid": "48870830-b1d207c3-35c2-4412-81df-dbd6c4a60de1"
+            },
+            {
+              "name": "Get Library Item By ID",
+              "id": "ba3d184f-d150-405a-9043-ca28b1d4dd2f",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/:id",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "66fb8d19a27b8e192c7a9123"
+                    }
+                  ]
+                },
+                "description": "Get individual master library item details."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-ba3d184f-d150-405a-9043-ca28b1d4dd2f"
+            },
+            {
+              "name": "Update Library Item",
+              "id": "fd4cd549-71aa-49e6-aa2f-085988010558",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Diaphragmatic Breathwork & Vagal Reset (Updated)\",\n  \"xpReward\": 75\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/library/:id",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "66fb8d19a27b8e192c7a9123"
+                    }
+                  ]
+                },
+                "description": "Update existing master library item."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-fd4cd549-71aa-49e6-aa2f-085988010558"
+            },
+            {
+              "name": "Delete Library Item",
+              "id": "01d01b0f-a9bf-42f7-a453-d49abc62f33e",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/library/:id",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "library",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "66fb8d19a27b8e192c7a9123"
+                    }
+                  ]
+                },
+                "description": "Delete item from Master Libraries."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T04:18:58.000Z",
+              "updatedAt": "2026-10-12T04:18:58.000Z",
+              "uid": "48870830-01d01b0f-a9bf-42f7-a453-d49abc62f33e"
+            }
+          ],
+          "id": "55468cc5-3338-4f31-8d40-0a703eff8033",
+          "createdAt": "2026-10-12T02:46:35.000Z",
+          "updatedAt": "2026-10-12T02:46:35.000Z",
+          "uid": "48870830-55468cc5-3338-4f31-8d40-0a703eff8033"
+        }
+      ],
+      "id": "51a92f79-454c-4048-938b-202ec9c88d16",
+      "createdAt": "2026-10-10T04:30:59.000Z",
+      "updatedAt": "2026-10-11T08:04:06.000Z",
+      "uid": "48870830-51a92f79-454c-4048-938b-202ec9c88d16"
+    },
+    {
+      "name": "Coach Role",
+      "item": [
+        {
+          "name": "overview",
+          "item": [
+            {
+              "name": "Assign Athlete Training Video",
+              "id": "113b6a06-322f-4d07-99b0-465423d733d7",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Ball Mastery Phase 2\",\n  \"videoUrl\": \"https://youtube.com/watch?v=dQw4w9WgXcQ\",\n  \"category\": \"Technical\",\n  \"duration\": \"20 min\",\n  \"week\": 1\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/training",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "training"
+                  ]
+                },
+                "description": "Assign a training video drill to the athlete (Figma Node #33078:3174)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-113b6a06-322f-4d07-99b0-465423d733d7"
+            },
+            {
+              "name": "Get Athlete Overview",
+              "id": "513f0d62-2c60-4c73-b04a-ab23aa6a5308",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e"
+                  ]
+                },
+                "description": "Retrieves athlete overview (header profile, next scheduled session, recent action steps, active habits, recent tasks) strictly from MongoDB without any dummy or default fallback data."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-513f0d62-2c60-4c73-b04a-ab23aa6a5308"
+            },
+            {
+              "name": "Create Athlete Habit",
+              "id": "327c598a-1200-43c2-afe1-bf442280b7fb",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Daily Visualization\",\n  \"frequency\": \"daily\",\n  \"timesPerWeek\": 7,\n  \"startDate\": \"2026-08-15\",\n  \"category\": \"mindset\",\n  \"xpReward\": 10\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/habits",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "habits"
+                  ]
+                },
+                "description": "Assign a new habit to the athlete (Figma Node #33044:16326)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-327c598a-1200-43c2-afe1-bf442280b7fb"
+            },
+            {
+              "name": "Assign Athlete Task",
+              "id": "f0706ac9-3c9f-4c55-877f-2e4b2a465e13",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Complete Ball Mastery Session\",\n  \"dueDate\": \"2026-08-16\",\n  \"frequency\": \"Weekdays (5×)\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/tasks",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "tasks"
+                  ]
+                },
+                "description": "Assign a task to the athlete with due date and frequency (Figma Node #33074:1589)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-f0706ac9-3c9f-4c55-877f-2e4b2a465e13"
+            },
+            {
+              "name": "Toggle Task Completion Status",
+              "id": "99f53186-95e3-46b0-8ca2-d993a878d0a4",
+              "request": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/tasks/6acc837978fded8588b3ed87/status",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "tasks",
+                    "6acc837978fded8588b3ed87",
+                    "status"
+                  ]
+                },
+                "description": "Toggle task status between pending and completed (Figma Node #33061:1545)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-99f53186-95e3-46b0-8ca2-d993a878d0a4"
+            },
+            {
+              "name": "Give Coach Feedback",
+              "id": "58c3b584-197c-457e-9531-b904a8927ddb",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Tactical Awareness Milestone\",\n  \"message\": \"Exceptional visual scan frequency in transition.\",\n  \"tags\": [\"Focus\", \"Composure\"],\n  \"rating\": 5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/feedback",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "feedback"
+                  ]
+                },
+                "description": "Post coach feedback for an athlete. Includes optional rating (1 to 5), title, message, and tags."
+              },
+              "response": [
+                {
+                  "id": "6eaf1bb9-2d79-7541-62c6-738d1a0b6afc",
+                  "name": "201 Created (With Rating)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"title\": \"Tactical Awareness Milestone\",\n  \"message\": \"Exceptional visual scan frequency in transition.\",\n  \"tags\": [\"Focus\", \"Composure\"],\n  \"rating\": 5\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/feedback",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "coach",
+                        "players",
+                        "6acc80dca1df2a2ed315c20e",
+                        "feedback"
+                      ]
+                    },
+                    "description": "Post coach feedback for an athlete. Includes optional rating (1 to 5), title, message, and tags."
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "description": "",
+                      "value": "application/json",
+                      "key": "Content-Type"
+                    }
+                  ],
+                  "cookie": [],
+                  "responseTime": null,
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 201,\n  \"type\": \"CoachFeedback\",\n  \"message\": \"Coach feedback sent successfully\",\n  \"data\": {\n    \"athlete\": \"6acc80dca1df2a2ed315c20e\",\n    \"coach\": \"68e7b99c7ffec6ab93a921d1\",\n    \"title\": \"Tactical Awareness Milestone\",\n    \"message\": \"Exceptional visual scan frequency in transition.\",\n    \"tags\": [\n      \"Focus\",\n      \"Composure\"\n    ],\n    \"rating\": 5,\n    \"date\": \"2026-10-12T10:11:49.000Z\",\n    \"_id\": \"6acc837978fded8588b3ed8b\",\n    \"createdAt\": \"2026-10-12T10:11:49.000Z\",\n    \"updatedAt\": \"2026-10-12T10:11:49.000Z\"\n  }\n}",
+                  "createdAt": "2026-10-12T10:21:24.000Z",
+                  "updatedAt": "2026-10-12T10:21:24.000Z",
+                  "uid": "48870830-6eaf1bb9-2d79-7541-62c6-738d1a0b6afc"
+                }
+              ],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-58c3b584-197c-457e-9531-b904a8927ddb"
+            },
+            {
+              "name": "Review Action Step Submission",
+              "id": "7a68b9af-4975-4df0-af40-33eb50abbd55",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"reviewed\",\n  \"textNotes\": \"Stayed composed in tight moments during Wednesday session.\",\n  \"videoUrl\": \"https://www.loom.com/share/example\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/action-steps/6acc80dda1df2a2ed315c228/review",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "action-steps",
+                    "6acc80dda1df2a2ed315c228",
+                    "review"
+                  ]
+                },
+                "description": "Review an action step submission with notes or video feedback (Figma Node #33078:3424)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-7a68b9af-4975-4df0-af40-33eb50abbd55"
+            },
+            {
+              "name": "Add Session Notes",
+              "id": "208c89f2-3c1e-41b4-83a9-91100a8da7cf",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"notes\": \"Personalized pre-game routine established. Practice daily.\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/sessions/6acc80dda1df2a2ed315c23a/notes",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "sessions",
+                    "6acc80dda1df2a2ed315c23a",
+                    "notes"
+                  ]
+                },
+                "description": "Add or update notes on a completed coaching session (Figma Node #33092:10752)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-208c89f2-3c1e-41b4-83a9-91100a8da7cf"
+            },
+            {
+              "name": "Schedule Coaching Session",
+              "id": "bac8422c-1b87-4ce0-8774-84aa259c0c69",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Session 5 — Match Mentality\",\n  \"date\": \"2026-08-20\",\n  \"dateTime\": \"2026-08-20T14:00:00.000Z\",\n  \"startTime\": \"2:00 PM\",\n  \"duration\": \"45 min\",\n  \"platform\": \"Zoom\",\n  \"meetingLink\": \"{{zoom_meeting_link}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/sessions",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "sessions"
+                  ]
+                },
+                "description": "Schedule a new 1-on-1 mentorship session with meeting link and ISO dateTime (Figma Node #33092:10372)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "uid": "48870830-bac8422c-1b87-4ce0-8774-84aa259c0c69"
+            },
+            {
+              "name": "Get Coach Dashboard Overview",
+              "id": "302c90d3-1ff3-4767-9972-2edf6a759331",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/dashboard",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "dashboard"
+                  ]
+                },
+                "description": "Get Coach Web Dashboard overview including metrics (Assigned Players, Needs Attention, Pending Action Steps, Sessions Today), assigned player cards with progress and streak, recent activity timeline, and upcoming coaching sessions (Figma Node #33026:13150)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:02.000Z",
+              "uid": "48870830-302c90d3-1ff3-4767-9972-2edf6a759331"
+            },
+            {
+              "name": "Send 3-Way Group Message",
+              "id": "b09595de-4f23-4e39-8229-32ab1d006da5",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Excited to get started on the 90-day mentorship. Reviewing your intake notes now!\",\n  \"messageType\": \"text\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/group-message",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "group-message"
+                  ]
+                },
+                "description": "Send a message in the 3-Way Parent/Player/Coach group chat (Figma Node #33086:8034)."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T06:52:43.000Z",
+              "updatedAt": "2026-10-12T10:53:29.000Z",
+              "uid": "48870830-b09595de-4f23-4e39-8229-32ab1d006da5"
+            },
+            {
+              "name": "Get Athlete Habits",
+              "id": "2e4b2553-8b55-53f9-4364-a2e6de7cd7bb",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/habits",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "habits"
+                  ]
+                },
+                "description": "Get all active habits, frequencies, and streaks for the athlete."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:33:11.000Z",
+              "updatedAt": "2026-10-12T10:55:17.000Z",
+              "uid": "48870830-2e4b2553-8b55-53f9-4364-a2e6de7cd7bb"
+            },
+            {
+              "name": "Get Athlete Training",
+              "id": "e8535bd0-dcce-05e9-4a5e-674806092db2",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/training",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "training"
+                  ]
+                },
+                "description": "Get all training video and drill assignments for the athlete."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:33:03.000Z",
+              "updatedAt": "2026-10-12T10:55:17.000Z",
+              "uid": "48870830-e8535bd0-dcce-05e9-4a5e-674806092db2"
+            },
+            {
+              "name": "Get Athlete Tasks",
+              "id": "c52b7269-3a2c-3257-0c50-724c44de5a43",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/tasks",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "tasks"
+                  ]
+                },
+                "description": "Get all tasks assigned to the athlete with completion status, due dates, and frequencies."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:32:53.000Z",
+              "updatedAt": "2026-10-12T10:55:17.000Z",
+              "uid": "48870830-c52b7269-3a2c-3257-0c50-724c44de5a43"
+            },
+            {
+              "name": "Get Athlete Action Steps",
+              "id": "7a4828ab-df2c-24f6-854c-caadc6078128",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/action-steps",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "action-steps"
+                  ]
+                },
+                "description": "Get all practice and game action step submissions by the athlete with coach feedback."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:33:19.000Z",
+              "updatedAt": "2026-10-12T10:55:17.000Z",
+              "uid": "48870830-7a4828ab-df2c-24f6-854c-caadc6078128"
+            },
+            {
+              "name": "Get Athlete Coach Feedback",
+              "id": "9051dc7a-7cf1-194d-8ee6-d0878a2daf8c",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/feedback",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "feedback"
+                  ]
+                },
+                "description": "Fetch dedicated list of coach feedback entries for a specific athlete. Returns array of feedback items with _id, title, date, rating (1 to 5), message, and tags."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:33:26.000Z",
+              "updatedAt": "2026-10-12T11:14:09.000Z",
+              "uid": "48870830-9051dc7a-7cf1-194d-8ee6-d0878a2daf8c"
+            },
+            {
+              "name": "Get Athlete Sessions",
+              "id": "d3979fcc-19e9-01f4-b2a5-12b7612fd36d",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/sessions",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "sessions"
+                  ]
+                },
+                "description": "Get scheduled upcoming and completed 1-on-1 coaching sessions for the athlete."
+              },
+              "response": [],
+              "createdAt": "2026-10-12T09:33:33.000Z",
+              "updatedAt": "2026-10-12T10:55:20.000Z",
+              "uid": "48870830-d3979fcc-19e9-01f4-b2a5-12b7612fd36d"
+            },
+            {
+              "name": "Get Athlete Progress",
+              "id": "6e97b560-4478-4285-bc09-1b7d194d78e9",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/progress?filter=monthly",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    "6acc80dca1df2a2ed315c20e",
+                    "progress"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter",
+                      "value": "monthly",
+                      "description": "monthly | weekly | program"
+                    }
+                  ]
+                },
+                "description": "Get Athlete 90-day progress analytics with weekly and monthly filters. Returns real-time task completion rate, habit consistency rate, training done rate, and 90-day phase advancement."
+              },
+              "response": [],
+              "createdAt": "2026-10-13T03:30:20.000Z",
+              "updatedAt": "2026-10-13T05:39:48.000Z",
+              "uid": "48870830-6e97b560-4478-4285-bc09-1b7d194d78e9"
+            }
+          ],
+          "id": "1488c289-e46b-4c12-ba07-35d8ae0b65cc",
+          "createdAt": "2026-10-12T10:52:46.000Z",
+          "updatedAt": "2026-10-13T05:40:02.000Z",
+          "uid": "48870830-1488c289-e46b-4c12-ba07-35d8ae0b65cc"
+        },
+        {
+          "name": "Get Athlete 3-Way Group Chat",
+          "id": "f8a2bc9f-d1da-3f2d-ef7b-31369ddef078",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/group-chat",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "players",
+                "6acc80dca1df2a2ed315c20e",
+                "group-chat"
+              ]
+            },
+            "description": "Get 3-way private group chat messages, participants, and chat room details for the athlete."
+          },
+          "response": [],
+          "createdAt": "2026-10-12T09:33:48.000Z",
+          "updatedAt": "2026-10-12T09:33:48.000Z",
+          "uid": "48870830-f8a2bc9f-d1da-3f2d-ef7b-31369ddef078"
+        },
+        {
+          "name": "Get Coach All Players Tasks Overview",
+          "id": "03dee15d-219e-5181-2980-acd61bf56d2c",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/tasks",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "tasks"
+              ]
+            },
+            "description": "Get tasks overview across all coach's players with quad stats (Today, Upcoming, Overdue, Completed) and player task completion metrics"
+          },
+          "response": [],
+          "createdAt": "2026-10-12T10:44:39.000Z",
+          "updatedAt": "2026-10-12T11:50:47.000Z",
+          "uid": "48870830-03dee15d-219e-5181-2980-acd61bf56d2c"
+        },
+        {
+          "name": "Get Coach All Players Training Overview",
+          "id": "79b6c43d-9452-6b26-b450-a7893d7bf4aa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/training",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "training"
+              ]
+            },
+            "description": "Get training programs overview across all coach's players with quad stats (Today, Upcoming, Overdue, Completed) and player video progress cards (Figma #33097:13469)"
+          },
+          "response": [],
+          "createdAt": "2026-10-12T10:44:46.000Z",
+          "updatedAt": "2026-10-12T11:32:10.000Z",
+          "uid": "48870830-79b6c43d-9452-6b26-b450-a7893d7bf4aa"
+        },
+        {
+          "name": "Get Coach All Players Feedback Overview",
+          "id": "c38744a7-6958-fb8b-de72-cf4c09dc4e69",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/feedback",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "feedback"
+              ]
+            },
+            "description": "Get coach feedback overview listing all assigned players, their last feedback dates, ratings, and count matching . No redundant coach object."
+          },
+          "response": [],
+          "createdAt": "2026-10-12T11:27:43.000Z",
+          "updatedAt": "2026-10-12T11:50:38.000Z",
+          "uid": "48870830-c38744a7-6958-fb8b-de72-cf4c09dc4e69"
+        },
+        {
+          "name": "Get Coach All Players Sessions Overview",
+          "id": "4b3b7813-e76a-5729-bd34-0a5a0fa50b7b",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/sessions",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "sessions"
+              ]
+            },
+            "description": "Get coach sessions overview categorized by upcoming and completed sessions with time/topic labels and meeting links . No redundant coach object."
+          },
+          "response": [],
+          "createdAt": "2026-10-12T11:28:05.000Z",
+          "updatedAt": "2026-10-12T11:50:34.000Z",
+          "uid": "48870830-4b3b7813-e76a-5729-bd34-0a5a0fa50b7b"
+        },
+        {
+          "name": "Get Coach All Players Overview",
+          "id": "0f2c9a05-2046-63cf-e11c-2814508fb09c",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/v1/coach/players",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "coach",
+                "players"
+              ]
+            },
+            "description": "Get coach players roster overview listing all assigned athletes with program progress, level, pending count, and status badges . No redundant coach object."
+          },
+          "response": [],
+          "createdAt": "2026-10-12T11:42:04.000Z",
+          "updatedAt": "2026-10-12T11:50:40.000Z",
+          "uid": "48870830-0f2c9a05-2046-63cf-e11c-2814508fb09c"
+        }
+      ],
+      "id": "e0d884c2-cd82-45af-8d88-f5a9f41d64db",
+      "createdAt": "2026-10-12T04:48:50.000Z",
+      "updatedAt": "2026-10-12T11:42:04.000Z",
+      "uid": "48870830-e0d884c2-cd82-45af-8d88-f5a9f41d64db"
+    },
+    {
+      "name": "Parent Role",
+      "item": [
+        {
+          "name": "Home",
+          "item": [
+            {
+              "name": "Get Parent Homepage (Default / Linked Child)",
+              "id": "84112d4b-ee59-41e8-b062-0c4c1bb3820a",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/home",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "home"
+                  ]
+                },
+                "description": "Fetches Parent Homepage Overview (Figma Node #32910:4742). Returns Header, Child Card, 4 Stat Pills (XP, Streak, Drills Done, Regional Rank), Weekly Goal Progress (Monday to Sunday), Next Coaching Session, Latest Coach Feedback, and Recent Achievement."
+              },
+              "response": [],
+              "createdAt": "2026-10-13T10:11:20.000Z",
+              "updatedAt": "2026-10-13T10:11:20.000Z",
+              "uid": "48870830-84112d4b-ee59-41e8-b062-0c4c1bb3820a"
+            },
+            {
+              "name": "Get Parent Homepage By Child ID (Query Param)",
+              "id": "44352368-1764-401d-a445-8e5d3d2178cd",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/home?athleteId=6acc80dca1df2a2ed315c20e",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "home"
+                  ],
+                  "query": [
+                    {
+                      "key": "athleteId",
+                      "value": "6acc80dca1df2a2ed315c20e",
+                      "description": "Specific child/athlete ID"
+                    }
+                  ]
+                },
+                "description": "Fetches Parent Homepage Overview for a specific child/athlete by passing query parameter athleteId (Figma Node #32910:4742)."
+              },
+              "response": [],
+              "createdAt": "2026-10-13T10:11:20.000Z",
+              "updatedAt": "2026-10-13T10:11:20.000Z",
+              "uid": "48870830-44352368-1764-401d-a445-8e5d3d2178cd"
+            },
+            {
+              "name": "Get Parent Dashboard (Overview Alias)",
+              "id": "9b0edd23-36c1-4e7e-80db-ef4b2fefb50a",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/dashboard",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "dashboard"
+                  ]
+                },
+                "description": "Dashboard alias endpoint for Parent overview."
+              },
+              "response": [],
+              "createdAt": "2026-10-13T10:11:20.000Z",
+              "updatedAt": "2026-10-13T10:11:20.000Z",
+              "uid": "48870830-9b0edd23-36c1-4e7e-80db-ef4b2fefb50a"
+            },
+            {
+              "name": "Get Parent Child Progress (Path Param)",
+              "id": "633caca6-4948-4333-9068-3921cacdcd5a",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/child/6acc80dca1df2a2ed315c20e",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "child",
+                    "6acc80dca1df2a2ed315c20e"
+                  ]
+                },
+                "description": "Fetches Parent view of child progress using route parameter :athleteId."
+              },
+              "response": [],
+              "createdAt": "2026-10-13T10:11:20.000Z",
+              "updatedAt": "2026-10-13T10:11:20.000Z",
+              "uid": "48870830-633caca6-4948-4333-9068-3921cacdcd5a"
+            }
+          ],
+          "id": "1421faa4-7a0a-4868-aee8-6fd7f96ba932",
+          "createdAt": "2026-10-13T10:11:20.000Z",
+          "updatedAt": "2026-10-13T10:11:20.000Z",
+          "uid": "48870830-1421faa4-7a0a-4868-aee8-6fd7f96ba932"
+        },
+        {
+          "name": "Progress",
+          "item": [
+            {
+              "name": "Get Athlete Progress",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/progress?athleteId=6acc80dca1df2a2ed315c20e&tab=week",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "progress"
+                  ],
+                  "query": [
+                    {
+                      "key": "athleteId",
+                      "value": "6acc80dca1df2a2ed315c20e",
+                      "description": "Athlete child ID (optional if parent has linked child)"
+                    },
+                    {
+                      "key": "tab",
+                      "value": "week",
+                      "description": "Tab filter: week | month | academy (omit to retrieve all tabs together)"
+                    }
+                  ]
+                },
+                "description": "Single endpoint handling all progress views and filters for Parents (Figma Nodes 32917:6566, 32917:7202, 32917:7790).\\n\\nFilters via \\\tab\\ query param:\\n- \\\tab=week\\: This Week view (Mental Performance score, Weekly Goal Progress, Daily Habits, Training Consistency)\\n- \\\tab=month\\: This Month view (Daily scores, Monthly Progress breakdown, Summary Stats)\\n- \\\tab=academy\\: Academy view (Curriculum week, completedPhase, runningPhase, Mindset Development, Achievements)\\n- (No tab): Returns all 3 views unified."
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "id": "faf9dd3e-8c55-4bcf-a933-a0ed0c4236ae",
+      "createdAt": "2026-10-13T10:11:20.000Z",
+      "updatedAt": "2026-10-13T10:11:20.000Z",
+      "uid": "48870830-faf9dd3e-8c55-4bcf-a933-a0ed0c4236ae"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "9b186556-30d1-4328-9aca-4090184fc4ce",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "e4a70a13-50dd-4fc3-9078-23ae08141853",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "cae13d29-efb0-4250-b6dd-4d8fefde7c87",
+      "key": "url",
+      "value": ""
+    }
+  ]
+}

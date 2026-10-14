@@ -11,8 +11,14 @@ const habitSchema = new mongoose.Schema(
     },
     frequency: {
       type: String,
-      enum: ['daily', 'weekly', 'match-day', 'pre-training', 'custom'],
-      default: 'daily',
+      default: 'Daily',
+    },
+    days: { type: String, default: '' },
+    completionRate: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ['active', 'paused'],
+      default: 'active',
     },
     timesPerWeek: { type: Number, default: 7 },
     xpReward: { type: Number, default: 10 },

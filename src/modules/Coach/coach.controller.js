@@ -19,6 +19,8 @@ const {
   getAthleteProgressService,
   getAthleteGroupChatService,
   createAthleteHabitService,
+  updateAthleteHabitService,
+  toggleHabitStatusService,
   createAthleteTaskService,
   toggleTaskStatusService,
   assignTrainingService,
@@ -208,7 +210,7 @@ const getAthleteSessionsController = catchAsync(async (req, res) => {
 
 const getAthleteProgressController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteProgressService(athleteId);
+  const result = await getAthleteProgressService(athleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -244,6 +246,34 @@ const createAthleteHabitController = catchAsync(async (req, res) => {
       statusCode: status.CREATED,
       type: 'AthleteHabit',
       message: 'Athlete habit created successfully',
+      data: result,
+    })
+  );
+});
+
+const updateAthleteHabitController = catchAsync(async (req, res) => {
+  const { habitId } = req.params;
+  const result = await updateAthleteHabitService(habitId, req.body);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'AthleteHabit',
+      message: 'Athlete habit updated successfully',
+      data: result,
+    })
+  );
+});
+
+const toggleHabitStatusController = catchAsync(async (req, res) => {
+  const { habitId } = req.params;
+  const result = await toggleHabitStatusService(habitId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'AthleteHabitStatus',
+      message: `Athlete habit ${result.status === 'paused' ? 'paused' : 'resumed'} successfully`,
       data: result,
     })
   );
@@ -387,6 +417,8 @@ module.exports = {
   getAthleteProgressController,
   getAthleteGroupChatController,
   createAthleteHabitController,
+  updateAthleteHabitController,
+  toggleHabitStatusController,
   createAthleteTaskController,
   toggleTaskStatusController,
   assignTrainingController,

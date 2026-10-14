@@ -138,23 +138,69 @@
       <!-- TAB CONTENT WRAPPER -->
       <div class="tab-panes-wrapper">
 
-        <!-- ==================== TAB 1: OVERVIEW ==================== -->
+        <!-- ==================== TAB 1: OVERVIEW (Figma node 33044:13763) ==================== -->
         <section class="tab-pane active" id="pane-overview">
           <div class="overview-grid">
             
-            <!-- Left Col: Upcoming Call & Recent Submissions -->
+            <!-- Left Col (Main content: 3 Metrics, Weekly Activity, Recent Action Steps) -->
             <div class="overview-col-left">
-              <!-- Next Session Card -->
+              <!-- 3 Metric Cards Grid (Task Rate, Habit Streak, Training) -->
+              <div class="overview-metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-val gold" id="ovTaskRate">78%</div>
+                  <div class="metric-lbl">Task Rate</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-val blue" id="ovHabitStreak">7d</div>
+                  <div class="metric-lbl">Habit Streak</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-val green" id="ovTrainingRate">60%</div>
+                  <div class="metric-lbl">Training</div>
+                </div>
+              </div>
+
+              <!-- Weekly Activity Card -->
+              <div class="panel-card" style="margin-top: 16px;">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">📅</span>
+                    <h3>Weekly Activity</h3>
+                  </div>
+                </div>
+                <div class="weekly-activity-row" id="ovWeeklyActivity">
+                  <!-- 7 Day blocks -->
+                </div>
+              </div>
+
+              <!-- Recent Action Steps (limit 3) -->
+              <div class="panel-card" style="margin-top: 16px;">
+                <div class="panel-header">
+                  <div class="panel-title-with-icon">
+                    <span class="panel-icon">📝</span>
+                    <h3>Recent Action Steps</h3>
+                  </div>
+                  <button class="link-btn-gold" onclick="window.switchTab('action-steps')">View All Steps &rarr;</button>
+                </div>
+                <div class="submissions-recap-list" id="ovSubmissionsList">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Col (Sidebar: Upcoming Session, Recent Achievements) -->
+            <div class="overview-col-right">
+              <!-- Next / Upcoming Session Card -->
               <div class="panel-card next-session-highlight" id="overviewNextSessionCard">
                 <div class="panel-header">
                   <div class="panel-title-with-icon">
                     <span class="panel-icon">📹</span>
-                    <h3>Next Scheduled Session</h3>
+                    <h3>Upcoming Session</h3>
                   </div>
                   <span class="badge-status-upcoming" id="ovNextSessionBadge">UPCOMING</span>
                 </div>
                 <div class="next-session-body">
-                  <div class="session-hero-title" id="ovNextSessionTitle">Session 4 — Resilience</div>
+                  <div class="session-hero-title" id="ovNextSessionTitle">Resilience &amp; Composure</div>
                   <div class="session-hero-time" id="ovNextSessionTime">Today · 3:00 PM</div>
                   <div class="session-btn-row">
                     <a href="javascript:void(0)" class="btn-join-gold" id="btnOvJoinSession">
@@ -163,52 +209,19 @@
                       </svg>
                       Join Session
                     </a>
-                    <button class="btn-outline-gold" id="btnOvAddNotes">Add Notes</button>
                   </div>
                 </div>
               </div>
 
-              <!-- Submissions from Player (Action Steps Recap) -->
-              <div class="panel-card">
+              <!-- Recent Achievements Card -->
+              <div class="panel-card" style="margin-top: 16px;">
                 <div class="panel-header">
                   <div class="panel-title-with-icon">
-                    <span class="panel-icon">📝</span>
-                    <h3>Recent Submissions</h3>
+                    <span class="panel-icon">🏆</span>
+                    <h3>Recent Achievements</h3>
                   </div>
-                  <button class="link-btn-gold" onclick="window.switchTab('action-steps')">View All</button>
                 </div>
-                <div class="submissions-recap-list" id="ovSubmissionsList">
-                  <!-- Dynamically populated -->
-                </div>
-              </div>
-            </div>
-
-            <!-- Right Col: Active Habits & Daily Checklist -->
-            <div class="overview-col-right">
-              <!-- Active Habits Quickview -->
-              <div class="panel-card">
-                <div class="panel-header">
-                  <div class="panel-title-with-icon">
-                    <span class="panel-icon">🔥</span>
-                    <h3>Active Habits</h3>
-                  </div>
-                  <button class="link-btn-gold" onclick="window.openNewHabitModal()">+ New Habit</button>
-                </div>
-                <div class="habits-quick-list" id="ovHabitsList">
-                  <!-- Dynamically populated -->
-                </div>
-              </div>
-
-              <!-- Pending Tasks Quickview -->
-              <div class="panel-card">
-                <div class="panel-header">
-                  <div class="panel-title-with-icon">
-                    <span class="panel-icon">✅</span>
-                    <h3>Assigned Tasks</h3>
-                  </div>
-                  <button class="link-btn-gold" onclick="window.openAssignTaskModal()">+ Assign Task</button>
-                </div>
-                <div class="tasks-quick-list" id="ovTasksList">
+                <div class="achievements-recap-list" id="ovAchievementsList">
                   <!-- Dynamically populated -->
                 </div>
               </div>
@@ -222,19 +235,31 @@
           <div class="pane-header-row">
             <div>
               <h2 class="pane-title" id="habitsTitle">Active Habits</h2>
-              <p class="pane-subtitle">Track consistency, streaks, and weekly check-ins across the 90-day program.</p>
             </div>
             <button class="btn-primary" id="btnOpenNewHabitModal">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              New Habit
+              Add Habit
             </button>
           </div>
 
-          <div class="habits-full-list" id="habitsFullList">
-            <!-- Dynamically populated habits with weekly check bubbles -->
+          <div class="habits-table-card">
+            <table class="data-table habits-table">
+              <thead>
+                <tr>
+                  <th style="width: 34%;">HABIT</th>
+                  <th style="width: 16%;">FREQUENCY</th>
+                  <th style="width: 24%;">DAYS</th>
+                  <th style="width: 14%;">COMPLETION</th>
+                  <th style="width: 12%; text-align: center;">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody id="habitsTableBody">
+                <!-- Dynamically populated habits -->
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -397,9 +422,9 @@
               <p class="pane-subtitle">Real-time completion metrics, habit consistency rate, and 90-day phase advancement.</p>
             </div>
             <div class="filter-pills" id="progressTimeframePills">
-              <button class="filter-pill" data-tf="week">Week</button>
-              <button class="filter-pill" data-tf="month">Month</button>
-              <button class="filter-pill active" data-tf="program">Program</button>
+              <button class="filter-pill active" data-filter="weekly">Weekly</button>
+              <button class="filter-pill" data-filter="monthly">Monthly</button>
+              <button class="filter-pill" data-filter="program">Program</button>
             </div>
           </div>
 
@@ -425,10 +450,10 @@
 
           <!-- Charts Row -->
           <div class="progress-charts-row">
-            <!-- Weekly Task Completion Rate Chart (Figma node 33086:7191) -->
+            <!-- Weekly / Monthly Task Completion Rate Chart (Figma node 33086:7191) -->
             <div class="panel-card chart-panel">
               <div class="panel-header">
-                <h3>Weekly Task Completion Rate</h3>
+                <h3 id="progressChartTitle">Weekly Task Completion Rate</h3>
               </div>
               <div class="weekly-bar-chart" id="weeklyBarChart">
                 <!-- Dynamically populated weekly bars -->

@@ -31,6 +31,9 @@ router.post('/players/:athleteId/training', coachController.assignTrainingContro
 // 3. Habits
 router.get('/players/:athleteId/habits', coachController.getAthleteHabitsController);
 router.post('/players/:athleteId/habits', coachController.createAthleteHabitController);
+router.patch('/players/:athleteId/habits/:habitId', coachController.updateAthleteHabitController);
+router.patch('/habits/:habitId/status', coachController.toggleHabitStatusController);
+router.patch('/habits/:habitId', coachController.updateAthleteHabitController);
 
 // 4. Action Steps
 router.get('/players/:athleteId/action-steps', coachController.getAthleteActionStepsController);
@@ -49,7 +52,6 @@ router.patch('/sessions/:sessionId/notes', coachController.updateSessionNotesCon
 
 // 7. Progress Analytics
 router.get('/players/:athleteId/progress', coachController.getAthleteProgressController);
-router.get('/players/:athleteId/progress-analytics', coachController.getAthleteProgressController);
 
 // 8. Group 3-Way Chat
 router.get('/players/:athleteId/group-chat', coachController.getAthleteGroupChatController);

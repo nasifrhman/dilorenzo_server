@@ -654,6 +654,112 @@ body {
   background: rgba(232, 168, 32, 0.1);
 }
 
+/* ==========================================================================
+   OVERVIEW METRICS & FIGMA NODE 33044:13763 COMPONENTS
+   ========================================================================== */
+.overview-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.metric-card {
+  background: #131820;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 32px;
+}
+
+.metric-val.gold { color: #E8A820; }
+.metric-val.blue { color: #3B82F6; }
+.metric-val.green { color: #27C281; }
+
+.metric-lbl {
+  font-size: 12px;
+  color: #BFBFBF;
+  margin-top: 4px;
+}
+
+.weekly-activity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.weekly-activity-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.weekly-day-box {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.weekly-day-box.active {
+  background: #E8A820;
+  box-shadow: 0 0 10px rgba(232, 168, 32, 0.3);
+}
+
+.weekly-day-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  color: #737378;
+  text-transform: uppercase;
+}
+
+.achievements-recap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.achievement-item:last-child {
+  border-bottom: none;
+}
+
+.achievement-icon {
+  font-size: 22px;
+}
+
+.achievement-title {
+  font-size: 14px;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
 /* Recaps in Overview */
 .submissions-recap-list, .habits-quick-list, .tasks-quick-list {
   display: flex;
@@ -724,6 +830,122 @@ body {
 /* ==========================================================================
    TAB 2: GOALS & HABITS (33044:14910)
    ========================================================================== */
+.habits-table-card {
+  background: #131820;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.habits-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.habits-table th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #BFBFBF;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.habits-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: #BFBFBF;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.habits-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.habits-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.habit-name-text {
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+.completion-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 170px;
+}
+
+.completion-percent {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.completion-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.completion-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.habit-actions-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-action-edit {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3B82F6;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action-edit:hover {
+  background: rgba(59, 130, 246, 0.25);
+  color: #60A5FA;
+}
+
+.btn-action-pause {
+  background: rgba(239, 68, 68, 0.1);
+  color: #FF5C5C;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action-pause:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.btn-action-pause.paused {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10B981;
+}
+
 .habits-full-list {
   display: flex;
   flex-direction: column;

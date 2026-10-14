@@ -9,6 +9,8 @@ const TrainingAssignment = require('./trainingAssignment.model');
 const CoachFeedback = require('./coachFeedback.model');
 const ChatRoom = require('../Chat/chatRoom.model');
 const Message = require('../Chat/message.model');
+const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+require('../Challenge/challenge.model');
 
 /**
  * Format relative time (e.g. 2h ago, 1d ago, Just now)
@@ -346,21 +348,11 @@ const getCoachDashboardOverviewService = async (query = {}) => {
  *  4. Sam Davies: 🦁, 0 pending (completed), 100%
  */
 const getCoachTasksOverviewService = async (query = {}) => {
-  // 1. Resolve Coach Rivera's 4 athletes in Figma order
-  const figmaAthleteNames = ['Alex Thompson', 'Marcus Silva', 'Jordan Lee', 'Sam Davies'];
-  const athletes = await User.find({
-    fullName: { $in: figmaAthleteNames },
-    role: 'athlete',
-    isDeleted: { $ne: true },
-  }).lean();
-
-  // Preserve exact Figma display order: Alex Thompson, Marcus Silva, Jordan Lee, Sam Davies
-  athletes.sort((a, b) => {
-    const idxA = figmaAthleteNames.indexOf(a.fullName);
-    const idxB = figmaAthleteNames.indexOf(b.fullName);
-    return idxA - idxB;
-  });
-
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId) {
+    athleteFilter.assignedCoach = query.coachId;
+  }
+  const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
   const tasks = await Task.find({ athlete: { $in: athleteIds } }).lean();
 
@@ -385,26 +377,11 @@ const getCoachTasksOverviewService = async (query = {}) => {
     }
   });
 
-  // Metrics matching Figma #33097:12108 (Today: 3, Upcoming: 8, Overdue: 2, Completed: 41)
   const metrics = {
-    today: Math.max(3, tasksToday),
-    upcoming: Math.max(8, tasksUpcoming),
-    overdue: Math.max(2, tasksOverdue),
-    completed: Math.max(41, tasksCompleted),
-  };
-
-  const figmaEmojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-  };
-
-  const figmaBaselineProgress = {
-    'Alex Thompson': 70,
-    'Marcus Silva': 90,
-    'Jordan Lee': 50,
-    'Sam Davies': 100,
+    today: tasksToday,
+    upcoming: tasksUpcoming,
+    overdue: tasksOverdue,
+    completed: tasksCompleted,
   };
 
   const players = athletes.map((a) => {
@@ -412,21 +389,23 @@ const getCoachTasksOverviewService = async (query = {}) => {
     const pendingTasks = aTasks.filter((t) => t.status !== 'completed');
     const completedTasks = aTasks.filter((t) => t.status === 'completed');
 
-    const pending = pendingTasks.length > 0 ? pendingTasks.length : (a.fullName === 'Sam Davies' ? 0 : 1);
-    const calculatedRate = aTasks.length > 0 ? Math.round((completedTasks.length / aTasks.length) * 100) : 0;
-    const progressPercentage = calculatedRate || figmaBaselineProgress[a.fullName] || 70;
+    const pending = pendingTasks.length;
+    const progressPercentage = aTasks.length > 0 ? Math.round((completedTasks.length / aTasks.length) * 100) : 0;
 
     let badgeType = 'pending';
     if (pending === 0) {
       badgeType = 'completed';
-    } else if (pending >= 3 || a.fullName === 'Jordan Lee' || a.fullName === 'Alex Thompson') {
-      badgeType = 'overdue';
+    } else {
+      const hasOverdue = pendingTasks.some((t) => t.dueDate && new Date(t.dueDate) < startOfToday);
+      if (hasOverdue) {
+        badgeType = 'overdue';
+      }
     }
 
     return {
       _id: a._id.toString(),
-      name: a.fullName,
-      avatarEmoji: a.avatarEmoji || figmaEmojiMap[a.fullName] || '🏃',
+      name: a.fullName || '',
+      avatarEmoji: a.avatarEmoji || '🏃',
       pending,
       progressPercentage,
       badgeType,
@@ -451,21 +430,11 @@ const getCoachTasksOverviewService = async (query = {}) => {
  * Note: No coach info per user requirement.
  */
 const getCoachTrainingOverviewService = async (query = {}) => {
-  // 1. Resolve Coach Rivera's 4 athletes in Figma order
-  const figmaAthleteNames = ['Alex Thompson', 'Marcus Silva', 'Jordan Lee', 'Sam Davies'];
-  const athletes = await User.find({
-    fullName: { $in: figmaAthleteNames },
-    role: 'athlete',
-    isDeleted: { $ne: true },
-  }).lean();
-
-  // Preserve exact Figma display order: Alex Thompson, Marcus Silva, Jordan Lee, Sam Davies
-  athletes.sort((a, b) => {
-    const idxA = figmaAthleteNames.indexOf(a.fullName);
-    const idxB = figmaAthleteNames.indexOf(b.fullName);
-    return idxA - idxB;
-  });
-
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId) {
+    athleteFilter.assignedCoach = query.coachId;
+  }
+  const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
   const trainings = await TrainingAssignment.find({ athlete: { $in: athleteIds } }).lean();
 
@@ -482,40 +451,25 @@ const getCoachTrainingOverviewService = async (query = {}) => {
     }
   });
 
-  // Metrics matching Figma #33097:13469 (Today: 3, Upcoming: 8, Overdue: 2, Completed: 41)
   const metrics = {
-    today: Math.max(3, trainToday),
-    upcoming: Math.max(8, trainUpcoming),
-    overdue: Math.max(2, trainOverdue),
-    completed: Math.max(41, trainCompleted),
-  };
-
-  const figmaEmojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-  };
-
-  const figmaWeeks = {
-    'Alex Thompson': 5,
-    'Marcus Silva': 10,
-    'Jordan Lee': 2,
-    'Sam Davies': 13,
+    today: trainToday,
+    upcoming: trainUpcoming,
+    overdue: trainOverdue,
+    completed: trainCompleted,
   };
 
   const players = athletes.map((a) => {
     const aTrainings = trainings.filter((t) => t.athlete.toString() === a._id.toString());
-    const completedVideos = aTrainings.filter((t) => t.status === 'completed').length || 3;
-    const totalVideos = aTrainings.length || 5;
-    const week = figmaWeeks[a.fullName] || (a.mentorshipDay ? Math.ceil(a.mentorshipDay / 7) : 1);
-    const progressPercentage = Math.round((completedVideos / totalVideos) * 100);
+    const completedVideos = aTrainings.filter((t) => t.status === 'completed').length;
+    const totalVideos = aTrainings.length;
+    const week = a.mentorshipDay ? Math.ceil(a.mentorshipDay / 7) : 1;
+    const progressPercentage = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
 
     return {
       _id: a._id.toString(),
-      name: a.fullName,
-      avatarEmoji: a.avatarEmoji || figmaEmojiMap[a.fullName] || '🏃',
-      club: a.currentClub || a.leagueDivision || 'Regional Stars U18',
+      name: a.fullName || '',
+      avatarEmoji: a.avatarEmoji || '🏃',
+      club: a.currentClub || a.leagueDivision || '',
       completedVideos,
       totalVideos,
       week,
@@ -542,44 +496,31 @@ const getCoachTrainingOverviewService = async (query = {}) => {
  * Note: No coach info per user requirement.
  */
 const getCoachFeedbackOverviewService = async (query = {}) => {
-  const figmaAthleteNames = ['Alex Thompson', 'Marcus Silva', 'Jordan Lee', 'Sam Davies'];
-  const athletes = await User.find({
-    fullName: { $in: figmaAthleteNames },
-    role: 'athlete',
-    isDeleted: { $ne: true },
-  }).lean();
-
-  athletes.sort((a, b) => {
-    const idxA = figmaAthleteNames.indexOf(a.fullName);
-    const idxB = figmaAthleteNames.indexOf(b.fullName);
-    return idxA - idxB;
-  });
-
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId) {
+    athleteFilter.assignedCoach = query.coachId;
+  }
+  const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
   const feedbacks = await CoachFeedback.find({ athlete: { $in: athleteIds } })
     .sort({ date: -1, createdAt: -1 })
     .lean();
 
-  const figmaEmojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-  };
-
   const players = athletes.map((a) => {
     const aFeedbacks = feedbacks.filter((fb) => fb.athlete.toString() === a._id.toString());
     const latestFb = aFeedbacks[0];
-    const dateFormatted = latestFb?.date ? formatReadableDate(latestFb.date) : 'Aug 5';
+    const dateFormatted = latestFb?.date
+      ? formatReadableDate(latestFb.date)
+      : (latestFb?.createdAt ? formatReadableDate(latestFb.createdAt) : '');
 
     return {
       _id: a._id.toString(),
-      name: a.fullName,
-      avatarEmoji: a.avatarEmoji || figmaEmojiMap[a.fullName] || '🏃',
+      name: a.fullName || '',
+      avatarEmoji: a.avatarEmoji || '🏃',
       lastFeedbackDate: dateFormatted,
-      lastFeedbackText: `Last feedback: ${dateFormatted}`,
-      rating: latestFb?.rating ?? 4.8,
-      feedbackCount: aFeedbacks.length || 1,
+      lastFeedbackText: dateFormatted ? `Last feedback: ${dateFormatted}` : 'No feedback yet',
+      rating: latestFb?.rating !== undefined && latestFb?.rating !== null ? Number(latestFb.rating) : 0,
+      feedbackCount: aFeedbacks.length,
     };
   });
 
@@ -602,12 +543,11 @@ const getCoachFeedbackOverviewService = async (query = {}) => {
  * Note: No coach info per user requirement.
  */
 const getCoachSessionsOverviewService = async (query = {}) => {
-  const figmaAthleteNames = ['Alex Thompson', 'Marcus Silva', 'Jordan Lee', 'Sam Davies'];
-  const athletes = await User.find({
-    fullName: { $in: figmaAthleteNames },
-    role: 'athlete',
-    isDeleted: { $ne: true },
-  }).lean();
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId) {
+    athleteFilter.assignedCoach = query.coachId;
+  }
+  const athletes = await User.find(athleteFilter).lean();
 
   const athleteMap = {};
   athletes.forEach((a) => {
@@ -619,20 +559,13 @@ const getCoachSessionsOverviewService = async (query = {}) => {
     .sort({ date: 1, startTime: 1 })
     .lean();
 
-  const figmaEmojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-  };
-
   const upcomingList = allSessions.filter((s) => s.status === 'scheduled');
   const completedList = allSessions.filter((s) => s.status === 'completed');
 
   const formatSessionItem = (s) => {
     const a = athleteMap[s.athlete?.toString()];
-    const athleteName = s.athleteName || a?.fullName || 'Athlete';
-    const avatarEmoji = a?.avatarEmoji || figmaEmojiMap[athleteName] || '🏃';
+    const athleteName = s.athleteName || a?.fullName || '';
+    const avatarEmoji = a?.avatarEmoji || '🏃';
 
     const isToday = s.date && new Date(s.date).toDateString() === new Date().toDateString();
     const dateLabel = isToday ? 'Today' : formatReadableDate(s.date);
@@ -641,7 +574,7 @@ const getCoachSessionsOverviewService = async (query = {}) => {
 
     return {
       _id: s._id.toString(),
-      athleteId: (s.athlete || a?._id)?.toString(),
+      athleteId: (s.athlete || a?._id)?.toString() || '',
       athleteName,
       avatarEmoji,
       topic: s.title || '',
@@ -670,107 +603,37 @@ const getCoachSessionsOverviewService = async (query = {}) => {
  * Note: No redundant coach info per user requirement.
  */
 const getCoachPlayersOverviewService = async (query = {}) => {
-  const figmaAthleteNames = [
-    'Alex Thompson',
-    'Marcus Silva',
-    'Jordan Lee',
-    'Sam Davies',
-    'Liam Brown',
-    'Emma Wilson',
-    'Noah Johnson',
-    'Grace Martinez',
-    'Zoe Kim',
-  ];
-
-  const figmaEmojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-    'Liam Brown': '🏆',
-    'Emma Wilson': '🌟',
-    'Noah Johnson': '💪',
-    'Grace Martinez': '🌈',
-    'Zoe Kim': '🔥',
-  };
-
-  const categoryMap = {
-    'Alex Thompson': 'active',
-    'Marcus Silva': 'active',
-    'Jordan Lee': 'attention',
-    'Sam Davies': 'finishing',
-    'Liam Brown': 'active',
-    'Emma Wilson': 'attention',
-    'Noah Johnson': 'active',
-    'Grace Martinez': 'finishing',
-    'Zoe Kim': 'finishing',
-  };
-
-  const figmaLastActiveMap = {
-    'Alex Thompson': '2h ago',
-    'Marcus Silva': '1d ago',
-    'Jordan Lee': '1d ago',
-    'Sam Davies': '4h ago',
-    'Liam Brown': '2d ago',
-    'Emma Wilson': '5h ago',
-    'Noah Johnson': '1h ago',
-    'Grace Martinez': '1d ago',
-    'Zoe Kim': '30m ago',
-  };
-
-  const figmaBaselineProgress = {
-    'Alex Thompson': 38,
-    'Marcus Silva': 74,
-    'Jordan Lee': 13,
-    'Sam Davies': 98,
-    'Liam Brown': 50,
-    'Emma Wilson': 29,
-    'Noah Johnson': 67,
-    'Grace Martinez': 80,
-    'Zoe Kim': 100,
-  };
-
-  const athletes = await User.find({
-    fullName: { $in: figmaAthleteNames },
-    role: 'athlete',
-    isDeleted: { $ne: true },
-  }).lean();
-
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId) {
+    athleteFilter.assignedCoach = query.coachId;
+  }
+  const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
   const actionSteps = await ActionStep.find({ athlete: { $in: athleteIds }, status: 'pending' }).lean();
 
   let players = athletes.map((a) => {
     const aSteps = actionSteps.filter((s) => s.athlete.toString() === a._id.toString());
-    const day = Number(a.mentorshipDay) || 1;
-    const progress =
-      figmaBaselineProgress[a.fullName] !== undefined
-        ? figmaBaselineProgress[a.fullName]
-        : Math.min(100, Math.round((day / 90) * 100));
-    const badgeType = categoryMap[a.fullName] || (aSteps.length >= 4 ? 'attention' : 'active');
+    const day = Number(a.mentorshipDay) || 0;
+    const progress = Math.min(100, Math.round((day / 90) * 100));
+    const badgeType = aSteps.length >= 4 ? 'attention' : (day >= 80 ? 'finishing' : 'active');
     const statusBadge = badgeType.toUpperCase();
+    const lastActive = formatRelativeTime(a.updatedAt || a.createdAt);
 
     return {
       _id: a._id.toString(),
-      name: a.fullName,
-      avatarEmoji: a.avatarEmoji || figmaEmojiMap[a.fullName] || '🏃',
-      club: a.currentClub || a.leagueDivision || 'Regional Stars U18',
-      programDay: `Day ${day}/90`,
-      programTrack: a.startingPhase || 'Development',
+      name: a.fullName || '',
+      avatarEmoji: a.avatarEmoji || '🏃',
+      club: a.currentClub || a.leagueDivision || '',
+      programDay: day ? `Day ${day}/90` : '',
+      programTrack: a.startingPhase || '',
       progressPercentage: progress,
       level: Number(a.level) || 1,
       levelLabel: `Lvl ${a.level || 1}`,
       pending: aSteps.length,
-      lastActive: figmaLastActiveMap[a.fullName] || formatRelativeTime(a.updatedAt || a.createdAt) || '1h ago',
+      lastActive: lastActive ? `Last active ${lastActive}` : '',
       statusBadge,
       badgeType,
     };
-  });
-
-  // Sort by Figma order
-  players.sort((a, b) => {
-    const idxA = figmaAthleteNames.indexOf(a.name);
-    const idxB = figmaAthleteNames.indexOf(b.name);
-    return (idxA !== -1 ? idxA : 999) - (idxB !== -1 ? idxB : 999);
   });
 
   // Apply query filter if specified
@@ -797,7 +660,11 @@ const getCoachPlayersOverviewService = async (query = {}) => {
 };
 
 /**
- * 2. Get Athlete Overview Data (Header details, next session, recent submissions, active habits, recent tasks)
+/**
+ * 2. Get Athlete Overview Data (Figma node 33044:13763)
+ * Header details, 3 Metric Cards (taskRate, habitStreak, trainingRate),
+ * Weekly Activity, Recent Action Steps (limit 3), Upcoming Session, Recent Achievements.
+ * Excludes unnecessary data not rendered on this page.
  */
 const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
   if (!mongoose.Types.ObjectId.isValid(athleteId)) {
@@ -825,14 +692,10 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
 
   const coach = coachDoc
     ? {
-        _id: coachDoc._id,
+        _id: coachDoc._id.toString(),
         name: coachDoc.fullName || '',
-        email: coachDoc.email || '',
-        title: coachDoc.currentClub || '',
-        role: coachDoc.roleTitle || '',
-        avatarColor: coachDoc.avatarColor || '',
-        avatarInitials: coachDoc.avatarInitials || '',
-        avatarEmoji: '',
+        title: coachDoc.currentClub || coachDoc.roleTitle || '',
+        club: coachDoc.currentClub || '',
       }
     : null;
 
@@ -846,12 +709,9 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
   const athlete = {
     _id: athleteDoc._id.toString(),
     name: athleteDoc.fullName || '',
-    fullName: athleteDoc.fullName || '',
-    email: athleteDoc.email || '',
     club: athleteDoc.currentClub || athleteDoc.leagueDivision || '',
-    leagueDivision: athleteDoc.leagueDivision || '',
-    tier: athleteDoc.tier || '',
-    tierLabel: athleteDoc.tier ? athleteDoc.tier.toUpperCase() : '',
+    tier: athleteDoc.tier === '90-day-mentorship' ? '90-Day Mentorship Client' : (athleteDoc.tier || ''),
+    tierLabel: athleteDoc.tier === '90-day-mentorship' ? '90-DAY MENTORSHIP CLIENT' : (athleteDoc.tier ? athleteDoc.tier.toUpperCase() : ''),
     day: dayNumber ? `${dayNumber}/${totalDays}` : '',
     dayNumber,
     totalDays,
@@ -859,16 +719,100 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     xp: Number(athleteDoc.xp) || 0,
     streak: athleteDoc.streak ? `${athleteDoc.streak}d` : '0d',
     streakDays: Number(athleteDoc.streak) || 0,
-    highestStreak: Number(athleteDoc.highestStreak) || 0,
-    mentorshipPhase: phase,
     progressPercentage,
+    mentorshipPhase: phase,
     caption: phase ? `${progressPercentage}% program complete · ${phaseCapitalized} phase` : `${progressPercentage}% program complete`,
-    avatarEmoji: '',
-    focusGoals: athleteDoc.focusGoals || '',
-    note: athleteDoc.note || '',
   };
 
-  // 4. Query Next Scheduled Session (1 doc)
+  // 4. Metric Cards (Task Rate, Habit Streak, Training Rate) - 100% Real DB Data
+  const [totalTasks, completedTasks, totalTrainings, completedTrainings] = await Promise.all([
+    Task.countDocuments({ athlete: athleteDoc._id }),
+    Task.countDocuments({ athlete: athleteDoc._id, status: 'completed' }),
+    TrainingAssignment.countDocuments({ athlete: athleteDoc._id }),
+    TrainingAssignment.countDocuments({ athlete: athleteDoc._id, status: 'completed' }),
+  ]);
+
+  const taskRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const habitStreak = `${Number(athleteDoc.streak) || 0}d`;
+  const trainingRate = totalTrainings > 0 ? Math.round((completedTrainings / totalTrainings) * 100) : 0;
+
+  // 5. Weekly Activity (M, T, W, T, F, S, S) - Habits, Drills/Tasks, Video Assignments
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const distanceToMonday = (dayOfWeek + 6) % 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - distanceToMonday);
+  monday.setHours(0, 0, 0, 0);
+
+  const weekStart = new Date(monday);
+  const weekEnd = new Date(monday.getTime() + 7 * 86400000);
+
+  const [weekLogs, weekTasks, weekTrainings] = await Promise.all([
+    HabitLog.find({
+      athlete: athleteDoc._id,
+      date: { $gte: weekStart, $lt: weekEnd },
+      status: 'completed',
+    }).lean(),
+    Task.find({
+      athlete: athleteDoc._id,
+      status: 'completed',
+      $or: [
+        { completedAt: { $gte: weekStart, $lt: weekEnd } },
+        { completedAt: null, updatedAt: { $gte: weekStart, $lt: weekEnd } },
+      ],
+    }).lean(),
+    TrainingAssignment.find({
+      athlete: athleteDoc._id,
+      status: 'completed',
+      $or: [
+        { completedAt: { $gte: weekStart, $lt: weekEnd } },
+        { completedAt: null, updatedAt: { $gte: weekStart, $lt: weekEnd } },
+      ],
+    }).lean(),
+  ]);
+
+  const activeDatesSet = new Set();
+  weekLogs.forEach((l) => {
+    if (l.date) activeDatesSet.add(new Date(l.date).toDateString());
+  });
+  weekTasks.forEach((t) => {
+    const d = t.completedAt || t.updatedAt;
+    if (d) activeDatesSet.add(new Date(d).toDateString());
+  });
+  weekTrainings.forEach((tr) => {
+    const d = tr.completedAt || tr.updatedAt;
+    if (d) activeDatesSet.add(new Date(d).toDateString());
+  });
+  const weekDayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  const weeklyActivity = weekDayLabels.map((dayLabel, index) => {
+    const dayDate = new Date(monday.getTime() + index * 86400000);
+    return {
+      day: dayLabel,
+      active: activeDatesSet.has(dayDate.toDateString()),
+    };
+  });
+
+  // 6. Recent Action Steps (limit 3, clean real data matching Figma node 33044:13763)
+  const recentActionStepsDocs = await ActionStep.find({ athlete: athleteDoc._id })
+    .sort({ submittedAt: -1, createdAt: -1 })
+    .limit(3)
+    .lean();
+
+  const recentActionSteps = recentActionStepsDocs.map((as) => {
+    const rawDate = as.submittedAt || as.createdAt;
+    const dateStr = rawDate ? formatReadableDate(rawDate) : '';
+    const status = as.status || 'pending';
+    return {
+      _id: as._id.toString(),
+      title: as.title || '',
+      date: dateStr,
+      status: status,
+      statusLabel: status.toUpperCase(),
+    };
+  });
+
+  // 7. Upcoming Session (1 doc from DB; null if none scheduled)
   const nextSessionDoc = await Session.findOne({
     athlete: athleteDoc._id,
     status: 'scheduled',
@@ -876,107 +820,59 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     .sort({ date: 1, startTime: 1 })
     .lean();
 
-  let nextSession = null;
+  let upcomingSession = null;
   if (nextSessionDoc) {
     const isToday = nextSessionDoc.date && new Date(nextSessionDoc.date).toDateString() === new Date().toDateString();
     const dateStr = isToday ? 'Today' : formatReadableDate(nextSessionDoc.date);
     const timeParts = [dateStr, nextSessionDoc.startTime].filter(Boolean);
-    nextSession = {
+    upcomingSession = {
       _id: nextSessionDoc._id.toString(),
       title: nextSessionDoc.title || '',
-      sessionType: nextSessionDoc.sessionType || '',
-      date: formatReadableDate(nextSessionDoc.date),
-      rawDate: nextSessionDoc.date || null,
-      dateTime: nextSessionDoc.dateTime || nextSessionDoc.date || null,
-      startTime: nextSessionDoc.startTime || '',
-      timeLabel: timeParts.join(' · '),
-      duration: nextSessionDoc.duration || '',
-      platform: nextSessionDoc.platform || '',
+      time: timeParts.join(' · ') || '',
       meetingLink: nextSessionDoc.meetingLink || '',
-      status: nextSessionDoc.status || '',
-      notes: nextSessionDoc.notes || '',
       canJoin: Boolean(nextSessionDoc.meetingLink) && nextSessionDoc.status === 'scheduled',
     };
   }
 
-  // 5. Query Recent Action Step Submissions (limit 3)
-  const recentActionStepsDocs = await ActionStep.find({ athlete: athleteDoc._id })
-    .sort({ createdAt: -1 })
-    .limit(3)
-    .lean();
+  // 8. Recent Achievements (Only real achievements earned by the athlete)
+  const recentAchievements = [];
+  if (athleteDoc.achievements && Array.isArray(athleteDoc.achievements) && athleteDoc.achievements.length > 0) {
+    athleteDoc.achievements.slice(0, 3).forEach((ach) => {
+      recentAchievements.push({
+        title: ach.title || ach.name || '',
+      });
+    });
+  } else {
+    const completedChallenges = await ChallengeParticipant.find({
+      athlete: athleteDoc._id,
+      $or: [{ isGoalReached: true }, { completedAt: { $ne: null } }],
+    })
+      .sort({ completedAt: -1, updatedAt: -1 })
+      .limit(3)
+      .populate('challenge', 'title')
+      .lean();
 
-  const recentActionSteps = recentActionStepsDocs.map((as) => {
-    const submittedDateStr = as.submittedAt ? formatReadableDate(as.submittedAt) : formatReadableDate(as.createdAt);
-    return {
-      _id: as._id.toString(),
-      title: as.title || '',
-      typeLabel: as.description || submittedDateStr || '',
-      submittedDate: submittedDateStr || '',
-      dayNumber: as.dayNumber || dayNumber || 0,
-      status: as.status || '',
-      statusLabel: as.status ? as.status.toUpperCase() : '',
-      mentalityUsed: as.mentalityUsed || '',
-      whatWentWell: as.whatWentWell || '',
-      areaToImprove: as.areaToImprove || '',
-      submissionNotes: as.submissionNotes || '',
-      submissionMedia: as.submissionMedia || [],
-      coachFeedback: as.coachFeedback || null,
-      hasFeedback: Boolean(as.coachFeedback?.textNotes || as.coachFeedback?.videoUrl),
-    };
-  });
-
-  // 6. Query Active Habits (limit 3)
-  const activeHabitsDocs = await Habit.find({
-    $or: [{ assignedAthletes: athleteDoc._id }, { isMasterLibrary: true }],
-    isActive: { $ne: false },
-  })
-    .sort({ createdAt: -1 })
-    .limit(3)
-    .lean();
-
-  const activeHabits = activeHabitsDocs.map((h) => ({
-    _id: h._id.toString(),
-    title: h.title || '',
-    description: h.description || '',
-    frequency: h.frequency || '',
-    frequencyLabel: h.frequency ? (h.frequency.charAt(0).toUpperCase() + h.frequency.slice(1)) : '',
-    timesPerWeek: h.timesPerWeek || 0,
-    xpReward: h.xpReward || 0,
-    streak: `${h.currentStreak || 0}d`,
-    streakDays: h.currentStreak || 0,
-    startDate: h.startDate ? formatReadableDate(h.startDate) : (h.createdAt ? formatReadableDate(h.createdAt) : ''),
-    icon: h.icon || '',
-  }));
-
-  // 7. Query Recent Tasks (limit 3)
-  const recentTasksDocs = await Task.find({ athlete: athleteDoc._id })
-    .sort({ dueDate: 1, createdAt: -1 })
-    .limit(3)
-    .lean();
-
-  const recentTasks = recentTasksDocs.map((t) => {
-    const isOverdue = t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'completed';
-    return {
-      _id: t._id.toString(),
-      title: t.title || '',
-      dueDate: t.dueDate ? formatReadableDate(t.dueDate) : '',
-      rawDueDate: t.dueDate || null,
-      frequency: t.frequency || '',
-      status: t.status || '',
-      isCompleted: t.status === 'completed',
-      isOverdue: Boolean(isOverdue),
-      completedAt: t.completedAt || null,
-    };
-  });
+    completedChallenges.forEach((cp) => {
+      if (cp.challenge?.title) {
+        recentAchievements.push({
+          title: cp.challenge.title,
+        });
+      }
+    });
+  }
 
   return {
     athlete,
     coach,
     overview: {
-      nextSession,
+      taskRate,
+      habitStreak,
+      trainingRate,
+      weeklyActivity,
       recentActionSteps,
-      activeHabits,
-      recentTasks,
+      upcomingSession,
+      nextSession: upcomingSession, // keep for backward compatibility
+      recentAchievements,
     },
   };
 };
@@ -1059,38 +955,79 @@ const getAthleteTrainingService = async (athleteId, query = {}) => {
 };
 
 /**
- * Get Athlete Habits (Dedicated API)
+ * Get Athlete Habits (Dedicated API - Figma node 33044:14910)
  */
 const getAthleteHabitsService = async (athleteId, query = {}) => {
   if (!mongoose.Types.ObjectId.isValid(athleteId)) {
     throw new Error('Invalid Athlete ID');
   }
 
-  const habitsList = await Habit.find({
+  const athlete = await User.findById(athleteId).select('fullName').lean();
+  if (!athlete) {
+    throw new Error('Athlete not found');
+  }
+
+  const filter = {
     $or: [{ assignedAthletes: athleteId }, { isMasterLibrary: true }],
-    isActive: { $ne: false },
-  })
-    .sort({ createdAt: -1 })
+  };
+
+  if (query.status) {
+    if (query.status === 'active') {
+      filter.$and = [
+        { $or: [{ status: 'active' }, { status: { $exists: false } }] },
+        { isActive: { $ne: false } },
+      ];
+    } else if (query.status === 'paused') {
+      filter.$or = [{ status: 'paused' }, { isActive: false }];
+    }
+  }
+
+  const habitsList = await Habit.find(filter)
+    .sort({ startDate: 1, createdAt: 1 })
     .lean();
 
-  const habits = habitsList.map((h) => ({
-    _id: h._id.toString(),
-    title: h.title || '',
-    description: h.description || '',
-    frequency: h.frequency || '',
-    frequencyLabel: h.frequency ? (h.frequency.charAt(0).toUpperCase() + h.frequency.slice(1)) : '',
-    timesPerWeek: h.timesPerWeek || 0,
-    xpReward: h.xpReward || 0,
-    streak: `${h.currentStreak || 0}d`,
-    streakDays: h.currentStreak || 0,
-    startDate: h.startDate ? formatReadableDate(h.startDate) : (h.createdAt ? formatReadableDate(h.createdAt) : ''),
-    icon: h.icon || '',
-  }));
+  const habits = habitsList.map((h) => {
+    const isPaused = h.status === 'paused' || h.isActive === false;
+    const status = isPaused ? 'paused' : 'active';
+
+    let completion = 0;
+    if (typeof h.completionRate === 'number') {
+      completion = h.completionRate;
+    } else if (typeof h.completion === 'number') {
+      completion = h.completion;
+    }
+
+    let frequency = h.frequency || 'Daily';
+    if (frequency.toLowerCase() === 'daily') frequency = 'Daily';
+    else if (frequency.toLowerCase() === 'weekly') frequency = 'Weekly';
+    else if (frequency.toLowerCase() === 'bi-weekly') frequency = 'Bi-weekly';
+
+    let days = h.days || '';
+    if (!days) {
+      if (frequency.toLowerCase() === 'daily') days = 'Every day';
+      else if (h.timesPerWeek === 5) days = 'Mon–Fri';
+      else if (h.timesPerWeek === 7) days = 'Every day';
+      else days = frequency;
+    }
+
+    return {
+      _id: h._id.toString(),
+      habit: h.title || '',
+      title: h.title || '',
+      frequency,
+      days,
+      completion,
+      status,
+      isActive: !isPaused,
+    };
+  });
 
   return {
     athleteId,
-    habits,
+    athleteName: athlete.fullName || '',
+    totalHabits: habits.length,
     totalCount: habits.length,
+    habits,
   };
 };
 
@@ -1230,9 +1167,9 @@ const getAthleteSessionsService = async (athleteId, query = {}) => {
 };
 
 /**
- * Get Athlete Progress Analytics (Dedicated API)
+ * Get Athlete Progress Analytics (Dedicated API - with weekly & monthly filter)
  */
-const getAthleteProgressService = async (athleteId) => {
+const getAthleteProgressService = async (athleteId, query = {}) => {
   if (!mongoose.Types.ObjectId.isValid(athleteId)) {
     throw new Error('Invalid Athlete ID');
   }
@@ -1242,82 +1179,236 @@ const getAthleteProgressService = async (athleteId) => {
     throw new Error('Athlete not found');
   }
 
+  // 1. Resolve Filter: 'weekly' (default), 'monthly', 'program'
+  const rawFilter = (query.filter || query.timeframe || query.period || query.range || 'weekly').toLowerCase();
+  const isMonthly = rawFilter === 'monthly' || rawFilter === 'month' || rawFilter === 'm';
+  const isProgram = rawFilter === 'program' || rawFilter === 'all';
+  const filterType = isProgram ? 'program' : isMonthly ? 'monthly' : 'weekly';
+
+  // 2. Mentorship Program Day & Overall Percentage
   const dayNumber = Number(athleteDoc.mentorshipDay) || 0;
   const progressPercentage = Math.min(100, Math.round((dayNumber / 90) * 100));
 
+  const athleteStartDate = athleteDoc.mentorshipStartDate || athleteDoc.startDate
+    ? new Date(athleteDoc.mentorshipStartDate || athleteDoc.startDate)
+    : new Date(Date.now() - Math.max(0, dayNumber - 1) * 86400000);
+
+  const currentWeekNum = Math.min(12, Math.max(1, Math.floor((dayNumber - 1) / 7) + 1));
+  const currentMonthNum = Math.min(3, Math.max(1, Math.floor((dayNumber - 1) / 30) + 1));
+
+  // 90-Day Program Phases (Foundation Days 1-30, Development Days 31-60, Performance Days 61-90)
   const foundationPercent = dayNumber >= 30 ? 100 : Math.round((dayNumber / 30) * 100);
   const developmentPercent = dayNumber <= 30 ? 0 : dayNumber >= 60 ? 100 : Math.round(((dayNumber - 30) / 30) * 100);
   const performancePercent = dayNumber <= 60 ? 0 : Math.min(100, Math.round(((dayNumber - 60) / 30) * 100));
+  const phases = {
+    foundation: foundationPercent,
+    development: developmentPercent,
+    performance: performancePercent,
+  };
 
+  // 3. Query Real Tasks
   const tasks = await Task.find({ athlete: athleteId }).lean();
-  const completedTasksCount = tasks.filter((t) => t.status === 'completed').length;
-  const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasksCount / tasks.length) * 100) : 0;
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter((t) => t.status === 'completed');
+  const overallTaskCompletionRate = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
 
-  const training = await TrainingAssignment.find({ athlete: athleteId }).lean();
-  const completedTrainingCount = training.filter((tr) => tr.status === 'completed').length;
-  const trainingDoneRate = training.length > 0 ? Math.round((completedTrainingCount / training.length) * 100) : 0;
+  // 4. Query Real Training Assignments
+  const trainings = await TrainingAssignment.find({ athlete: athleteId }).lean();
+  const totalTrainings = trainings.length;
+  const completedTrainings = trainings.filter((tr) => tr.status === 'completed');
+  const overallTrainingDoneRate = totalTrainings > 0 ? Math.round((completedTrainings.length / totalTrainings) * 100) : 0;
 
+  // 5. Query Real Habits & HabitLogs
   const athleteHabits = await Habit.find({
     $or: [{ assignedAthletes: athleteId }, { isMasterLibrary: true }],
     isActive: { $ne: false },
   }).lean();
+  const habitIds = athleteHabits.map((h) => h._id);
 
+  // -------------------------------------------------------------
+  // A. IF FILTER IS WEEKLY (Figma Node #33086:7191 "Week" View)
+  // Only weekly data, no monthly data, no program data, no extra data
+  // -------------------------------------------------------------
+  if (filterType === 'weekly') {
+    const parsedWeek = query.week ? parseInt(String(query.week).replace(/\D/g, ''), 10) : null;
+    const selectedWeekNum = parsedWeek && parsedWeek >= 1 && parsedWeek <= 12 ? parsedWeek : currentWeekNum;
+
+    // Build weekly buckets (W1 to W7 minimum or currentWeekNum)
+    const maxWeeks = Math.max(currentWeekNum, 7);
+    const weekBuckets = {};
+    for (let w = 1; w <= maxWeeks; w++) {
+      weekBuckets[`W${w}`] = { week: `W${w}`, completed: 0, total: 0 };
+    }
+
+    tasks.forEach((t) => {
+      const taskDate = new Date(t.dueDate || t.completedAt || t.createdAt);
+      const diffDays = Math.max(0, Math.floor((taskDate - athleteStartDate) / 86400000));
+      const wNum = Math.min(12, Math.floor(diffDays / 7) + 1);
+      const wKey = `W${wNum}`;
+      if (!weekBuckets[wKey]) {
+        weekBuckets[wKey] = { week: wKey, completed: 0, total: 0 };
+      }
+      weekBuckets[wKey].total += 1;
+      if (t.status === 'completed') {
+        weekBuckets[wKey].completed += 1;
+      }
+    });
+
+    const taskCompletion = Object.keys(weekBuckets).map((k) => {
+      const b = weekBuckets[k];
+      const rate = b.total > 0 ? Math.round((b.completed / b.total) * 100) : 0;
+      return {
+        label: b.week,
+        rate,
+      };
+    });
+
+    // Metric rates for active/selected week
+    const targetWeekBucket = weekBuckets[`W${selectedWeekNum}`];
+    const taskCompletionRate = targetWeekBucket && targetWeekBucket.total > 0
+      ? Math.round((targetWeekBucket.completed / targetWeekBucket.total) * 100)
+      : 0;
+
+    const weekTrainings = trainings.filter((tr) => tr.week === selectedWeekNum);
+    const trainingDoneRate = weekTrainings.length > 0
+      ? Math.round((weekTrainings.filter((tr) => tr.status === 'completed').length / weekTrainings.length) * 100)
+      : 0;
+
+    let habitConsistencyRate = 0;
+    if (athleteHabits.length > 0) {
+      const weekStart = new Date(athleteStartDate.getTime() + (selectedWeekNum - 1) * 7 * 86400000);
+      const weekEnd = new Date(athleteStartDate.getTime() + selectedWeekNum * 7 * 86400000);
+      const weeklyLogs = await HabitLog.countDocuments({
+        habit: { $in: habitIds },
+        athlete: athleteId,
+        status: 'completed',
+        date: { $gte: weekStart, $lt: weekEnd },
+      });
+      const activeDaysInWeek = Math.min(7, Math.max(1, dayNumber - (selectedWeekNum - 1) * 7));
+      const expectedLogs = athleteHabits.length * activeDaysInWeek;
+      if (weeklyLogs > 0 && expectedLogs > 0) {
+        habitConsistencyRate = Math.min(100, Math.round((weeklyLogs / expectedLogs) * 100));
+      }
+    }
+
+    return {
+      athleteId,
+      athleteName: athleteDoc.fullName || '',
+      filter: 'weekly',
+      progressPercentage,
+      taskCompletionRate,
+      habitConsistencyRate,
+      trainingDoneRate,
+      taskCompletion,
+      phases,
+    };
+  }
+
+  // -------------------------------------------------------------
+  // B. IF FILTER IS MONTHLY
+  // Only monthly data, no weekly data, no program data
+  // -------------------------------------------------------------
+  if (filterType === 'monthly') {
+    const parsedMonth = query.month ? parseInt(String(query.month).replace(/\D/g, ''), 10) : null;
+    const selectedMonthNum = parsedMonth && parsedMonth >= 1 && parsedMonth <= 3 ? parsedMonth : currentMonthNum;
+
+    const monthBuckets = {
+      M1: { month: 'M1', title: 'Month 1 (Days 1–30)', completed: 0, total: 0 },
+      M2: { month: 'M2', title: 'Month 2 (Days 31–60)', completed: 0, total: 0 },
+      M3: { month: 'M3', title: 'Month 3 (Days 61–90)', completed: 0, total: 0 },
+    };
+
+    tasks.forEach((t) => {
+      const taskDate = new Date(t.dueDate || t.completedAt || t.createdAt);
+      const diffDays = Math.max(0, Math.floor((taskDate - athleteStartDate) / 86400000));
+      const mNum = Math.min(3, Math.floor(diffDays / 30) + 1);
+      const mKey = `M${mNum}`;
+      if (monthBuckets[mKey]) {
+        monthBuckets[mKey].total += 1;
+        if (t.status === 'completed') {
+          monthBuckets[mKey].completed += 1;
+        }
+      }
+    });
+
+    const taskCompletion = Object.keys(monthBuckets).map((k) => {
+      const b = monthBuckets[k];
+      const rate = b.total > 0 ? Math.round((b.completed / b.total) * 100) : 0;
+      return {
+        label: b.month,
+        title: b.title,
+        rate,
+      };
+    });
+
+    const targetMonthBucket = monthBuckets[`M${selectedMonthNum}`];
+    const taskCompletionRate = targetMonthBucket && targetMonthBucket.total > 0
+      ? Math.round((targetMonthBucket.completed / targetMonthBucket.total) * 100)
+      : 0;
+
+    const monthWeeks = selectedMonthNum === 1 ? [1, 2, 3, 4] : selectedMonthNum === 2 ? [5, 6, 7, 8] : [9, 10, 11, 12];
+    const monthTrainings = trainings.filter((tr) => monthWeeks.includes(tr.week));
+    const trainingDoneRate = monthTrainings.length > 0
+      ? Math.round((monthTrainings.filter((tr) => tr.status === 'completed').length / monthTrainings.length) * 100)
+      : 0;
+
+    let habitConsistencyRate = 0;
+    if (athleteHabits.length > 0) {
+      const monthStart = new Date(athleteStartDate.getTime() + (selectedMonthNum - 1) * 30 * 86400000);
+      const monthEnd = new Date(athleteStartDate.getTime() + selectedMonthNum * 30 * 86400000);
+      const monthlyLogs = await HabitLog.countDocuments({
+        habit: { $in: habitIds },
+        athlete: athleteId,
+        status: 'completed',
+        date: { $gte: monthStart, $lt: monthEnd },
+      });
+      const activeDaysInMonth = Math.min(30, Math.max(1, dayNumber - (selectedMonthNum - 1) * 30));
+      const expectedLogs = athleteHabits.length * activeDaysInMonth;
+      if (monthlyLogs > 0 && expectedLogs > 0) {
+        habitConsistencyRate = Math.min(100, Math.round((monthlyLogs / expectedLogs) * 100));
+      }
+    }
+
+    return {
+      athleteId,
+      athleteName: athleteDoc.fullName || '',
+      filter: 'monthly',
+      progressPercentage,
+      taskCompletionRate,
+      habitConsistencyRate,
+      trainingDoneRate,
+      taskCompletion,
+      phases,
+    };
+  }
+
+  // -------------------------------------------------------------
+  // C. IF FILTER IS PROGRAM
+  // Program Phase Breakdown (Foundation, Development, Performance)
+  // -------------------------------------------------------------
   let habitConsistencyRate = 0;
   if (athleteHabits.length > 0) {
-    const habitIds = athleteHabits.map((h) => h._id);
-    const logsCount = await HabitLog.countDocuments({
+    const totalLogs = await HabitLog.countDocuments({
       habit: { $in: habitIds },
       athlete: athleteId,
       status: 'completed',
     });
-    const totalPossibleLogs = athleteHabits.length * Math.max(1, dayNumber);
-    habitConsistencyRate = Math.min(100, Math.round((logsCount / totalPossibleLogs) * 100));
+    const daysActive = Math.max(1, dayNumber);
+    const expectedTotalLogs = athleteHabits.length * daysActive;
+    if (totalLogs > 0 && expectedTotalLogs > 0) {
+      habitConsistencyRate = Math.min(100, Math.round((totalLogs / expectedTotalLogs) * 100));
+    }
   }
-
-  // Calculate real weekly task completion
-  const weeklyTaskCompletion = [];
-  if (tasks.length > 0) {
-    const athleteCreatedAt = new Date(athleteDoc.createdAt || Date.now());
-    const weekBuckets = {};
-    tasks.forEach((t) => {
-      const taskDate = new Date(t.createdAt || athleteCreatedAt);
-      const diffDays = Math.max(0, Math.floor((taskDate - athleteCreatedAt) / (1000 * 60 * 60 * 24)));
-      const weekNum = Math.min(12, Math.floor(diffDays / 7) + 1);
-      const weekKey = `W${weekNum}`;
-      if (!weekBuckets[weekKey]) {
-        weekBuckets[weekKey] = { total: 0, completed: 0 };
-      }
-      weekBuckets[weekKey].total += 1;
-      if (t.status === 'completed') {
-        weekBuckets[weekKey].completed += 1;
-      }
-    });
-
-    Object.keys(weekBuckets).sort().forEach((wKey) => {
-      const b = weekBuckets[wKey];
-      weeklyTaskCompletion.push({
-        week: wKey,
-        rate: b.total > 0 ? Math.round((b.completed / b.total) * 100) : 0,
-      });
-    });
-  }
-
-  const progressAnalytics = {
-    progressPercentage,
-    taskCompletionRate,
-    habitConsistencyRate,
-    trainingDoneRate,
-    weeklyTaskCompletion,
-    phases: {
-      foundation: { label: 'Foundation (Days 1–30)', percent: foundationPercent },
-      development: { label: 'Development (Days 31–60)', percent: developmentPercent },
-      performance: { label: 'Performance (Days 61–90)', percent: performancePercent },
-    },
-  };
 
   return {
     athleteId,
-    progressAnalytics,
+    athleteName: athleteDoc.fullName || '',
+    filter: 'program',
+    progressPercentage,
+    taskCompletionRate: overallTaskCompletionRate,
+    habitConsistencyRate,
+    trainingDoneRate: overallTrainingDoneRate,
+    phases,
   };
 };
 
@@ -1392,38 +1483,9 @@ const getAthleteGroupChatService = async (athleteId) => {
 };
 
 /**
- * General Player Detail Service (Defaults to Overview; supports ?full=true fallback)
+ * General Player Detail Service (Figma node 33044:13763 Overview)
  */
 const getCoachPlayerDetailService = async (athleteId, coachId = null, query = {}) => {
-  if (query.all === 'true' || query.full === 'true') {
-    const overview = await getCoachPlayerOverviewService(athleteId, coachId);
-    const [tasksRes, trainingRes, habitsRes, actionStepsRes, feedbackRes, sessionsRes, progressRes, groupRes] =
-      await Promise.all([
-        getAthleteTasksService(athleteId),
-        getAthleteTrainingService(athleteId),
-        getAthleteHabitsService(athleteId),
-        getAthleteActionStepsService(athleteId),
-        getAthleteFeedbackService(athleteId),
-        getAthleteSessionsService(athleteId),
-        getAthleteProgressService(athleteId),
-        getAthleteGroupChatService(athleteId),
-      ]);
-
-    return {
-      athlete: overview.athlete,
-      coach: overview.coach,
-      overview: overview.overview,
-      habits: habitsRes.habits,
-      tasks: tasksRes.tasks,
-      training: trainingRes.training,
-      actionSteps: actionStepsRes.actionSteps,
-      feedback: feedbackRes.feedback,
-      progressAnalytics: progressRes.progressAnalytics,
-      group: groupRes.group,
-      sessions: sessionsRes.sessions,
-    };
-  }
-
   return await getCoachPlayerOverviewService(athleteId, coachId);
 };
 
@@ -1435,25 +1497,124 @@ const createAthleteHabitService = async (athleteId, data, coachId = null) => {
     throw new Error('Invalid Athlete ID');
   }
 
-  const { title, frequency = 'daily', timesPerWeek = 7, startDate = new Date(), category = 'mindset', xpReward = 10 } = data;
-  if (!title) {
+  const {
+    title,
+    habit,
+    frequency = 'Daily',
+    days = '',
+    timesPerWeek = 7,
+    startDate = new Date(),
+    category = 'mindset',
+    xpReward = 10,
+    completion = 0,
+    completionRate = 0,
+    status = 'active',
+  } = data;
+
+  const habitTitle = title || habit;
+  if (!habitTitle) {
     throw new Error('Habit title is required');
   }
 
-  const habit = await Habit.create({
-    title,
+  const isPaused = status === 'paused';
+  const newHabit = await Habit.create({
+    title: habitTitle,
     frequency,
-    timesPerWeek: frequency === 'daily' ? 7 : Number(timesPerWeek) || 5,
+    days: days || (frequency === 'Daily' ? 'Every day' : ''),
+    timesPerWeek: Number(timesPerWeek) || 7,
+    completionRate: Number(completion || completionRate) || 0,
     category,
     xpReward: Number(xpReward) || 10,
-    startDate: new Date(startDate),
+    startDate: startDate ? new Date(startDate) : new Date(),
     assignedAthletes: [athleteId],
     assignedCoaches: coachId && mongoose.Types.ObjectId.isValid(coachId) ? [coachId] : [],
     currentStreak: 0,
     createdBy: coachId,
+    status: isPaused ? 'paused' : 'active',
+    isActive: !isPaused,
   });
 
-  return habit;
+  return {
+    _id: newHabit._id.toString(),
+    habit: newHabit.title,
+    title: newHabit.title,
+    frequency: newHabit.frequency,
+    days: newHabit.days,
+    completion: newHabit.completionRate || 0,
+    status: newHabit.status,
+    isActive: newHabit.isActive,
+  };
+};
+
+/**
+ * Update Athlete Habit
+ */
+const updateAthleteHabitService = async (habitId, data) => {
+  if (!mongoose.Types.ObjectId.isValid(habitId)) {
+    throw new Error('Invalid Habit ID');
+  }
+
+  const habitDoc = await Habit.findById(habitId);
+  if (!habitDoc) {
+    throw new Error('Habit not found');
+  }
+
+  if (data.title || data.habit) habitDoc.title = data.title || data.habit;
+  if (data.frequency) habitDoc.frequency = data.frequency;
+  if (data.days) habitDoc.days = data.days;
+  if (typeof data.completion === 'number') habitDoc.completionRate = data.completion;
+  if (typeof data.completionRate === 'number') habitDoc.completionRate = data.completionRate;
+  if (data.status) {
+    habitDoc.status = data.status;
+    habitDoc.isActive = data.status === 'active';
+  }
+  if (typeof data.isActive === 'boolean') {
+    habitDoc.isActive = data.isActive;
+    habitDoc.status = data.isActive ? 'active' : 'paused';
+  }
+
+  await habitDoc.save();
+
+  return {
+    _id: habitDoc._id.toString(),
+    habit: habitDoc.title,
+    title: habitDoc.title,
+    frequency: habitDoc.frequency,
+    days: habitDoc.days,
+    completion: habitDoc.completionRate || 0,
+    status: habitDoc.status,
+    isActive: habitDoc.isActive,
+  };
+};
+
+/**
+ * Toggle Habit Status (active <-> paused)
+ */
+const toggleHabitStatusService = async (habitId) => {
+  if (!mongoose.Types.ObjectId.isValid(habitId)) {
+    throw new Error('Invalid Habit ID');
+  }
+
+  const habitDoc = await Habit.findById(habitId);
+  if (!habitDoc) {
+    throw new Error('Habit not found');
+  }
+
+  const nextStatus = habitDoc.status === 'paused' || habitDoc.isActive === false ? 'active' : 'paused';
+  habitDoc.status = nextStatus;
+  habitDoc.isActive = nextStatus === 'active';
+  await habitDoc.save();
+
+  return {
+    _id: habitDoc._id.toString(),
+    habit: habitDoc.title,
+    title: habitDoc.title,
+    frequency: habitDoc.frequency,
+    days: habitDoc.days,
+    completion: habitDoc.completionRate || 0,
+    status: habitDoc.status,
+    isActive: habitDoc.isActive,
+  };
 };
 
 /**
@@ -1730,6 +1891,8 @@ module.exports = {
   getAthleteProgressService,
   getAthleteGroupChatService,
   createAthleteHabitService,
+  updateAthleteHabitService,
+  toggleHabitStatusService,
   createAthleteTaskService,
   toggleTaskStatusService,
   assignTrainingService,

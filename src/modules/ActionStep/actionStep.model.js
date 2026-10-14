@@ -39,7 +39,7 @@ const actionStepSchema = new mongoose.Schema(
     submittedAt: { type: Date, default: Date.now },
     status: {
       type: String,
-      enum: ['pending', 'in-review', 'reviewed', 'needs-revision', 'approved'],
+      enum: ['pending', 'in-review', 'reviewed', 'needs-revision', 'approved', 'follow-up'],
       default: 'pending',
     },
     coachFeedback: {

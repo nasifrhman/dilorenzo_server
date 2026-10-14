@@ -7,6 +7,7 @@ const challengeRoutes = require('../modules/Challenge/challenge.route');
 const sessionRoutes = require('../modules/Session/session.route');
 const libraryRoutes = require('../modules/Library/library.route');
 const coachRoutes = require('../modules/Coach/coach.route');
+const parentRoutes = require('../modules/Parent/parent.route');
 
 
 const moduleRoutes = [
@@ -21,6 +22,10 @@ const moduleRoutes = [
   {
     path: '/coach',
     route: coachRoutes
+  },
+  {
+    path: '/parent',
+    route: parentRoutes
   },
   {
     path: '/challenge',

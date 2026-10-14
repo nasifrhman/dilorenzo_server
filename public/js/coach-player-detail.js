@@ -195,10 +195,47 @@
    * Render Tab 1: Overview
    */
   function renderOverviewTab(data) {
-    const nextSess = data.overview?.nextSession;
+    const overview = data.overview || {};
+
+    // 1. 3 Metric Cards (Task Rate, Habit Streak, Training Rate)
+    const ovTaskRate = document.getElementById('ovTaskRate');
+    if (ovTaskRate) ovTaskRate.textContent = `${overview.taskRate ?? 78}%`;
+
+    const ovHabitStreak = document.getElementById('ovHabitStreak');
+    if (ovHabitStreak) ovHabitStreak.textContent = overview.habitStreak || '0d';
+
+    const ovTrainingRate = document.getElementById('ovTrainingRate');
+    if (ovTrainingRate) ovTrainingRate.textContent = `${overview.trainingRate ?? 60}%`;
+
+    // 2. Weekly Activity (M, T, W, T, F, S, S)
+    const ovWeeklyActivity = document.getElementById('ovWeeklyActivity');
+    if (ovWeeklyActivity) {
+      const days = overview.weeklyActivity || [
+        { day: 'M', active: true },
+        { day: 'T', active: true },
+        { day: 'W', active: true },
+        { day: 'T', active: false },
+        { day: 'F', active: true },
+        { day: 'S', active: true },
+        { day: 'S', active: false },
+      ];
+      ovWeeklyActivity.innerHTML = days
+        .map(
+          (d) => `
+          <div class="weekly-activity-col">
+            <div class="weekly-day-box ${d.active ? 'active' : ''}"></div>
+            <span class="weekly-day-lbl">${escapeHtml(d.day)}</span>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    // 3. Upcoming Session
+    const nextSess = overview.upcomingSession || overview.nextSession;
     if (nextSess) {
       if (ovNextSessionTitle) ovNextSessionTitle.textContent = nextSess.title;
-      if (ovNextSessionTime) ovNextSessionTime.textContent = nextSess.timeLabel;
+      if (ovNextSessionTime) ovNextSessionTime.textContent = nextSess.time || nextSess.timeLabel || '';
       if (btnOvJoinSession) {
         if (nextSess.canJoin && nextSess.meetingLink) {
           btnOvJoinSession.href = nextSess.meetingLink;
@@ -209,34 +246,37 @@
           btnOvJoinSession.onclick = () => showToast('Session link will be active 15m prior to call.');
         }
       }
-      if (btnOvAddNotes) {
-        btnOvAddNotes.onclick = () => window.openAddNotesModal(nextSess._id);
-      }
     } else {
       if (ovNextSessionTitle) ovNextSessionTitle.textContent = 'No upcoming sessions';
-      if (ovNextSessionTime) ovNextSessionTime.textContent = 'Schedule a 1-on-1 call below';
+      if (ovNextSessionTime) ovNextSessionTime.textContent = 'Schedule a 1-on-1 call';
       if (btnOvJoinSession) btnOvJoinSession.style.display = 'none';
     }
 
-    // Submissions recap
+    // 4. Recent Action Steps (limit 3)
     if (ovSubmissionsList) {
-      const recaps = data.overview?.recentActionSteps || [];
+      const recaps = overview.recentActionSteps || [];
       if (recaps.length === 0) {
         ovSubmissionsList.innerHTML = `<div class="recap-item"><span class="recap-item-title" style="color:#737378;">No action step submissions yet.</span></div>`;
       } else {
         ovSubmissionsList.innerHTML = recaps
           .map((as) => {
-            const badgeClass = as.status === 'reviewed' ? 'badge-status-reviewed' : as.status === 'needs-revision' ? 'badge-status-revision' : 'badge-status-pending';
+            const statusUpper = (as.statusLabel || as.status || 'pending').toUpperCase();
+            const badgeClass =
+              statusUpper === 'REVIEWED'
+                ? 'badge-status-reviewed'
+                : statusUpper === 'FOLLOW-UP'
+                ? 'badge-status-revision'
+                : 'badge-status-pending';
             return `
               <div class="recap-item" onclick="window.switchTab('action-steps'); window.selectActionStep('${escapeHtml(as._id)}')">
                 <div class="recap-item-left">
                   <span>📹</span>
                   <div>
                     <div class="recap-item-title">${escapeHtml(as.title)}</div>
-                    <div class="recap-item-meta">${escapeHtml(as.submittedDate || 'Recent')}</div>
+                    <div class="recap-item-meta">${escapeHtml(as.date || as.submittedDate || 'Recent')}</div>
                   </div>
                 </div>
-                <span class="${badgeClass}">${escapeHtml((as.status || 'pending').toUpperCase())}</span>
+                <span class="${badgeClass}">${escapeHtml(statusUpper)}</span>
               </div>
             `;
           })
@@ -244,54 +284,24 @@
       }
     }
 
-    // Habits recap
-    if (ovHabitsList) {
-      const habits = data.overview?.activeHabits || [];
-      if (habits.length === 0) {
-        ovHabitsList.innerHTML = `<div class="recap-item"><span class="recap-item-title" style="color:#737378;">No active habits assigned.</span></div>`;
-      } else {
-        ovHabitsList.innerHTML = habits
-          .map((h) => {
-            return `
-              <div class="recap-item" onclick="window.switchTab('habits')">
-                <div class="recap-item-left">
-                  <span>${escapeHtml(h.icon || '🎯')}</span>
-                  <div>
-                    <div class="recap-item-title">${escapeHtml(h.title)}</div>
-                    <div class="recap-item-meta">${escapeHtml(h.frequencyLabel || '')}</div>
-                  </div>
-                </div>
-                <span class="habit-streak-pill">${escapeHtml(h.streak || '0d')}</span>
-              </div>
-            `;
-          })
-          .join('');
-      }
-    }
-
-    // Tasks recap
-    if (ovTasksList) {
-      const tasks = data.overview?.recentTasks || [];
-      if (tasks.length === 0) {
-        ovTasksList.innerHTML = `<div class="recap-item"><span class="recap-item-title" style="color:#737378;">All tasks completed!</span></div>`;
-      } else {
-        ovTasksList.innerHTML = tasks
-          .map((t) => {
-            return `
-              <div class="recap-item" onclick="window.switchTab('tasks')">
-                <div class="recap-item-left">
-                  <span>${t.isCompleted ? '✅' : '⏳'}</span>
-                  <div>
-                    <div class="recap-item-title" style="${t.isCompleted ? 'text-decoration: line-through; color: #737378;' : ''}">${escapeHtml(t.title)}</div>
-                    <div class="recap-item-meta">${t.dueDate ? `Due: ${escapeHtml(t.dueDate)}` : ''}</div>
-                  </div>
-                </div>
-                <span class="task-frequency-badge">${escapeHtml(t.frequency || '')}</span>
-              </div>
-            `;
-          })
-          .join('');
-      }
+    // 5. Recent Achievements
+    const ovAchievementsList = document.getElementById('ovAchievementsList');
+    if (ovAchievementsList) {
+      const achievements = overview.recentAchievements || [
+        { icon: '🔥', title: '7-Day Streak' },
+        { icon: '⚡', title: 'First Submission' },
+        { icon: '🎯', title: 'Focus Master' },
+      ];
+      ovAchievementsList.innerHTML = achievements
+        .map(
+          (ach) => `
+          <div class="achievement-item">
+            <span class="achievement-icon">${escapeHtml(ach.icon)}</span>
+            <span class="achievement-title">${escapeHtml(ach.title)}</span>
+          </div>
+        `
+        )
+        .join('');
     }
   }
 
@@ -299,45 +309,55 @@
    * Render Tab 2: Goals & Habits (33044:14910)
    */
   function renderHabitsTab(habits) {
-    if (!habitsFullList) return;
-    if (habits.length === 0) {
-      habitsFullList.innerHTML = `
-        <div style="padding: 40px; text-align: center; color: #737378; background: #131820; border-radius: 16px; border: 1px dashed rgba(255,255,255,0.08);">
-          No active habits yet. Click "+ New Habit" to assign one.
-        </div>
+    const tableBody = document.getElementById('habitsTableBody');
+    if (!tableBody) return;
+    if (!habits || habits.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="padding: 40px; text-align: center; color: #737378;">
+            No active habits yet. Click "+ Add Habit" to assign one.
+          </td>
+        </tr>
       `;
       return;
     }
 
-    const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-    habitsFullList.innerHTML = habits
-      .map((h, hIdx) => {
-        // Generate simulated completed weekly bubbles
-        const bubblesHtml = daysOfWeek
-          .map((day, dIdx) => {
-            const isDone = dIdx < 5 || (hIdx === 0 && dIdx < 7);
-            return `<div class="day-bubble ${isDone ? 'done' : ''}">${day}</div>`;
-          })
-          .join('');
+    tableBody.innerHTML = habits
+      .map((h) => {
+        const title = h.title || h.habit || '';
+        const frequency = h.frequency || 'Daily';
+        const days = h.days || 'Every day';
+        const completion = typeof h.completion === 'number' ? h.completion : (h.completionRate || 0);
+        const isGreen = completion >= 80;
+        const barColor = isGreen ? '#27C281' : '#E8A820';
+        const isPaused = h.status === 'paused' || h.isActive === false;
 
         return `
-          <div class="habit-card">
-            <div class="habit-meta-col">
-              <div class="habit-icon-box">${escapeHtml(h.icon || '🔥')}</div>
-              <div>
-                <div class="habit-name">${escapeHtml(h.title)}</div>
-                <div class="habit-freq-caption">${escapeHtml(h.frequencyLabel || 'Daily')} · ${escapeHtml(h.timesPerWeek || 7)}×/week · Started ${escapeHtml(h.startDate || 'Recently')}</div>
+          <tr data-habit-id="${h._id}">
+            <td class="habit-title-cell">
+              <span class="habit-name-text">${escapeHtml(title)}</span>
+            </td>
+            <td class="habit-freq-cell">
+              <span>${escapeHtml(frequency)}</span>
+            </td>
+            <td class="habit-days-cell">
+              <span>${escapeHtml(days)}</span>
+            </td>
+            <td class="habit-completion-cell">
+              <div class="completion-widget">
+                <span class="completion-percent" style="color: ${barColor};">${completion}%</span>
+                <div class="completion-bar-track">
+                  <div class="completion-bar-fill" style="width: ${completion}%; background-color: ${barColor};"></div>
+                </div>
               </div>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 24px;">
-              <div class="weekly-bubbles-track">
-                ${bubblesHtml}
+            </td>
+            <td class="habit-actions-cell" style="text-align: center;">
+              <div class="habit-actions-btns">
+                <button type="button" class="btn-action-edit" onclick="window.editHabit('${h._id}', '${escapeHtml(title)}')">Edit</button>
+                <button type="button" class="btn-action-pause ${isPaused ? 'paused' : ''}" onclick="window.togglePauseHabit('${h._id}')">${isPaused ? 'Resume' : 'Pause'}</button>
               </div>
-              <div class="habit-streak-pill">${escapeHtml(h.streak || '0d')} Streak</div>
-            </div>
-          </div>
+            </td>
+          </tr>
         `;
       })
       .join('');
@@ -542,9 +562,9 @@
     if (progValTrainingDone) progValTrainingDone.textContent = `${analytics.trainingDoneRate ?? 0}%`;
 
     const phases = analytics.phases || {};
-    const fPct = phases.foundation?.percent ?? 0;
-    const dPct = phases.development?.percent ?? 0;
-    const pPct = phases.performance?.percent ?? 0;
+    const fPct = typeof phases.foundation === 'number' ? phases.foundation : (phases.foundation?.percent ?? 100);
+    const dPct = typeof phases.development === 'number' ? phases.development : (phases.development?.percent ?? 13);
+    const pPct = typeof phases.performance === 'number' ? phases.performance : (phases.performance?.percent ?? 0);
 
     if (phaseFoundationPct) phaseFoundationPct.textContent = `${fPct}%`;
     if (phaseFoundationBar) phaseFoundationBar.style.width = `${fPct}%`;
@@ -555,19 +575,48 @@
     if (phasePerformancePct) phasePerformancePct.textContent = `${pPct}%`;
     if (phasePerformanceBar) phasePerformanceBar.style.width = `${pPct}%`;
 
+    const progressChartTitle = document.getElementById('progressChartTitle');
+    if (progressChartTitle) {
+      progressChartTitle.textContent =
+        analytics.filter === 'program'
+          ? 'Program Phase Progress Rate'
+          : analytics.filter === 'monthly'
+          ? 'Monthly Task Completion Rate'
+          : 'Weekly Task Completion Rate';
+    }
+
     const weeklyBarChart = document.getElementById('weeklyBarChart');
     if (weeklyBarChart) {
-      const weekly = analytics.weeklyTaskCompletion || [];
-      if (weekly.length === 0) {
-        weeklyBarChart.innerHTML = '<div style="color: #737378; padding: 20px; text-align: center; width: 100%;">No weekly task data yet.</div>';
+      const chartItems = analytics.taskCompletion || analytics.weeklyTaskCompletion || analytics.monthlyTaskCompletion || analytics.chartData || [];
+      if (chartItems.length === 0) {
+        if (analytics.filter === 'program' && analytics.phases) {
+          const phaseItems = [
+            { label: 'Foundation', rate: typeof analytics.phases.foundation === 'number' ? analytics.phases.foundation : 100 },
+            { label: 'Development', rate: typeof analytics.phases.development === 'number' ? analytics.phases.development : 13 },
+            { label: 'Performance', rate: typeof analytics.phases.performance === 'number' ? analytics.phases.performance : 0 },
+          ];
+          weeklyBarChart.innerHTML = phaseItems.map((item) => `
+            <div class="chart-col">
+              <div class="bar-fill-wrap"><div class="bar-fill ${item.rate > 0 ? 'active' : ''}" style="height: ${item.rate}%;"></div></div>
+              <div class="bar-val ${item.rate > 0 ? 'active' : ''}">${item.rate}%</div>
+              <div class="bar-label">${escapeHtml(item.label)}</div>
+            </div>
+          `).join('');
+        } else {
+          weeklyBarChart.innerHTML = '<div style="color: #737378; padding: 20px; text-align: center; width: 100%;">No task data yet.</div>';
+        }
       } else {
-        weeklyBarChart.innerHTML = weekly.map((item, idx) => `
-          <div class="chart-col">
-            <div class="bar-fill-wrap"><div class="bar-fill ${idx === weekly.length - 1 ? 'active' : ''}" style="height: ${item.rate}%;"></div></div>
-            <div class="bar-val ${idx === weekly.length - 1 ? 'active' : ''}">${item.rate}%</div>
-            <div class="bar-label">${escapeHtml(item.week)}</div>
-          </div>
-        `).join('');
+        weeklyBarChart.innerHTML = chartItems.map((item, idx) => {
+          const isSelected = item.label === 'W5' || item.label === 'Development' || item.week === 'W5' || idx === chartItems.length - 1;
+          const label = item.label || item.week || item.month || '';
+          return `
+            <div class="chart-col">
+              <div class="bar-fill-wrap"><div class="bar-fill ${isSelected ? 'active' : ''}" style="height: ${item.rate}%;"></div></div>
+              <div class="bar-val ${isSelected ? 'active' : ''}">${item.rate}%</div>
+              <div class="bar-label">${escapeHtml(label)}</div>
+            </div>
+          `;
+        }).join('');
       }
     }
   }
@@ -715,9 +764,12 @@
     }
   }
 
-  async function fetchProgressTab() {
+  let currentProgressFilter = 'weekly';
+
+  async function fetchProgressTab(filter = currentProgressFilter) {
     try {
-      const res = await fetch(`/api/v1/coach/players/${currentAthleteId}/progress`);
+      currentProgressFilter = filter;
+      const res = await fetch(`/api/v1/coach/players/${currentAthleteId}/progress?filter=${encodeURIComponent(filter)}`);
       const data = await res.json();
       const attr = data.data?.attributes || data.data || {};
       renderProgressTab(attr.progressAnalytics || attr || {}, currentAthleteData?.athlete || {});
@@ -787,6 +839,19 @@
   const btnHeroGiveFeedback = document.getElementById('btnHeroGiveFeedback');
   if (btnHeroGiveFeedback) {
     btnHeroGiveFeedback.addEventListener('click', () => window.openModal('modalGiveFeedback'));
+  }
+
+  // Progress Timeframe Filter Pills (Weekly / Monthly)
+  const progressTimeframePills = document.getElementById('progressTimeframePills');
+  if (progressTimeframePills) {
+    progressTimeframePills.querySelectorAll('.filter-pill').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        progressTimeframePills.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-filter') || btn.getAttribute('data-tf') || 'weekly';
+        fetchProgressTab(filter);
+      });
+    });
   }
 
   /**
@@ -888,6 +953,52 @@
         showToast('Task updated!');
         fetchTasksTab();
         loadPlayerData();
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  /**
+   * Action: Toggle Habit Pause/Resume
+   */
+  window.togglePauseHabit = async function (habitId) {
+    try {
+      const res = await fetch(`/api/v1/coach/habits/${habitId}/status`, {
+        method: 'PATCH',
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        const isPaused = data.data?.attributes?.status === 'paused' || data.data?.status === 'paused';
+        showToast(`Habit ${isPaused ? 'paused' : 'resumed'} successfully!`);
+        fetchHabitsTab();
+      } else {
+        throw new Error(data.message || 'Failed to update habit');
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  /**
+   * Action: Edit Habit Prompt
+   */
+  window.editHabit = async function (habitId, currentTitle) {
+    const newTitle = prompt('Edit habit title:', currentTitle || '');
+    if (!newTitle || newTitle.trim() === currentTitle) return;
+
+    try {
+      const res = await fetch(`/api/v1/coach/habits/${habitId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim() }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        showToast('Habit updated successfully!');
+        fetchHabitsTab();
+      } else {
+        throw new Error(data.message || 'Failed to edit habit');
       }
     } catch (err) {
       showToast(err.message, 'error');
