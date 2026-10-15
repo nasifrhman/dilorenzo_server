@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -339,6 +339,81 @@ const getAssignedCoachesOverviewController = catchAsync(async (req, res) => {
   );
 });
 
+const getUserProfileController = catchAsync(async (req, res) => {
+  const currentUserId = req.User?._id || req.query.athleteId;
+  if (!currentUserId) {
+    return res.status(status.UNAUTHORIZED).json(
+      response({
+        status: 'fail',
+        statusCode: status.UNAUTHORIZED,
+        message: 'Unauthorized - Please provide a Bearer token or athleteId query parameter.',
+      })
+    );
+  }
+
+  const result = await getUserProfileService(currentUserId, req.query);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'UserProfile',
+      message: 'User profile retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const awardBadgeController = catchAsync(async (req, res) => {
+  const { athleteId, badgeId, icon, title, description } = req.body;
+  const targetId = athleteId || req.User?._id;
+  const result = await awardBadgeService(targetId, { badgeId, icon, title, description });
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Badge',
+      message: 'Badge awarded successfully',
+      data: result,
+    })
+  );
+});
+
+const getAthleteProgressReviewController = catchAsync(async (req, res) => {
+  const athleteId = req.params.athleteId || req.query.athleteId || req.User?._id;
+  const result = await getAthleteProgressReviewService(athleteId, req.query);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ProgressReview',
+      message: 'Athlete progress review retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const submitCoachEvaluationController = catchAsync(async (req, res) => {
+  const { athleteId, message, rating, timeframe, tags } = req.body;
+  const coachId = req.User?._id || req.body.coachId;
+  const result = await submitCoachEvaluationService({
+    athleteId,
+    coachId,
+    message,
+    rating,
+    timeframe,
+    tags,
+  });
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'CoachEvaluation',
+      message: 'Coach evaluation submitted successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   suspendUserController,
   fcmTokenController,
@@ -362,4 +437,8 @@ module.exports = {
   getAthletesController,
   assignCoachController,
   getAssignedCoachesOverviewController,
+  getUserProfileController,
+  awardBadgeController,
+  getAthleteProgressReviewController,
+  submitCoachEvaluationController,
 };

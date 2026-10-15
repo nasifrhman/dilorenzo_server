@@ -72,6 +72,17 @@ const userSchema = new mongoose.Schema(
     streak: { type: Number, default: 0 },
     highestStreak: { type: Number, default: 0 },
     tierBadge: { type: String, default: 'Rookie' }, // e.g. Rookie, Pro, Elite
+    jerseyNumber: { type: String, required: false },
+    rating: { type: Number, required: false },
+    badges: [
+      {
+        badgeId: { type: String, required: true },
+        icon: { type: String, default: '🏆' },
+        title: { type: String, required: true },
+        description: { type: String, default: '' },
+        earnedAt: { type: Date, default: Date.now },
+      },
+    ],
 
     // Parent Specific Fields
     athletes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

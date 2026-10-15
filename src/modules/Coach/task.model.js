@@ -19,6 +19,22 @@ const taskSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    description: {
+      type: String,
+      default: '',
+    },
+    icon: {
+      type: String,
+      default: '📋',
+    },
+    category: {
+      type: String,
+      default: 'mindset',
+    },
+    xpReward: {
+      type: Number,
+      default: 10,
+    },
     dueDate: {
       type: Date,
       default: null,

@@ -14,6 +14,12 @@ router.get('/child/:athleteId', auth(['parent', 'admin', 'user'], { optional: tr
 router.get('/progress', auth(['parent', 'admin', 'user'], { optional: true }), parentController.getParentProgressController);
 router.get('/progress/:athleteId', auth(['parent', 'admin', 'user'], { optional: true }), parentController.getParentProgressController);
 
+// Parent Coach Hub (Figma nodes 32923:8581, 32923:9295, 32924:9853, 32924:10241)
+// Single unified endpoint supporting query filters: ?athleteId=...&tab=feedback|tasks|sessions|chat
+router.get('/coach', auth(['parent', 'admin', 'user'], { optional: true }), parentController.getParentCoachHubController);
+router.get('/coach/:athleteId', auth(['parent', 'admin', 'user'], { optional: true }), parentController.getParentCoachHubController);
+router.post('/coach/chat', auth(['parent', 'admin', 'user']), parentController.sendParentCoachMessageController);
+
 router.get('/', auth(['parent', 'admin', 'user'], { optional: true }), parentController.getParentHomepageController);
 
 module.exports = router;

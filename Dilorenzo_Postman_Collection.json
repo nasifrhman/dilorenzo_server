@@ -5,7 +5,7 @@
     "description": "Di Lorenzo Soccer API Collection",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "createdAt": "2026-10-10T04:30:58.000Z",
-    "updatedAt": "2026-10-13T10:11:20.000Z",
+    "updatedAt": "2026-10-14T11:20:41.000Z",
     "lastUpdatedBy": "48870830",
     "uid": "48870830-aad45aaa-81c1-4bd7-ac73-6e1c0797c00d"
   },
@@ -14,11 +14,231 @@
       "name": "User Role",
       "item": [
         {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get User Profile",
+              "id": "b1ed5f02-8296-5cfc-d5f9-9660f9f122b6",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/profile?athleteId=6acc80dca1df2a2ed315c20e",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "profile"
+                  ],
+                  "query": [
+                    {
+                      "key": "athleteId",
+                      "value": "6acc80dca1df2a2ed315c20e",
+                      "description": "Optional athlete child ID"
+                    }
+                  ]
+                }
+              },
+              "response": [],
+              "createdAt": "2026-10-14T11:04:26.000Z",
+              "updatedAt": "2026-10-15T02:38:31.000Z",
+              "uid": "48870830-b1ed5f02-8296-5cfc-d5f9-9660f9f122b6"
+            },
+            {
+              "name": "Award Badge to Athlete",
+              "id": "1f57e315-4eba-b98e-4ecd-43e2c90d4e63",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"badgeId\": \"streak_7\",\n  \"icon\": \"🔥\",\n  \"title\": \"7-Day Streak\",\n  \"description\": \"Maintained a consistent 7-day training streak\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/badge",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "badge"
+                  ]
+                },
+                "description": "Manually award milestone badges (e.g. 7-Day Streak, MVP) to an athlete document."
+              },
+              "response": [],
+              "createdAt": "2026-10-15T08:45:50.000Z",
+              "updatedAt": "2026-10-15T08:45:50.000Z",
+              "uid": "48870830-1f57e315-4eba-b98e-4ecd-43e2c90d4e63"
+            },
+            {
+              "name": "Get Athlete Progress Review",
+              "id": "f5b146e3-731d-dce0-a6f0-144da59d935a",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "value": "Bearer {{token}}",
+                    "key": "Authorization"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/progress-review?athleteId=6acc80dca1df2a2ed315c20e&timeframe=week",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "progress-review"
+                  ],
+                  "query": [
+                    {
+                      "value": "6acc80dca1df2a2ed315c20e",
+                      "description": "Athlete user ID",
+                      "key": "athleteId"
+                    },
+                    {
+                      "value": "week",
+                      "description": "Filter timeframe: week (default) or month",
+                      "key": "timeframe"
+                    }
+                  ]
+                },
+                "description": "Athlete Progress Review screen (Figma nodes 32905:2100 & 32906:2338) - Single unified endpoint with timeframe filter (week or month)."
+              },
+              "response": [
+                {
+                  "name": "200 Success - Week View",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/user/progress-review?athleteId=6acc80dca1df2a2ed315c20e&timeframe=week",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "user",
+                        "progress-review"
+                      ],
+                      "query": [
+                        {
+                          "key": "athleteId",
+                          "value": "6acc80dca1df2a2ed315c20e"
+                        },
+                        {
+                          "key": "timeframe",
+                          "value": "week"
+                        }
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "cookie": [],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"week\",\n      \"dateRange\": \"Mon – Sun\",\n      \"performanceScore\": {\n        \"average\": 100,\n        \"scores\": [\n          { \"day\": \"M\", \"score\": 100 },\n          { \"day\": \"T\", \"score\": 100 },\n          { \"day\": \"W\", \"score\": 100 },\n          { \"day\": \"T\", \"score\": 100 },\n          { \"day\": \"F\", \"score\": 0 },\n          { \"day\": \"S\", \"score\": 0 },\n          { \"day\": \"S\", \"score\": 0 }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"key\": \"mentalScore\",\n          \"label\": \"Mental Score\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"🧠\",\n          \"color\": \"#3B82F6\",\n          \"borderColor\": \"rgba(59, 130, 246, 0.15)\",\n          \"description\": \"Overall mental toughness and training composite score\"\n        },\n        \"consistency\": {\n          \"key\": \"consistency\",\n          \"label\": \"Consistency\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"%\",\n          \"display\": \"100%\",\n          \"icon\": \"📅\",\n          \"color\": \"#10B981\",\n          \"borderColor\": \"rgba(16, 185, 129, 0.15)\",\n          \"description\": \"Habit adherence and active training day regularity\"\n        },\n        \"focusRating\": {\n          \"key\": \"focusRating\",\n          \"label\": \"Focus Rating\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"🎯\",\n          \"color\": \"#E8A820\",\n          \"borderColor\": \"rgba(201, 145, 26, 0.15)\",\n          \"description\": \"Performance in visual scanning and pre-match rituals\"\n        },\n        \"resilience\": {\n          \"key\": \"resilience\",\n          \"label\": \"Resilience\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"💪\",\n          \"color\": \"#EC4899\",\n          \"borderColor\": \"rgba(236, 72, 153, 0.15)\",\n          \"description\": \"Composure check-ins, breathwork, and reset protocols\"\n        }\n      },\n      \"coachEvaluation\": {\n        \"id\": \"670a4a82b3d81023c109d431\",\n        \"coachId\": \"6acc80dca1df2a2ed315c20d\",\n        \"coachName\": \"Coach Rivera\",\n        \"rating\": 4,\n        \"message\": \"Exceptional visual scan frequency in transition.\",\n        \"date\": \"2026-10-12T06:51:37.530Z\"\n      }\n    }\n  }\n}"
+                }
+              ],
+              "createdAt": "2026-10-15T08:46:02.000Z",
+              "updatedAt": "2026-10-15T08:52:21.000Z",
+              "uid": "48870830-f5b146e3-731d-dce0-a6f0-144da59d935a"
+            },
+            {
+              "name": "Submit Coach Evaluation for Athlete",
+              "id": "5831f42d-bf6e-7c83-99cc-5062ea0e4440",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"message\": \"Excellent progress this week. Focus metrics are trending up strongly. Keep reinforcing the pre-match ritual — it's making a measurable difference.\",\n  \"rating\": 4,\n  \"timeframe\": \"This Week\",\n  \"tags\": [\n    \"Focus\",\n    \"Composure\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/progress-review/evaluation",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "progress-review",
+                    "evaluation"
+                  ]
+                },
+                "description": "Submit coach evaluation quote and star rating for athlete progress review."
+              },
+              "response": [],
+              "createdAt": "2026-10-15T08:46:19.000Z",
+              "updatedAt": "2026-10-15T08:46:19.000Z",
+              "uid": "48870830-5831f42d-bf6e-7c83-99cc-5062ea0e4440"
+            }
+          ],
+          "id": "770c91ee-8266-41da-a3a7-8cf05ea73b54",
+          "createdAt": "2026-10-14T11:20:41.000Z",
+          "updatedAt": "2026-10-15T08:51:54.000Z",
+          "uid": "48870830-770c91ee-8266-41da-a3a7-8cf05ea73b54"
+        },
+        {
           "name": "Auth",
           "item": [
             {
               "name": "Sign in",
-              "id": "beb04964-c5e7-47c5-b81a-108cc69d2bd3",
+              "id": "b5c5d636-8f2e-4037-998d-489d7e676b74",
               "request": {
                 "method": "POST",
                 "header": [
@@ -29,7 +249,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"password\": \"hello123\"\n}",
+                  "raw": "{\r\n    \"email\" : \"nasif@gmail.com\",\r\n    \"password\" : \"hello123\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -37,46 +257,26 @@
                   }
                 },
                 "url": {
-                  "raw": ""
+                  "raw": "{{url}}/api/v1/auth/signin",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "signin"
+                  ]
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:14.000Z",
-              "uid": "48870830-beb04964-c5e7-47c5-b81a-108cc69d2bd3"
-            },
-            {
-              "name": "Sign Up",
-              "id": "010b5583-c0cc-46c7-9a8d-6cac2fa88c48",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"fullName\": \"Nasif\",\n  \"email\": \"nasif@gmail.com\",\n  \"password\": \"hello123\",\n  \"confirmPassword\": \"hello123\",\n  \"role\": \"user\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:15.000Z",
-              "uid": "48870830-010b5583-c0cc-46c7-9a8d-6cac2fa88c48"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:08:11.000Z",
+              "uid": "48870830-b5c5d636-8f2e-4037-998d-489d7e676b74"
             },
             {
               "name": "Verify OTP",
-              "id": "2d9fe4be-f6ae-4534-ac7e-bee5b870d5b4",
+              "id": "97f54e90-c292-46eb-8ed9-f2a107ea4357",
               "request": {
                 "method": "POST",
                 "header": [
@@ -87,7 +287,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"otp\": \"123456\"\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"otp\": \"123456\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -99,13 +299,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:16.000Z",
-              "uid": "48870830-2d9fe4be-f6ae-4534-ac7e-bee5b870d5b4"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-97f54e90-c292-46eb-8ed9-f2a107ea4357"
             },
             {
               "name": "my profile",
-              "id": "1b743686-4d12-4ca0-869d-a1a1501c2196",
+              "id": "c1289a21-8fb6-4ee1-82fb-bb667f626654",
               "request": {
                 "method": "GET",
                 "header": [],
@@ -114,13 +314,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-10T04:30:59.000Z",
-              "uid": "48870830-1b743686-4d12-4ca0-869d-a1a1501c2196"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-c1289a21-8fb6-4ee1-82fb-bb667f626654"
             },
             {
               "name": "Forget Password",
-              "id": "972a221c-87f5-451c-9bb8-03aae49edbe5",
+              "id": "57908d76-2196-42b5-969c-2356ed31fd6b",
               "request": {
                 "method": "POST",
                 "header": [
@@ -131,7 +331,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"nasif@gmail.com\"\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -143,13 +343,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:17.000Z",
-              "uid": "48870830-972a221c-87f5-451c-9bb8-03aae49edbe5"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-57908d76-2196-42b5-969c-2356ed31fd6b"
             },
             {
               "name": "resend otp",
-              "id": "a2abf851-5949-4156-804b-4142feba975e",
+              "id": "aa272af5-0130-4339-860f-872d84537a7b",
               "request": {
                 "method": "POST",
                 "header": [
@@ -160,7 +360,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"nasif@gmail.com\"\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -172,13 +372,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:18.000Z",
-              "uid": "48870830-a2abf851-5949-4156-804b-4142feba975e"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-aa272af5-0130-4339-860f-872d84537a7b"
             },
             {
               "name": "Reset Password",
-              "id": "11002220-b651-464a-bc0b-aa012c4890db",
+              "id": "3ec1a2e9-6e83-46ab-a2db-553cae9dc4cc",
               "request": {
                 "method": "POST",
                 "header": [
@@ -189,7 +389,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"nasif@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -201,13 +401,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:18.000Z",
-              "uid": "48870830-11002220-b651-464a-bc0b-aa012c4890db"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-3ec1a2e9-6e83-46ab-a2db-553cae9dc4cc"
             },
             {
               "name": "Change Password",
-              "id": "ab8cd81b-d259-4efb-ad47-a828d2a747cc",
+              "id": "05d5ab0d-4aa5-4676-af57-f496a7e3a77a",
               "request": {
                 "method": "POST",
                 "header": [
@@ -230,13 +430,13 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:19.000Z",
-              "uid": "48870830-ab8cd81b-d259-4efb-ad47-a828d2a747cc"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-05d5ab0d-4aa5-4676-af57-f496a7e3a77a"
             },
             {
-              "name": "Update My Profile",
-              "id": "6320a404-9654-4d26-b93d-ad5ce5cf2195",
+              "name": "update profile",
+              "id": "b45f2785-026e-40e5-a207-e91ec7c05fb9",
               "request": {
                 "method": "PATCH",
                 "header": [],
@@ -245,20 +445,20 @@
                 }
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-10T04:30:59.000Z",
-              "uid": "48870830-6320a404-9654-4d26-b93d-ad5ce5cf2195"
+              "createdAt": "2026-10-15T06:07:26.000Z",
+              "updatedAt": "2026-10-15T06:07:26.000Z",
+              "uid": "48870830-b45f2785-026e-40e5-a207-e91ec7c05fb9"
             }
           ],
-          "id": "5fdcd10a-3267-4c41-8dd1-184a16c77734",
-          "createdAt": "2026-10-10T04:30:59.000Z",
-          "updatedAt": "2026-10-10T04:32:30.000Z",
-          "uid": "48870830-5fdcd10a-3267-4c41-8dd1-184a16c77734"
+          "id": "6b269930-cf87-4d7e-b9db-e6879a50428a",
+          "createdAt": "2026-10-15T06:07:26.000Z",
+          "updatedAt": "2026-10-15T06:07:34.000Z",
+          "uid": "48870830-6b269930-cf87-4d7e-b9db-e6879a50428a"
         }
       ],
       "id": "f59e14a8-2120-4315-a804-f0e9ca9070c8",
       "createdAt": "2026-10-10T04:30:59.000Z",
-      "updatedAt": "2026-10-11T03:43:25.000Z",
+      "updatedAt": "2026-10-15T06:07:29.000Z",
       "uid": "48870830-f59e14a8-2120-4315-a804-f0e9ca9070c8"
     },
     {
@@ -1738,7 +1938,7 @@
       ],
       "id": "51a92f79-454c-4048-938b-202ec9c88d16",
       "createdAt": "2026-10-10T04:30:59.000Z",
-      "updatedAt": "2026-10-11T08:04:06.000Z",
+      "updatedAt": "2026-10-15T06:07:29.000Z",
       "uid": "48870830-51a92f79-454c-4048-938b-202ec9c88d16"
     },
     {
@@ -1858,10 +2058,15 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"title\": \"Complete Ball Mastery Session\",\n  \"dueDate\": \"2026-08-16\",\n  \"frequency\": \"Weekdays (5×)\"\n}"
+                  "raw": "{\n  \"title\": \"Complete Ball Mastery Session\",\n  \"dueDate\": \"2026-08-16\",\n  \"frequency\": \"Weekdays (5×)\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "text"
+                    }
+                  }
                 },
                 "url": {
-                  "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/tasks",
+                  "raw": "{{url}}/api/v1/coach/players/6ac9c12bc42cc4f3d9e75398/tasks",
                   "host": [
                     "{{url}}"
                   ],
@@ -1870,7 +2075,7 @@
                     "v1",
                     "coach",
                     "players",
-                    "6acc80dca1df2a2ed315c20e",
+                    "6ac9c12bc42cc4f3d9e75398",
                     "tasks"
                   ]
                 },
@@ -1878,7 +2083,7 @@
               },
               "response": [],
               "createdAt": "2026-10-12T06:52:43.000Z",
-              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "updatedAt": "2026-10-15T06:08:14.000Z",
               "uid": "48870830-f0706ac9-3c9f-4c55-877f-2e4b2a465e13"
             },
             {
@@ -1888,7 +2093,7 @@
                 "method": "PATCH",
                 "header": [],
                 "url": {
-                  "raw": "{{url}}/api/v1/coach/tasks/6acc837978fded8588b3ed87/status",
+                  "raw": "{{url}}/api/v1/coach/tasks/6ad06d80949f3a7b82f5f0ae/status",
                   "host": [
                     "{{url}}"
                   ],
@@ -1897,7 +2102,7 @@
                     "v1",
                     "coach",
                     "tasks",
-                    "6acc837978fded8588b3ed87",
+                    "6ad06d80949f3a7b82f5f0ae",
                     "status"
                   ]
                 },
@@ -1905,7 +2110,7 @@
               },
               "response": [],
               "createdAt": "2026-10-12T06:52:43.000Z",
-              "updatedAt": "2026-10-12T10:53:19.000Z",
+              "updatedAt": "2026-10-15T06:22:58.000Z",
               "uid": "48870830-99f53186-95e3-46b0-8ca2-d993a878d0a4"
             },
             {
@@ -2681,6 +2886,7 @@
           "item": [
             {
               "name": "Get Athlete Progress",
+              "id": "b9b9eaaa-b603-4d49-a069-61dcad502192",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2716,9 +2922,108 @@
                 },
                 "description": "Single endpoint handling all progress views and filters for Parents (Figma Nodes 32917:6566, 32917:7202, 32917:7790).\\n\\nFilters via \\\tab\\ query param:\\n- \\\tab=week\\: This Week view (Mental Performance score, Weekly Goal Progress, Daily Habits, Training Consistency)\\n- \\\tab=month\\: This Month view (Daily scores, Monthly Progress breakdown, Summary Stats)\\n- \\\tab=academy\\: Academy view (Curriculum week, completedPhase, runningPhase, Mindset Development, Achievements)\\n- (No tab): Returns all 3 views unified."
               },
-              "response": []
+              "response": [],
+              "createdAt": "2026-10-14T05:34:26.000Z",
+              "updatedAt": "2026-10-14T05:34:26.000Z",
+              "uid": "48870830-b9b9eaaa-b603-4d49-a069-61dcad502192"
             }
-          ]
+          ],
+          "id": "ad853c10-5d34-4737-9782-402443e9b8fe",
+          "createdAt": "2026-10-14T05:34:26.000Z",
+          "updatedAt": "2026-10-14T05:34:26.000Z",
+          "uid": "48870830-ad853c10-5d34-4737-9782-402443e9b8fe"
+        },
+        {
+          "name": "Coach",
+          "item": [
+            {
+              "name": "Get Parent Coach Hub",
+              "id": "c3e1809f-3362-4f97-b35c-594289e16577",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/coach?athleteId=6acc80dca1df2a2ed315c20e&tab=tasks ",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "coach"
+                  ],
+                  "query": [
+                    {
+                      "key": "athleteId",
+                      "value": "6acc80dca1df2a2ed315c20e",
+                      "description": "Athlete ID"
+                    },
+                    {
+                      "key": "tab",
+                      "value": "tasks ",
+                      "description": "Tab filter: feedback | tasks | sessions | chat"
+                    }
+                  ]
+                },
+                "description": "Single unified API handling all 4 Coach communication tabs for Parents (Figma Nodes 32923:8581, 32923:9295, 32924:9853, 32924:10241).\\n\\nFilters via \\\tab\\ query param:\\n- \\\tab=feedback\\: Coach Feedback history, ratings, strengths, and action points (Figma #32923:8581)\\n- \\\tab=tasks\\: Current and completed assignments/drills (Figma #32923:9295)\\n- \\\tab=sessions\\: Upcoming scheduled calls & completed session check-ins (Figma #32924:9853)\\n- \\\tab=chat\\: 3-way private group chat messages and participants (Figma #32924:10241)\\n- (No tab): Returns all 4 tabs unified."
+              },
+              "response": [],
+              "createdAt": "2026-10-14T05:34:26.000Z",
+              "updatedAt": "2026-10-14T08:17:33.000Z",
+              "uid": "48870830-c3e1809f-3362-4f97-b35c-594289e16577"
+            },
+            {
+              "name": "Send Coach Chat Message",
+              "id": "6ebbaf62-edba-4e8d-9ad3-1866b65d1ee2",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"content\": \"Hello Coach Rivera, thank you for the feedback on Alex!\",\n  \"messageType\": \"text\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/parent/coach/chat",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "parent",
+                    "coach",
+                    "chat"
+                  ]
+                },
+                "description": "Send a message into the 3-Way Coaching Chat from Parent account (Figma Node #32924:10241)."
+              },
+              "response": [],
+              "createdAt": "2026-10-14T05:34:26.000Z",
+              "updatedAt": "2026-10-14T05:34:26.000Z",
+              "uid": "48870830-6ebbaf62-edba-4e8d-9ad3-1866b65d1ee2"
+            }
+          ],
+          "id": "3538ec88-3966-4b53-813c-f435c0278b94",
+          "createdAt": "2026-10-14T05:34:26.000Z",
+          "updatedAt": "2026-10-14T05:34:26.000Z",
+          "uid": "48870830-3538ec88-3966-4b53-813c-f435c0278b94"
         }
       ],
       "id": "faf9dd3e-8c55-4bcf-a933-a0ed0c4236ae",

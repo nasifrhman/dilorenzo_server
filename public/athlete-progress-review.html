@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress Review — Di Lorenzo Soccer Academy</title>
+  
+  <!-- Fonts: Barlow Condensed & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/css/athlete-progress-review.css" />
+</head>
+<body>
+
+  <!-- Dev & Test Toolbar -->
+  <div class="dev-banner">
+    <div>
+      <span>Athlete: </span>
+      <select id="athleteSelector" class="athlete-select" onchange="changeAthlete(this.value)">
+        <option value="6acc80dca1df2a2ed315c20e" selected>Alex Thompson (Academy)</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="/coach-player-detail" title="Coach View">Coach View ↗</a>
+      <a href="/api/v1/user/progress-review?athleteId=6acc80dca1df2a2ed315c20e&timeframe=week" target="_blank" title="API JSON">API JSON ↗</a>
+    </div>
+  </div>
+
+  <!-- Mobile Screen Frame (Figma Nodes 32905:2100 & 32906:2338) -->
+  <div class="screen-wrapper">
+
+    <!-- iOS Status Bar -->
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="status-icons">
+        <!-- Cellular Signal -->
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="none">
+          <rect y="7" width="3" height="4" rx="1" fill="#FFFFFF"/>
+          <rect x="4.5" y="5" width="3" height="6" rx="1" fill="#FFFFFF"/>
+          <rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#FFFFFF"/>
+          <rect x="13.5" width="3" height="11" rx="1" fill="#FFFFFF"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="none">
+          <path d="M8 9.5C8.82843 9.5 9.5 10.1716 9.5 11C9.5 11.8284 8.82843 12.5 8 12.5C7.17157 12.5 6.5 11.8284 6.5 11C6.5 10.1716 7.17157 9.5 8 9.5Z" fill="#FFFFFF"/>
+          <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M1.5 4C3.3 2.5 5.5 1.5 8 1.5C10.5 1.5 12.7 2.5 14.5 4" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="22" height="11" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="#FFFFFF" stroke-opacity="0.4"/>
+          <rect x="2" y="2" width="17" height="8" rx="2" fill="#FFFFFF"/>
+          <path d="M22 4C23 4.5 23 7.5 22 8" stroke="#FFFFFF" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="app-content">
+
+      <!-- Header: Back Button + Title -->
+      <div class="header-bar">
+        <button class="back-btn" onclick="handleBack()" title="Back" aria-label="Go back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="header-text">
+          <h1 id="screenTitle">PROGRESS REVIEW</h1>
+          <p id="screenSubtitle">Your mental performance over time</p>
+        </div>
+      </div>
+
+      <!-- Timeframe Switcher (This Week / This Month) -->
+      <div class="timeframe-track">
+        <button id="btnTabWeek" class="timeframe-btn active" onclick="switchTimeframe('week')">This Week</button>
+        <button id="btnTabMonth" class="timeframe-btn" onclick="switchTimeframe('month')">This Month</button>
+      </div>
+
+      <!-- Overall Performance Score Card -->
+      <section class="performance-card">
+        <div class="performance-header">
+          <h2 id="perfTitle">Overall Performance Score</h2>
+          <span id="perfDateRange" class="date-range">Mon – Sun</span>
+        </div>
+
+        <!-- 7-Bar Chart Container -->
+        <div class="chart-container" id="barChartContainer">
+          <div class="bar-col" data-day="M">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">M</span>
+          </div>
+          <div class="bar-col" data-day="T">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">T</span>
+          </div>
+          <div class="bar-col" data-day="W">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">W</span>
+          </div>
+          <div class="bar-col" data-day="T">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">T</span>
+          </div>
+          <div class="bar-col" data-day="F">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">F</span>
+          </div>
+          <div class="bar-col" data-day="S">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">S</span>
+          </div>
+          <div class="bar-col highlight" data-day="S">
+            <span class="bar-tooltip">--/100</span>
+            <div class="bar-pill" style="height: 4px; opacity: 0.35;"></div>
+            <span class="bar-label">S</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Key Metrics Section -->
+      <h3 class="section-label">KEY METRICS</h3>
+      <div class="metrics-grid">
+
+        <!-- 1. Mental Score -->
+        <div class="metric-card card-mental">
+          <div class="metric-icon" id="iconMental">🧠</div>
+          <div class="metric-value" id="valMental">--/100</div>
+          <div class="metric-label" id="lblMental">Mental Score</div>
+        </div>
+
+        <!-- 2. Consistency -->
+        <div class="metric-card card-consistency">
+          <div class="metric-icon" id="iconConsistency">📅</div>
+          <div class="metric-value" id="valConsistency">--%</div>
+          <div class="metric-label" id="lblConsistency">Consistency</div>
+        </div>
+
+        <!-- 3. Focus Rating -->
+        <div class="metric-card card-focus">
+          <div class="metric-icon" id="iconFocus">🎯</div>
+          <div class="metric-value" id="valFocus">--/100</div>
+          <div class="metric-label" id="lblFocus">Focus Rating</div>
+        </div>
+
+        <!-- 4. Resilience -->
+        <div class="metric-card card-resilience">
+          <div class="metric-icon" id="iconResilience">💪</div>
+          <div class="metric-value" id="valResilience">--/100</div>
+          <div class="metric-label" id="lblResilience">Resilience</div>
+        </div>
+
+      </div>
+
+      <!-- Coach Evaluation Section -->
+      <h3 class="section-label">COACH EVALUATION</h3>
+      <section class="coach-card" id="coachCard">
+        <div id="coachContent">
+          <div class="coach-header">
+            <div class="coach-avatar-badge" id="coachIconBadge">🎯</div>
+            <div class="coach-info">
+              <span class="coach-name" id="coachName">Coach</span>
+              <span class="coach-rating">Overall Rating: <span class="stars" id="coachStars">★★★★★</span></span>
+            </div>
+          </div>
+          <p class="coach-quote" id="coachQuote">
+            --
+          </p>
+        </div>
+        <div id="coachEmpty" class="coach-empty" style="display: none;">
+          No coach evaluation recorded for this period yet.
+        </div>
+      </section>
+
+      <!-- iOS Home Indicator -->
+      <div class="home-indicator"></div>
+
+    </main>
+
+  </div>
+
+  <script>
+    let currentAthleteId = getUrlParam('athleteId') || '6acc80dca1df2a2ed315c20e';
+    let currentTimeframe = getUrlParam('timeframe') || 'week';
+
+    function getUrlParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    function setUrlParams(athleteId, timeframe) {
+      const url = new URL(window.location);
+      url.searchParams.set('athleteId', athleteId);
+      url.searchParams.set('timeframe', timeframe);
+      window.history.replaceState({}, '', url);
+    }
+
+    async function loadProgressReview() {
+      // Update Tab UI
+      const btnWeek = document.getElementById('btnTabWeek');
+      const btnMonth = document.getElementById('btnTabMonth');
+      if (currentTimeframe === 'month') {
+        btnMonth.classList.add('active');
+        btnWeek.classList.remove('active');
+      } else {
+        btnWeek.classList.add('active');
+        btnMonth.classList.remove('active');
+      }
+
+      try {
+        const res = await fetch(`/api/v1/user/progress-review?athleteId=${currentAthleteId}&timeframe=${currentTimeframe}`);
+        const result = await res.json();
+        
+        if (result && result.status === 'success' && result.data) {
+          const payload = result.data.attributes || result.data;
+          renderData(payload);
+        }
+      } catch (err) {
+        console.warn('Could not fetch progress review data from API:', err);
+      }
+    }
+
+    function renderData(data) {
+      if (!data) return;
+
+      // 1. Overall Performance Score Header & Date Range
+      if (data.dateRange) {
+        document.getElementById('perfDateRange').textContent = data.dateRange;
+      }
+
+      // 2. Render 7 Daily Bars
+      const perf = data.performanceScore;
+      const scores = perf?.scores || perf?.bars;
+      if (Array.isArray(scores) && scores.length > 0) {
+        const container = document.getElementById('barChartContainer');
+        container.innerHTML = '';
+        scores.forEach((bar, idx) => {
+          const col = document.createElement('div');
+          // Sunday (7th bar, idx 6) is highlighted in gold in Figma design
+          const isSunday = idx === 6;
+          col.className = 'bar-col' + (isSunday ? ' highlight' : '');
+          col.setAttribute('data-day', bar.day);
+          col.setAttribute('title', `${bar.day}: ${bar.score}/100`);
+
+          const tooltip = document.createElement('span');
+          tooltip.className = 'bar-tooltip';
+          tooltip.textContent = `${bar.score}/100`;
+
+          const pill = document.createElement('div');
+          pill.className = 'bar-pill';
+          const height = bar.score > 0 ? Math.max(8, Math.round((bar.score / 100) * 88)) : 4;
+          pill.style.height = `${height}px`;
+          if (bar.score === 0) {
+            pill.style.opacity = '0.35';
+          }
+
+          const label = document.createElement('span');
+          label.className = 'bar-label';
+          label.textContent = bar.day;
+
+          col.appendChild(tooltip);
+          col.appendChild(pill);
+          col.appendChild(label);
+          container.appendChild(col);
+        });
+      }
+
+      // 3. Key Metrics
+      const m = data.keyMetrics;
+      if (m) {
+        const mental = m.mentalScore?.display || (typeof m.mentalScore === 'number' ? `${m.mentalScore}/100` : `${m.mentalScore?.value ?? 0}/100`);
+        const consistency = m.consistency?.display || (typeof m.consistency === 'number' ? `${m.consistency}%` : `${m.consistency?.value ?? 0}%`);
+        const focus = m.focusRating?.display || (typeof m.focusRating === 'number' ? `${m.focusRating}/100` : `${m.focusRating?.value ?? 0}/100`);
+        const resilience = m.resilience?.display || (typeof m.resilience === 'number' ? `${m.resilience}/100` : `${m.resilience?.value ?? 0}/100`);
+
+        document.getElementById('valMental').textContent = mental;
+        document.getElementById('valConsistency').textContent = consistency;
+        document.getElementById('valFocus').textContent = focus;
+        document.getElementById('valResilience').textContent = resilience;
+
+        if (m.mentalScore?.icon) document.getElementById('iconMental').textContent = m.mentalScore.icon;
+        if (m.consistency?.icon) document.getElementById('iconConsistency').textContent = m.consistency.icon;
+        if (m.focusRating?.icon) document.getElementById('iconFocus').textContent = m.focusRating.icon;
+        if (m.resilience?.icon) document.getElementById('iconResilience').textContent = m.resilience.icon;
+
+        if (m.mentalScore?.label) document.getElementById('lblMental').textContent = m.mentalScore.label;
+        if (m.consistency?.label) document.getElementById('lblConsistency').textContent = m.consistency.label;
+        if (m.focusRating?.label) document.getElementById('lblFocus').textContent = m.focusRating.label;
+        if (m.resilience?.label) document.getElementById('lblResilience').textContent = m.resilience.label;
+      }
+
+      // 4. Coach Evaluation
+      const coach = data.coachEvaluation;
+      const coachContent = document.getElementById('coachContent');
+      const coachEmpty = document.getElementById('coachEmpty');
+
+      if (coach && coach.message) {
+        coachEmpty.style.display = 'none';
+        coachContent.style.display = 'block';
+        document.getElementById('coachName').textContent = coach.coachName || 'Coach';
+        const rating = Math.max(1, Math.min(5, Math.round(coach.rating || 4)));
+        document.getElementById('coachStars').textContent = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+        document.getElementById('coachQuote').textContent = `"${coach.message}"`;
+      } else {
+        coachContent.style.display = 'none';
+        coachEmpty.style.display = 'block';
+      }
+    }
+
+    function switchTimeframe(tf) {
+      if (currentTimeframe === tf) return;
+      currentTimeframe = tf;
+      setUrlParams(currentAthleteId, currentTimeframe);
+      loadProgressReview();
+    }
+
+    function changeAthlete(id) {
+      currentAthleteId = id;
+      setUrlParams(currentAthleteId, currentTimeframe);
+      loadProgressReview();
+    }
+
+    function handleBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = `/coach-player-detail`;
+      }
+    }
+
+    // Populate athlete dropdown
+    async function initAthletes() {
+      try {
+        const res = await fetch('/api/v1/user/athlete');
+        const json = await res.json();
+        const athletes = json.data?.attributes?.athletes || json.data?.athletes || (Array.isArray(json.data) ? json.data : null);
+        if (Array.isArray(athletes) && athletes.length > 0) {
+          const sel = document.getElementById('athleteSelector');
+          sel.innerHTML = '';
+          athletes.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a._id;
+            opt.textContent = `${a.fullName || 'Athlete'} (${a.tier || 'mentorship'})`;
+            if (a._id === currentAthleteId) opt.selected = true;
+            sel.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      initAthletes();
+      loadProgressReview();
+    });
+  </script>
+</body>
+</html>

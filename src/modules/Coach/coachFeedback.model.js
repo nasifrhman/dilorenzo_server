@@ -14,11 +14,6 @@ const coachFeedbackSchema = new mongoose.Schema(
       default: null,
       index: true,
     },
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     message: {
       type: String,
       required: true,
@@ -38,6 +33,10 @@ const coachFeedbackSchema = new mongoose.Schema(
     date: {
       type: Date,
       default: Date.now,
+    },
+    timeframe: {
+      type: String,
+      default: '',
     },
   },
   {

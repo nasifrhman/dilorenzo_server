@@ -126,6 +126,11 @@ app.get(["/coach-player-detail", "/coach/player", "/coach-player", "/player-deta
   res.sendFile(path.join(__dirname, "../public/coach-player-detail.html"));
 });
 
+// Athlete Progress Review Page (Figma nodes 32905-2100 & 32906-2338)
+app.get(["/progress-review", "/athlete/progress-review", "/athlete-progress-review", "/progress"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/athlete-progress-review.html"));
+});
+
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.json([{

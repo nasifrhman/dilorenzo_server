@@ -19,7 +19,20 @@ const {
   getAthletesController,
   assignCoachController,
   getAssignedCoachesOverviewController,
+  getUserProfileController,
+  awardBadgeController,
+  getAthleteProgressReviewController,
+  submitCoachEvaluationController,
 } = require("./user.controller");
+
+// User Profile Screen (Figma node 33253-3890 / 32827-10089)
+router.get("/profile", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserProfileController);
+router.post("/badge", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), awardBadgeController);
+
+// Athlete Progress Review Screen (Figma nodes 32905:2100 & 32906:2338)
+router.get("/progress-review", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteProgressReviewController);
+router.get("/progress-review/:athleteId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteProgressReviewController);
+router.post("/progress-review/evaluation", auth(['admin', 'coach', 'user'], { optional: true }), submitCoachEvaluationController);
 
 // Coach Provisioning endpoints
 router.post("/coach", createCoachController);

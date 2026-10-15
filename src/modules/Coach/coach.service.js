@@ -1092,12 +1092,12 @@ const getAthleteFeedbackService = async (athleteId, query = {}) => {
 
   const feedback = feedbackList.map((fb) => ({
     _id: fb._id.toString(),
-    title: fb.title || '',
     date: formatReadableDate(fb.date || fb.createdAt),
     rawDate: fb.date || fb.createdAt || null,
     rating: fb.rating !== undefined && fb.rating !== null ? Number(fb.rating) : null,
     message: fb.message || '',
     tags: fb.tags || [],
+    timeframe: fb.timeframe || '',
   }));
 
   return {
@@ -1625,7 +1625,7 @@ const createAthleteTaskService = async (athleteId, data, coachId = null) => {
     throw new Error('Invalid Athlete ID');
   }
 
-  const { title, dueDate = null, frequency = 'Once' } = data;
+  const { title, dueDate = null, frequency = 'Once', category = 'mindset', description = '', icon = '📋' } = data;
   if (!title) {
     throw new Error('Task title is required');
   }
@@ -1634,6 +1634,9 @@ const createAthleteTaskService = async (athleteId, data, coachId = null) => {
     athlete: athleteId,
     coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null,
     title,
+    description,
+    icon,
+    category,
     dueDate: dueDate ? new Date(dueDate) : null,
     frequency,
     status: 'pending',
@@ -1697,7 +1700,7 @@ const createCoachFeedbackService = async (athleteId, data, coachId = null) => {
     throw new Error('Invalid Athlete ID');
   }
 
-  const { title = 'Coach Feedback', message, tags = [], rating = null } = data;
+  const { message, tags = [], rating = null, timeframe = '' } = data;
   if (!message) {
     throw new Error('Feedback message is required');
   }
@@ -1708,10 +1711,10 @@ const createCoachFeedbackService = async (athleteId, data, coachId = null) => {
   const fb = await CoachFeedback.create({
     athlete: athleteId,
     coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null,
-    title,
     message,
     tags: parsedTags,
     rating: parsedRating,
+    timeframe: timeframe || '',
     date: new Date(),
   });
 
