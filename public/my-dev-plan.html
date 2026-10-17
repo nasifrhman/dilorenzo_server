@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dev Plan — Di Lorenzo Soccer Academy</title>
+
+  <!-- Google Fonts: Barlow Condensed & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/my-dev-plan.css" />
+</head>
+<body>
+
+  <!-- Dev & Athlete Switcher Toolbar -->
+  <header class="dev-banner" role="banner">
+    <div class="dev-banner-left">
+      <span class="auth-badge" id="authBadge">● Logged In</span>
+      <span>Athlete:</span>
+      <select id="athleteSelector" class="athlete-select" onchange="changeAthlete(this.value)" aria-label="Select Athlete">
+        <option value="">Loading Athletes...</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <a href="/athlete-progress-review" title="Progress Review">Progress Review ↗</a>
+      <a href="/api/v1/user/dev-plan" id="apiLink" target="_blank" title="API JSON">API ↗</a>
+    </div>
+  </header>
+
+  <!-- Mobile Screen Frame (Figma Node 32906:2936) -->
+  <main class="screen-wrapper" role="main">
+
+    <!-- iOS Status Bar -->
+    <div class="status-bar" aria-hidden="true">
+      <span class="time" id="currentTime">9:41</span>
+      <div class="status-icons">
+        <!-- Cellular Signal -->
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="none">
+          <rect y="7" width="3" height="4" rx="1" fill="#FFFFFF"/>
+          <rect x="4.5" y="5" width="3" height="6" rx="1" fill="#FFFFFF"/>
+          <rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#FFFFFF"/>
+          <rect x="13.5" width="3" height="11" rx="1" fill="#FFFFFF"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="none">
+          <path d="M8 9.5C8.82843 9.5 9.5 10.1716 9.5 11C9.5 11.8284 8.82843 12.5 8 12.5C7.17157 12.5 6.5 11.8284 6.5 11C6.5 10.1716 7.17157 9.5 8 9.5Z" fill="#FFFFFF"/>
+          <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M1.5 4C3.3 2.5 5.5 1.5 8 1.5C10.5 1.5 12.7 2.5 14.5 4" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="22" height="11" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="#FFFFFF" stroke-opacity="0.4"/>
+          <rect x="2" y="2" width="17" height="8" rx="2" fill="#FFFFFF"/>
+          <path d="M22 4C23 4.5 23 7.5 22 8" stroke="#FFFFFF" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main Scrollable App Content -->
+    <div class="app-content">
+
+      <!-- Header: Back Button + Title + Subtitle -->
+      <div class="header-bar">
+        <button class="back-btn" onclick="handleBack()" title="Back" aria-label="Go back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="header-text">
+          <h1 class="header-title" id="screenTitle">MY DEV PLAN</h1>
+          <p class="header-subtitle" id="screenSubtitle">Personalised 12-week roadmap</p>
+        </div>
+      </div>
+
+      <!-- Section 1: CURRENT OBJECTIVES -->
+      <section aria-labelledby="headingObjectives">
+        <div class="section-label" id="headingObjectives">
+          <span>Current Objectives</span>
+          <span class="section-label-count" id="objectivesCount">3 active</span>
+        </div>
+        <div class="objectives-list" id="objectivesList">
+          <!-- Dynamic Objectives Loaded via JS -->
+          <div class="objective-card focus-card skeleton" style="height: 82px;"></div>
+          <div class="objective-card resilience-card skeleton" style="height: 82px;"></div>
+          <div class="objective-card confidence-card skeleton" style="height: 82px;"></div>
+        </div>
+      </section>
+
+      <!-- Section 2: DAILY HABITS -->
+      <section aria-labelledby="headingHabits" style="margin-top: 8px;">
+        <div class="section-label" id="headingHabits">
+          <span>Daily Habits</span>
+          <span class="section-label-count" id="habitsCompletedSummary">3/4 completed today</span>
+        </div>
+        <div class="habits-grid" id="habitsGrid">
+          <!-- Dynamic 2x2 Habits Loaded via JS -->
+          <div class="habit-card skeleton" style="height: 102px;"></div>
+          <div class="habit-card skeleton" style="height: 102px;"></div>
+          <div class="habit-card skeleton" style="height: 102px;"></div>
+          <div class="habit-card skeleton" style="height: 102px;"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- iOS Home Indicator -->
+    <div class="home-indicator-bar" aria-hidden="true">
+      <div class="home-indicator-pill"></div>
+    </div>
+
+    <!-- Real-time Toast Feedback -->
+    <div class="toast-msg" id="toastMsg" role="status" aria-live="polite">
+      <span id="toastIcon">✓</span>
+      <span id="toastText">Habit completed!</span>
+    </div>
+
+  </main>
+
+  <!-- Logic & API Integration -->
+  <script>
+    // State
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentAthleteId = urlParams.get('athleteId') || localStorage.getItem('athleteId') || '';
+    let currentDevPlan = null;
+    let isToggling = false;
+
+    // Synchronize URL and state
+    function updateUrlState(athleteId) {
+      const url = new URL(window.location.href);
+      if (athleteId) {
+        url.searchParams.set('athleteId', athleteId);
+      } else {
+        url.searchParams.delete('athleteId');
+      }
+      window.history.replaceState({}, '', url.toString());
+
+      // Update API test link
+      const apiLink = document.getElementById('apiLink');
+      if (apiLink) {
+        apiLink.href = athleteId ? `/api/v1/user/dev-plan?athleteId=${athleteId}` : `/api/v1/user/dev-plan`;
+      }
+    }
+
+    // Auth Header Helper
+    function getAuthHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      return headers;
+    }
+
+    // Format current clock time
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      const timeElem = document.getElementById('currentTime');
+      if (timeElem) timeElem.textContent = `${hours}:${minutes}`;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // Toast feedback
+    let toastTimeout = null;
+    function showToast(text, icon = '✓') {
+      const toast = document.getElementById('toastMsg');
+      const toastText = document.getElementById('toastText');
+      const toastIcon = document.getElementById('toastIcon');
+      if (!toast) return;
+
+      toastText.textContent = text;
+      toastIcon.textContent = icon;
+      toast.classList.add('show');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2600);
+    }
+
+    // Load Dev Plan from Backend API
+    async function loadDevPlan() {
+      try {
+        const token = localStorage.getItem('token');
+        const authBadge = document.getElementById('authBadge');
+        if (token && authBadge) {
+          authBadge.textContent = '● Authenticated';
+          authBadge.style.color = '#05DF72';
+        }
+
+        const endpoint = currentAthleteId 
+          ? `/api/v1/user/dev-plan?athleteId=${encodeURIComponent(currentAthleteId)}` 
+          : `/api/v1/user/dev-plan`;
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: Failed to fetch dev plan`);
+        }
+
+        const result = await res.json();
+        const data = result.data?.attributes || result.data;
+        if (!data) throw new Error('Invalid dev plan response');
+
+        currentDevPlan = data;
+        renderDevPlan(data);
+      } catch (err) {
+        console.error('Error loading dev plan:', err);
+        showToast('Error loading plan from server', '⚠️');
+      }
+    }
+
+    // Render Full Dev Plan UI
+    function renderDevPlan(plan) {
+      // 1. Header titles
+      if (plan.title) {
+        document.getElementById('screenTitle').textContent = plan.title;
+      }
+      if (plan.roadmapDuration) {
+        document.getElementById('screenSubtitle').textContent = plan.roadmapDuration;
+      }
+
+      // 2. Objectives List
+      const objectivesContainer = document.getElementById('objectivesList');
+      objectivesContainer.innerHTML = '';
+
+      const objectives = plan.objectives || [];
+      document.getElementById('objectivesCount').textContent = `${objectives.length} active`;
+
+      objectives.forEach(obj => {
+        const card = document.createElement('div');
+        const catLower = (obj.category || '').toLowerCase();
+        let catClass = 'focus-card';
+        if (catLower.includes('resilience')) catClass = 'resilience-card';
+        else if (catLower.includes('confidence')) catClass = 'confidence-card';
+
+        card.className = `objective-card ${catClass}`;
+        card.setAttribute('data-category', obj.category || '');
+
+        card.innerHTML = `
+          <div class="objective-top">
+            <div class="objective-info">
+              <span class="objective-icon">${obj.icon || '🎯'}</span>
+              <div class="objective-text">
+                <span class="objective-title">${escapeHtml(obj.title)}</span>
+                <span class="objective-category">${escapeHtml(obj.category)}</span>
+              </div>
+            </div>
+            <span class="objective-percent">${obj.progress}%</span>
+          </div>
+          <div class="objective-progress-track">
+            <div class="objective-progress-fill" style="width: 0%;" data-target="${obj.progress}"></div>
+          </div>
+        `;
+
+        objectivesContainer.appendChild(card);
+      });
+
+      // Animate progress bars smoothly on render
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          document.querySelectorAll('.objective-progress-fill').forEach(fill => {
+            const target = fill.getAttribute('data-target') || '0';
+            fill.style.width = `${target}%`;
+          });
+        }, 50);
+      });
+
+      // 3. Daily Habits Grid (2x2)
+      renderHabitsGrid(plan.habits || []);
+    }
+
+    // Render Daily Habits Grid
+    function renderHabitsGrid(habits) {
+      const habitsGrid = document.getElementById('habitsGrid');
+      habitsGrid.innerHTML = '';
+
+      let completedCount = 0;
+      habits.forEach(habit => {
+        if (habit.isCompletedToday) completedCount++;
+
+        const habitCard = document.createElement('div');
+        habitCard.id = `habit-${habit._id || habit.id}`;
+        habitCard.className = `habit-card ${habit.isCompletedToday ? 'completed' : 'pending'}`;
+        habitCard.setAttribute('role', 'button');
+        habitCard.setAttribute('tabindex', '0');
+        habitCard.setAttribute('aria-pressed', habit.isCompletedToday ? 'true' : 'false');
+        habitCard.setAttribute('aria-label', `${habit.title}, streak ${habit.streak} days, ${habit.isCompletedToday ? 'completed' : 'incomplete'}`);
+
+        habitCard.innerHTML = `
+          <div class="habit-top">
+            <span class="habit-icon">${habit.icon || '⚡'}</span>
+            <span class="habit-title" title="${escapeHtml(habit.title)}">${escapeHtml(habit.title)}</span>
+          </div>
+          <div class="habit-bottom">
+            <span class="habit-streak" id="streak-${habit._id || habit.id}">${habit.streakDisplay || `🔥 ${habit.streak || 0} days`}</span>
+            <div class="habit-check-badge" id="badge-${habit._id || habit.id}">
+              ${habit.isCompletedToday ? '✓' : ''}
+            </div>
+          </div>
+        `;
+
+        // Click to toggle habit for today
+        habitCard.addEventListener('click', () => toggleHabit(habit));
+        habitCard.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleHabit(habit);
+          }
+        });
+
+        habitsGrid.appendChild(habitCard);
+      });
+
+      // Update habits summary label
+      const summaryElem = document.getElementById('habitsCompletedSummary');
+      if (summaryElem) {
+        summaryElem.textContent = `${completedCount}/${habits.length} completed today`;
+      }
+    }
+
+    // Toggle Habit for Today via API
+    async function toggleHabit(habit) {
+      if (isToggling) return;
+      isToggling = true;
+
+      const habitId = habit._id || habit.id;
+      const cardElem = document.getElementById(`habit-${habitId}`);
+      const badgeElem = document.getElementById(`badge-${habitId}`);
+      const streakElem = document.getElementById(`streak-${habitId}`);
+
+      // Optimistic UI state
+      const wasCompleted = habit.isCompletedToday;
+      const nextCompleted = !wasCompleted;
+      const nextStreak = nextCompleted ? (habit.streak + 1) : Math.max(0, habit.streak - 1);
+      const nextStreakDisplay = `🔥 ${nextStreak} days`;
+
+      habit.isCompletedToday = nextCompleted;
+      habit.streak = nextStreak;
+      habit.streakDisplay = nextStreakDisplay;
+
+      if (cardElem) {
+        cardElem.className = `habit-card ${nextCompleted ? 'completed' : 'pending'} just-toggled`;
+        cardElem.setAttribute('aria-pressed', nextCompleted ? 'true' : 'false');
+      }
+      if (badgeElem) {
+        badgeElem.textContent = nextCompleted ? '✓' : '';
+      }
+      if (streakElem) {
+        streakElem.textContent = nextStreakDisplay;
+      }
+
+      // Update header summary count
+      if (currentDevPlan && currentDevPlan.habits) {
+        const completedTotal = currentDevPlan.habits.filter(h => h.isCompletedToday).length;
+        const summaryElem = document.getElementById('habitsCompletedSummary');
+        if (summaryElem) {
+          summaryElem.textContent = `${completedTotal}/${currentDevPlan.habits.length} completed today`;
+        }
+      }
+
+      // Visual feedback
+      if (nextCompleted) {
+        showToast(`✓ Completed "${habit.title}"! (${nextStreakDisplay})`, '🔥');
+      } else {
+        showToast(`Unmarked "${habit.title}" for today`, '↩');
+      }
+
+      try {
+        const res = await fetch('/api/v1/user/dev-plan/toggle-habit', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            athleteId: currentAthleteId,
+            habitId: habitId
+          })
+        });
+
+        const resData = await res.json();
+        if (!res.ok) {
+          throw new Error(resData.message || 'Failed to toggle habit');
+        }
+
+        // Apply authoritative server updates if provided
+        if (resData.data?.attributes) {
+          const attr = resData.data.attributes;
+          habit.isCompletedToday = attr.isCompletedToday;
+          habit.streak = attr.streak;
+          habit.streakDisplay = attr.streakDisplay;
+          if (streakElem) streakElem.textContent = attr.streakDisplay;
+        }
+      } catch (err) {
+        console.error('Toggle habit failed, reverting:', err);
+        showToast('Sync failed, reverting state...', '⚠️');
+
+        // Revert optimistic state
+        habit.isCompletedToday = wasCompleted;
+        habit.streak = wasCompleted ? (habit.streak + 1) : Math.max(0, habit.streak - 1);
+        habit.streakDisplay = `🔥 ${habit.streak} days`;
+
+        if (cardElem) cardElem.className = `habit-card ${wasCompleted ? 'completed' : 'pending'}`;
+        if (badgeElem) badgeElem.textContent = wasCompleted ? '✓' : '';
+        if (streakElem) streakElem.textContent = habit.streakDisplay;
+      } finally {
+        isToggling = false;
+        setTimeout(() => {
+          if (cardElem) cardElem.classList.remove('just-toggled');
+        }, 400);
+      }
+    }
+
+    // Switch active athlete from toolbar
+    function changeAthlete(id) {
+      if (currentAthleteId === id) return;
+      currentAthleteId = id;
+      localStorage.setItem('athleteId', id);
+      updateUrlState(currentAthleteId);
+      loadDevPlan();
+    }
+
+    // Handle Back button
+    function handleBack() {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = `/athlete-progress-review?athleteId=${currentAthleteId}`;
+      }
+    }
+
+    // Utility: HTML escape
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Initialize Athletes Dropdown for easy switching
+    async function initAthletes() {
+      try {
+        const res = await fetch('/api/v1/user/athlete');
+        if (!res.ok) return;
+        const json = await res.json();
+        const athletes = json.data?.attributes?.athletes || json.data?.athletes || (Array.isArray(json.data) ? json.data : null);
+        if (Array.isArray(athletes) && athletes.length > 0) {
+          const sel = document.getElementById('athleteSelector');
+          sel.innerHTML = '';
+          if (!currentAthleteId) {
+            currentAthleteId = athletes[0]._id;
+            updateUrlState(currentAthleteId);
+            loadDevPlan();
+          }
+          athletes.forEach(a => {
+            const opt = document.createElement('option');
+            opt.value = a._id;
+            opt.textContent = `${a.fullName || 'Athlete'} (${a.tier || 'mentorship'})`;
+            if (a._id === currentAthleteId) opt.selected = true;
+            sel.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        // Fallback silently
+      }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUrlState(currentAthleteId);
+      initAthletes();
+      loadDevPlan();
+    });
+  </script>
+</body>
+</html>

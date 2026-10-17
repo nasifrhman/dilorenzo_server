@@ -31,8 +31,14 @@ const {
   sendAthleteGroupMessageService,
 } = require('./coach.service');
 
+// Helper to extract authenticated login user ID from req.user (populated by JWT Bearer token)
+const getLoggedInUserId = (req) => {
+  return req.user?._id || req.user?.id || req.User?._id || req.User?.id || null;
+};
+
 const getCoachDashboardOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachDashboardOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachDashboardOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -45,7 +51,8 @@ const getCoachDashboardOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachTasksOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachTasksOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachTasksOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -58,7 +65,8 @@ const getCoachTasksOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachTrainingOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachTrainingOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachTrainingOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -71,7 +79,8 @@ const getCoachTrainingOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachFeedbackOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachFeedbackOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachFeedbackOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -84,7 +93,8 @@ const getCoachFeedbackOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachSessionsOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachSessionsOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachSessionsOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -97,7 +107,8 @@ const getCoachSessionsOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachPlayersOverviewController = catchAsync(async (req, res) => {
-  const result = await getCoachPlayersOverviewService(req.query);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachPlayersOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -111,7 +122,7 @@ const getCoachPlayersOverviewController = catchAsync(async (req, res) => {
 
 const getCoachPlayerDetailController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.query.coachId || req.user?._id;
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
   const result = await getCoachPlayerDetailService(athleteId, coachId, req.query);
   return res.status(status.OK).json(
     response({
@@ -126,7 +137,10 @@ const getCoachPlayerDetailController = catchAsync(async (req, res) => {
 
 const getAthleteTasksController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteTasksService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteTasksService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -140,7 +154,10 @@ const getAthleteTasksController = catchAsync(async (req, res) => {
 
 const getAthleteTrainingController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteTrainingService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteTrainingService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -154,7 +171,10 @@ const getAthleteTrainingController = catchAsync(async (req, res) => {
 
 const getAthleteHabitsController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteHabitsService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteHabitsService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -168,7 +188,10 @@ const getAthleteHabitsController = catchAsync(async (req, res) => {
 
 const getAthleteActionStepsController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteActionStepsService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteActionStepsService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -182,7 +205,10 @@ const getAthleteActionStepsController = catchAsync(async (req, res) => {
 
 const getAthleteFeedbackController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteFeedbackService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteFeedbackService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -196,7 +222,10 @@ const getAthleteFeedbackController = catchAsync(async (req, res) => {
 
 const getAthleteSessionsController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteSessionsService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteSessionsService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -210,7 +239,10 @@ const getAthleteSessionsController = catchAsync(async (req, res) => {
 
 const getAthleteProgressController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteProgressService(athleteId, req.query);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteProgressService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -224,7 +256,10 @@ const getAthleteProgressController = catchAsync(async (req, res) => {
 
 const getAthleteGroupChatController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const result = await getAthleteGroupChatService(athleteId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const result = await getAthleteGroupChatService(targetAthleteId);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -238,8 +273,11 @@ const getAthleteGroupChatController = catchAsync(async (req, res) => {
 
 const createAthleteHabitController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
-  const result = await createAthleteHabitService(athleteId, req.body, coachId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await createAthleteHabitService(targetAthleteId, req.body, coachId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -281,8 +319,11 @@ const toggleHabitStatusController = catchAsync(async (req, res) => {
 
 const createAthleteTaskController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
-  const result = await createAthleteTaskService(athleteId, req.body, coachId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await createAthleteTaskService(targetAthleteId, req.body, coachId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -310,8 +351,11 @@ const toggleTaskStatusController = catchAsync(async (req, res) => {
 
 const assignTrainingController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
-  const result = await assignTrainingService(athleteId, req.body, coachId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await assignTrainingService(targetAthleteId, req.body, coachId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -325,8 +369,11 @@ const assignTrainingController = catchAsync(async (req, res) => {
 
 const createCoachFeedbackController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
-  const result = await createCoachFeedbackService(athleteId, req.body, coachId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await createCoachFeedbackService(targetAthleteId, req.body, coachId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -340,7 +387,7 @@ const createCoachFeedbackController = catchAsync(async (req, res) => {
 
 const reviewActionStepController = catchAsync(async (req, res) => {
   const { actionStepId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
   const result = await reviewActionStepService(actionStepId, req.body, coachId);
   return res.status(status.OK).json(
     response({
@@ -356,7 +403,7 @@ const reviewActionStepController = catchAsync(async (req, res) => {
 const updateSessionNotesController = catchAsync(async (req, res) => {
   const { sessionId } = req.params;
   const { notes } = req.body;
-  const coachId = req.body.coachId || req.user?._id;
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
   const result = await updateSessionNotesService(sessionId, notes, coachId);
   return res.status(status.OK).json(
     response({
@@ -371,8 +418,11 @@ const updateSessionNotesController = catchAsync(async (req, res) => {
 
 const createCoachSessionController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const coachId = req.body.coachId || req.user?._id;
-  const result = await createCoachSessionService(athleteId, req.body, coachId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await createCoachSessionService(targetAthleteId, req.body, coachId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -386,8 +436,11 @@ const createCoachSessionController = catchAsync(async (req, res) => {
 
 const sendAthleteGroupMessageController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const senderId = req.body.senderId || req.user?._id;
-  const result = await sendAthleteGroupMessageService(athleteId, req.body, senderId);
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (req.body.athleteId || getLoggedInUserId(req));
+  const senderId = getLoggedInUserId(req) || req.body.senderId;
+  const result = await sendAthleteGroupMessageService(targetAthleteId, req.body, senderId);
   return res.status(status.CREATED).json(
     response({
       status: 'success',

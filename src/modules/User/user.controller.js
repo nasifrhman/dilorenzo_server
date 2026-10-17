@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -340,7 +340,7 @@ const getAssignedCoachesOverviewController = catchAsync(async (req, res) => {
 });
 
 const getUserProfileController = catchAsync(async (req, res) => {
-  const currentUserId = req.User?._id || req.query.athleteId;
+  const currentUserId = req.user?._id || req.user?.id || req.User?._id || req.query.athleteId;
   if (!currentUserId) {
     return res.status(status.UNAUTHORIZED).json(
       response({
@@ -365,7 +365,7 @@ const getUserProfileController = catchAsync(async (req, res) => {
 
 const awardBadgeController = catchAsync(async (req, res) => {
   const { athleteId, badgeId, icon, title, description } = req.body;
-  const targetId = athleteId || req.User?._id;
+  const targetId = athleteId || req.user?._id || req.user?.id || req.User?._id;
   const result = await awardBadgeService(targetId, { badgeId, icon, title, description });
   return res.status(status.OK).json(
     response({
@@ -379,7 +379,7 @@ const awardBadgeController = catchAsync(async (req, res) => {
 });
 
 const getAthleteProgressReviewController = catchAsync(async (req, res) => {
-  const athleteId = req.params.athleteId || req.query.athleteId || req.User?._id;
+  const athleteId = req.params.athleteId || req.query.athleteId || req.user?._id || req.user?.id || req.User?._id;
   const result = await getAthleteProgressReviewService(athleteId, req.query);
   return res.status(status.OK).json(
     response({
@@ -394,7 +394,7 @@ const getAthleteProgressReviewController = catchAsync(async (req, res) => {
 
 const submitCoachEvaluationController = catchAsync(async (req, res) => {
   const { athleteId, message, rating, timeframe, tags } = req.body;
-  const coachId = req.User?._id || req.body.coachId;
+  const coachId = req.user?._id || req.user?.id || req.User?._id || req.body.coachId;
   const result = await submitCoachEvaluationService({
     athleteId,
     coachId,
@@ -409,6 +409,43 @@ const submitCoachEvaluationController = catchAsync(async (req, res) => {
       statusCode: status.CREATED,
       type: 'CoachEvaluation',
       message: 'Coach evaluation submitted successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Get Personalised Development Plan (Figma node 32906:2936)
+ */
+const getAthleteDevPlanController = catchAsync(async (req, res) => {
+  const athleteId = req.params.athleteId || req.query.athleteId || req.User?._id || req.user?._id;
+  const currentUserId = req.User?._id || req.user?._id;
+  const result = await getAthleteDevPlanService(athleteId, currentUserId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'DevPlan',
+      message: 'Personalised development plan retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Toggle Daily Habit for today (Figma node 32906:2936)
+ */
+const toggleAthleteHabitTodayController = catchAsync(async (req, res) => {
+  const { habitId, athleteId } = req.body;
+  const currentUserId = req.User?._id || req.user?._id;
+  const targetAthleteId = athleteId || req.params.athleteId || currentUserId;
+  const result = await toggleAthleteHabitTodayService(targetAthleteId, habitId, currentUserId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'HabitToggle',
+      message: result.message,
       data: result,
     })
   );
@@ -441,4 +478,6 @@ module.exports = {
   awardBadgeController,
   getAthleteProgressReviewController,
   submitCoachEvaluationController,
+  getAthleteDevPlanController,
+  toggleAthleteHabitTodayController,
 };

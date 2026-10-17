@@ -1,0 +1,599 @@
+/* ==========================================================================
+   MY DEV PLAN CSS
+   Figma Design: Node 32906:2936 ("MY DEV PLAN" - Personalised 12-week roadmap)
+   Di Lorenzo Soccer Academy / Mentorship System
+   ========================================================================== */
+
+:root {
+  --bg-app: #0B0E14;
+  --bg-card: #131820;
+  --bg-card-hover: #171E28;
+  --bg-track: rgba(255, 255, 255, 0.07);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+
+  /* Colors */
+  --text-white: #FFFFFF;
+  --text-gray: #BFBFBF;
+  --text-muted: #9CA3AF;
+  --text-dim: #4A5565;
+
+  /* Accent Colors */
+  --blue-primary: #3B82F6;
+  --blue-border: rgba(59, 130, 246, 0.13);
+  --pink-primary: #EC4899;
+  --pink-border: rgba(236, 72, 153, 0.13);
+  --gold-primary: #C9911A;
+  --gold-border: rgba(201, 145, 26, 0.13);
+  --green-primary: #05DF72;
+  --green-border: rgba(34, 197, 94, 0.2);
+
+
+  /* Typography */
+  --font-heading: 'Barlow Condensed', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #07090D;
+  color: var(--text-white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px 10px;
+}
+
+/* ==========================================================================
+   Dev & Auth Toolbar
+   ========================================================================== */
+.dev-banner {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(19, 24, 32, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-gray);
+  backdrop-filter: blur(10px);
+  z-index: 50;
+}
+
+.dev-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dev-banner .athlete-select {
+  background: #0B0E14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-white);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+}
+
+.dev-banner .athlete-select:focus {
+  border-color: var(--gold-primary);
+}
+
+.dev-banner .auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(5, 223, 114, 0.12);
+  border: 1px solid rgba(5, 223, 114, 0.25);
+  border-radius: 4px;
+  font-size: 10px;
+  color: #05DF72;
+  font-weight: 600;
+}
+
+.dev-banner a {
+  color: var(--gold-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.dev-banner a:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   Mobile Screen Frame (Figma Node 32906:2936)
+   Dimensions: 393px × 852px
+   ========================================================================== */
+.screen-wrapper {
+  width: 100%;
+  max-width: 393px;
+  min-height: 852px;
+  background-color: var(--bg-app);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0px 20px 48px rgba(0, 0, 0, 0.65), 0px 0px 1px rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* iOS Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  user-select: none;
+}
+
+.status-bar .time {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* App Main Content */
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0 16px;
+  overflow-y: auto;
+}
+
+/* Custom subtle scrollbar */
+.app-content::-webkit-scrollbar {
+  width: 4px;
+}
+.app-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Header Bar: Back Button, Title, Subtitle
+   ========================================================================== */
+.header-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px 14px;
+}
+
+.back-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-1px);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  color: var(--text-white);
+}
+
+.header-subtitle {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--text-gray);
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   Section Labels (CURRENT OBJECTIVES / DAILY HABITS)
+   ========================================================================== */
+.section-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-gray);
+  padding: 0 20px;
+  margin-top: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-label-count {
+  font-size: 10px;
+  letter-spacing: normal;
+  color: var(--text-muted);
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   CURRENT OBJECTIVES (Section 1)
+   ========================================================================== */
+.objectives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px;
+}
+
+.objective-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1.1px solid var(--border-subtle);
+  padding: 16px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.objective-card:hover {
+  transform: translateY(-1px);
+}
+
+/* Category-specific card styles */
+.objective-card[data-category="Focus"],
+.objective-card.focus-card {
+  border-color: var(--blue-border);
+}
+.objective-card[data-category="Focus"]:hover,
+.objective-card.focus-card:hover {
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+}
+
+.objective-card[data-category="Resilience"],
+.objective-card.resilience-card {
+  border-color: var(--pink-border);
+}
+.objective-card[data-category="Resilience"]:hover,
+.objective-card.resilience-card:hover {
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.08);
+}
+
+.objective-card[data-category="Confidence"],
+.objective-card.confidence-card {
+  border-color: var(--gold-border);
+}
+.objective-card[data-category="Confidence"]:hover,
+.objective-card.confidence-card:hover {
+  box-shadow: 0 4px 16px rgba(201, 145, 26, 0.08);
+}
+
+.objective-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.objective-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.objective-icon {
+  font-size: 18px;
+  line-height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.objective-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.objective-title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: var(--text-white);
+}
+
+.objective-category {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.objective-card.focus-card .objective-category {
+  color: var(--blue-primary);
+}
+.objective-card.resilience-card .objective-category {
+  color: var(--pink-primary);
+}
+.objective-card.confidence-card .objective-category {
+  color: var(--gold-primary);
+}
+
+.objective-percent {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 20px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.objective-card.focus-card .objective-percent {
+  color: var(--blue-primary);
+}
+.objective-card.resilience-card .objective-percent {
+  color: var(--pink-primary);
+}
+.objective-card.confidence-card .objective-percent {
+  color: var(--gold-primary);
+}
+
+/* Progress Bar */
+.objective-progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-track);
+  border-radius: 9999px;
+  margin-top: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.objective-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  width: 0%;
+  transition: width 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.objective-card.focus-card .objective-progress-fill {
+  background: var(--blue-primary);
+}
+.objective-card.resilience-card .objective-progress-fill {
+  background: var(--pink-primary);
+}
+.objective-card.confidence-card .objective-progress-fill {
+  background: var(--gold-primary);
+}
+
+/* ==========================================================================
+   DAILY HABITS (Section 2 - 2x2 Grid)
+   ========================================================================== */
+.habits-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 20px;
+}
+
+.habit-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1.1px solid var(--border-subtle);
+  padding: 14px;
+  min-height: 102px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: transform 0.15s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.habit-card:hover {
+  transform: translateY(-2px);
+  background: var(--bg-card-hover);
+}
+
+.habit-card:active {
+  transform: scale(0.97);
+}
+
+/* Completed Habit */
+.habit-card.completed {
+  border-color: var(--green-border);
+  background: var(--bg-card);
+  box-shadow: 0 2px 10px rgba(5, 223, 114, 0.05);
+}
+
+/* Incomplete Habit */
+.habit-card.pending {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.habit-top {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.habit-icon {
+  font-size: 20px;
+  line-height: 22px;
+}
+
+.habit-title {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--text-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.habit-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.habit-streak {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.habit-check-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+/* Completed Checkmark */
+.habit-card.completed .habit-check-badge {
+  color: var(--green-primary);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Pending indicator: subtle outlined circle */
+.habit-card.pending .habit-check-badge {
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  color: transparent;
+}
+
+.habit-card.pending:hover .habit-check-badge {
+  border-color: rgba(5, 223, 114, 0.5);
+}
+
+/* Toggle micro-interaction animation */
+@keyframes checkPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.habit-card.just-toggled .habit-check-badge {
+  animation: checkPop 0.35s ease forwards;
+}
+
+/* Loading Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Toast Notification for Real-Time Habit Toggle */
+.toast-msg {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(50px);
+  background: rgba(19, 24, 32, 0.95);
+  border: 1px solid rgba(5, 223, 114, 0.3);
+  color: var(--text-white);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.toast-msg.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* iOS Home Indicator */
+.home-indicator-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0 10px;
+}
+
+.home-indicator-pill {
+  width: 134px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+}

@@ -8,9 +8,14 @@ const sessionRoutes = require('../modules/Session/session.route');
 const libraryRoutes = require('../modules/Library/library.route');
 const coachRoutes = require('../modules/Coach/coach.route');
 const parentRoutes = require('../modules/Parent/parent.route');
+const communityRoutes = require('../modules/Community/community.route');
 
 
 const moduleRoutes = [
+  {
+    path: '/community',
+    route: communityRoutes,
+  },
   {
     path: '/auth',
     route: authRoutes,

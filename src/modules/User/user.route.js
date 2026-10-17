@@ -23,7 +23,14 @@ const {
   awardBadgeController,
   getAthleteProgressReviewController,
   submitCoachEvaluationController,
+  getAthleteDevPlanController,
+  toggleAthleteHabitTodayController,
 } = require("./user.controller");
+
+// Personalised Development Plan Screen (Figma node 32906:2936)
+router.get("/dev-plan", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteDevPlanController);
+router.get("/dev-plan/:athleteId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteDevPlanController);
+router.post("/dev-plan/toggle-habit", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleAthleteHabitTodayController);
 
 // User Profile Screen (Figma node 33253-3890 / 32827-10089)
 router.get("/profile", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserProfileController);

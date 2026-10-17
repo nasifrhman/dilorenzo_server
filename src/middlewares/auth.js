@@ -59,6 +59,7 @@ const auth = (userRoles, { optional = false } = {}) => {
     if (!authorization || !authorization.startsWith("Bearer ")) {
       if (optional) {
         req.User = null;
+        req.user = null;
         return next();
       }
       throw new ApiError(status.UNAUTHORIZED, "Unauthorized");
@@ -73,6 +74,7 @@ const auth = (userRoles, { optional = false } = {}) => {
     } catch (err) {
       if (optional) {
         req.User = null;
+        req.user = null;
         return next();
       }
       throw new ApiError(status.UNAUTHORIZED, "Invalid or expired token");
@@ -98,6 +100,7 @@ const auth = (userRoles, { optional = false } = {}) => {
     }
 
     req.User = decodedData;
+    req.user = decodedData;
     next();
   });
 };
@@ -140,9 +143,12 @@ const tokenCheck = catchAsync(async (req, res, next) => {
 
     if (token && token !== "null") {
       try {
-        req.User = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
+        req.User = decoded;
+        req.user = decoded;
       } catch (error) {
         req.User = null;
+        req.user = null;
       }
     }
   }

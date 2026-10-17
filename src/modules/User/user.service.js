@@ -1001,8 +1001,6 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
     unit: '/100',
     display: `${mentalScore}/100`,
     icon: '🧠',
-    color: '#3B82F6',
-    borderColor: 'rgba(59, 130, 246, 0.15)',
     description: 'Overall mental toughness and training composite score',
   };
 
@@ -1014,8 +1012,6 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
     unit: '%',
     display: `${consistency}%`,
     icon: '📅',
-    color: '#10B981',
-    borderColor: 'rgba(16, 185, 129, 0.15)',
     description: 'Habit adherence and active training day regularity',
   };
 
@@ -1027,8 +1023,6 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
     unit: '/100',
     display: `${focusRating}/100`,
     icon: '🎯',
-    color: '#E8A820',
-    borderColor: 'rgba(201, 145, 26, 0.15)',
     description: 'Performance in visual scanning and pre-match rituals',
   };
 
@@ -1040,8 +1034,6 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
     unit: '/100',
     display: `${resilience}/100`,
     icon: '💪',
-    color: '#EC4899',
-    borderColor: 'rgba(236, 72, 153, 0.15)',
     description: 'Composure check-ins, breathwork, and reset protocols',
   };
 
@@ -1107,6 +1099,278 @@ const submitCoachEvaluationService = async (data) => {
   return feedback;
 };
 
+/**
+ * Personalised Development Plan Service (Figma node 32906:2936)
+ * "MY DEV PLAN - Personalised 12-week roadmap"
+ */
+const getAthleteDevPlanService = async (athleteId, currentUserId = null) => {
+  let targetId = athleteId;
+  if (!targetId && currentUserId) {
+    targetId = currentUserId;
+  }
+
+  let userDoc = null;
+  if (targetId && mongoose.isValidObjectId(targetId)) {
+    userDoc = await userModel.findById(targetId).lean();
+  }
+
+  if (!userDoc) {
+    const error = new Error('Athlete user not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // Models
+  const Task = require('../Coach/task.model');
+  require('../Habit/habit.model');
+  const Habit = mongoose.model('Habit');
+  const HabitLog = require('../Habit/habitLog.model');
+
+  // Query actual completed activities for this specific athlete
+  const [completedTasks, completedHabits] = await Promise.all([
+    Task.find({ athlete: userDoc._id, status: 'completed' }).lean(),
+    HabitLog.find({ athlete: userDoc._id, status: 'completed' }).populate('habit', 'category title').lean(),
+  ]);
+
+  // 1. Objectives (Dynamic real calculation, NO default/dummy data)
+  let objectives = [];
+  if (userDoc.devPlan?.objectives && userDoc.devPlan.objectives.length > 0) {
+    objectives = userDoc.devPlan.objectives.map((obj, idx) => ({
+      objectiveId: obj.objectiveId || `obj_${idx + 1}`,
+      title: obj.title,
+      category: obj.category,
+      icon: obj.icon || '🎯',
+      progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
+    }));
+  } else {
+    // Derive real progress percentages from actual completed athlete tasks and habit logs
+    const countCategory = (patterns) => {
+      const hCount = completedHabits.filter((h) => {
+        const cat = (h.habit?.category || '').toLowerCase();
+        const tit = (h.habit?.title || '').toLowerCase();
+        return patterns.some((p) => cat.includes(p) || tit.includes(p));
+      }).length;
+      const tCount = completedTasks.filter((t) => {
+        const cat = (t.category || '').toLowerCase();
+        const tit = (t.title || '').toLowerCase();
+        return patterns.some((p) => cat.includes(p) || tit.includes(p));
+      }).length;
+      return hCount + tCount;
+    };
+
+    const targetActivitiesPerObjective = 10;
+    const focusDone = countCategory(['focus', 'ritual', 'scanning', 'mindset']);
+    const resilienceDone = countCategory(['resilience', 'pressure', 'recovery', 'composure', 'breath']);
+    const confidenceDone = countCategory(['confidence', 'ball mastery', 'dribbling', 'reflection']);
+
+    const focusProgress = Math.min(100, Math.round((focusDone / targetActivitiesPerObjective) * 100));
+    const resilienceProgress = Math.min(100, Math.round((resilienceDone / targetActivitiesPerObjective) * 100));
+    const confidenceProgress = Math.min(100, Math.round((confidenceDone / targetActivitiesPerObjective) * 100));
+
+    objectives = [
+      {
+        objectiveId: 'obj_focus_ritual',
+        title: 'Master Pre-Match Ritual',
+        category: 'Focus',
+        icon: '🎯',
+        progress: focusProgress,
+      },
+      {
+        objectiveId: 'obj_resilience_pressure',
+        title: 'Build Resilience Under Pressure',
+        category: 'Resilience',
+        icon: '💪',
+        progress: resilienceProgress,
+      },
+      {
+        objectiveId: 'obj_confidence_consistent',
+        title: 'Develop Consistent Confidence',
+        category: 'Confidence',
+        icon: '⚡',
+        progress: confidenceProgress,
+      },
+    ];
+  }
+
+  // 2. Daily Habits (Strictly real data from database)
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  // Core habit templates
+  const habitDefinitions = [
+    { title: 'Morning Journal', icon: '📓', category: 'mindset' },
+    { title: 'Breathing Reset', icon: '💨', category: 'recovery' },
+    { title: 'Visualization', icon: '🧠', category: 'mindset' },
+    { title: 'Reflection Log', icon: '✍️', category: 'mindset' },
+  ];
+
+  const habitItems = await Promise.all(
+    habitDefinitions.map(async (def) => {
+      let habit = await Habit.findOne({
+        title: { $regex: new RegExp(`^${def.title}`, 'i') },
+        $or: [
+          { assignedAthletes: userDoc._id },
+          { isMasterLibrary: true },
+          { createdBy: userDoc._id },
+        ],
+      });
+
+      if (!habit) {
+        habit = await Habit.findOne({
+          title: { $regex: new RegExp(`^${def.title}`, 'i') },
+        });
+      }
+
+      if (!habit) {
+        habit = await Habit.create({
+          title: def.title,
+          icon: def.icon,
+          currentStreak: 0,
+          category: def.category,
+          frequency: 'Daily',
+          status: 'active',
+          assignedAthletes: [userDoc._id],
+        });
+      }
+
+      // Check real completion for today from HabitLog for THIS athlete
+      const todayLog = await HabitLog.findOne({
+        athlete: userDoc._id,
+        habit: habit._id,
+        status: 'completed',
+        date: { $gte: startOfToday, $lte: endOfToday },
+      }).lean();
+
+      const isCompletedToday = Boolean(todayLog);
+
+      // Real streak for this specific athlete: count completed daily logs
+      const streak = await HabitLog.countDocuments({
+        athlete: userDoc._id,
+        habit: habit._id,
+        status: 'completed',
+      });
+
+      return {
+        _id: habit._id.toString(),
+        id: habit._id.toString(),
+        title: def.title,
+        icon: def.icon,
+        streak,
+        streakDisplay: `🔥 ${streak} days`,
+        isCompletedToday,
+      };
+    })
+  );
+
+  // 3. Roadmap week calculation
+  let currentWeek = 1;
+  if (userDoc.devPlan?.currentWeek) {
+    currentWeek = userDoc.devPlan.currentWeek;
+  } else if (userDoc.mentorshipDay) {
+    currentWeek = Math.max(1, Math.min(12, Math.ceil(userDoc.mentorshipDay / 7)));
+  } else if (userDoc.mentorshipStartDate) {
+    const elapsed = Math.max(1, Math.ceil((Date.now() - new Date(userDoc.mentorshipStartDate).getTime()) / (1000 * 60 * 60 * 24)));
+    currentWeek = Math.max(1, Math.min(12, Math.ceil(elapsed / 7)));
+  }
+
+  return {
+    title: userDoc.devPlan?.title || 'MY DEV PLAN',
+    roadmapDuration: userDoc.devPlan?.roadmapDuration || 'Personalised 12-week roadmap',
+    currentWeek,
+    totalWeeks: userDoc.devPlan?.totalWeeks || 12,
+    athlete: {
+      _id: userDoc._id.toString(),
+      fullName: userDoc.fullName || 'Athlete',
+      email: userDoc.email || '',
+      currentClub: userDoc.currentClub || 'Academy',
+      tier: userDoc.tier || '90-day-mentorship',
+    },
+    objectives,
+    habits: habitItems,
+  };
+};
+
+/**
+ * Toggle Daily Habit completion for today (for logged-in user / athlete)
+ */
+const toggleAthleteHabitTodayService = async (athleteId, habitId, currentUserId = null) => {
+  const targetAthleteId = athleteId || currentUserId;
+  if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
+    const error = new Error('Invalid athlete ID.');
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!habitId || !mongoose.isValidObjectId(habitId)) {
+    const error = new Error('Invalid habit ID.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  require('../Habit/habit.model');
+  const Habit = mongoose.model('Habit');
+  const HabitLog = require('../Habit/habitLog.model');
+
+  const [athleteDoc, habitDoc] = await Promise.all([
+    userModel.findById(targetAthleteId),
+    Habit.findById(habitId),
+  ]);
+
+  if (!athleteDoc) {
+    const error = new Error('Athlete not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+  if (!habitDoc) {
+    const error = new Error('Habit not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const existingLog = await HabitLog.findOne({
+    athlete: athleteDoc._id,
+    habit: habitDoc._id,
+    date: { $gte: startOfToday, $lte: endOfToday },
+  });
+
+  let isCompletedToday = false;
+  if (existingLog) {
+    await HabitLog.findByIdAndDelete(existingLog._id);
+    isCompletedToday = false;
+  } else {
+    await HabitLog.create({
+      athlete: athleteDoc._id,
+      habit: habitDoc._id,
+      date: new Date(),
+      status: 'completed',
+      xpAwarded: habitDoc.xpReward || 10,
+    });
+    isCompletedToday = true;
+  }
+
+  // Calculate real streak from actual completed logs for this athlete
+  const athleteStreak = await HabitLog.countDocuments({
+    athlete: athleteDoc._id,
+    habit: habitDoc._id,
+    status: 'completed',
+  });
+
+  return {
+    habitId: habitDoc._id.toString(),
+    title: habitDoc.title,
+    isCompletedToday,
+    streak: athleteStreak,
+    streakDisplay: `🔥 ${athleteStreak} days`,
+    message: isCompletedToday ? 'Habit marked as completed for today!' : 'Habit unmarked for today.',
+  };
+};
+
 module.exports = {
   suspendUserService,
   activeUserService,
@@ -1133,4 +1397,6 @@ module.exports = {
   awardBadgeService,
   getAthleteProgressReviewService,
   submitCoachEvaluationService,
+  getAthleteDevPlanService,
+  toggleAthleteHabitTodayService,
 };

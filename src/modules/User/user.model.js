@@ -103,6 +103,24 @@ const userSchema = new mongoose.Schema(
     welcomeEmailSent: { type: Boolean, default: false },
     isHeadCoach: { type: Boolean, default: false },
 
+    // Personalised Development Plan (Figma node 32906:2936)
+    devPlan: {
+      title: { type: String, default: 'MY DEV PLAN' },
+      roadmapDuration: { type: String, default: 'Personalised 12-week roadmap' },
+      currentWeek: { type: Number, default: 1 },
+      totalWeeks: { type: Number, default: 12 },
+      objectives: [
+        {
+          objectiveId: { type: String },
+          title: { type: String, required: true },
+          category: { type: String, default: 'Focus' },
+          icon: { type: String, default: '🎯' },
+          progress: { type: Number, default: 0, min: 0, max: 100 },
+          targetDate: { type: Date },
+        },
+      ],
+    },
+
     // Stripe Billing
     stripeCustomerId: { type: String, default: '' },
   },

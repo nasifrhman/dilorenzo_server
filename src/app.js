@@ -131,6 +131,11 @@ app.get(["/progress-review", "/athlete/progress-review", "/athlete-progress-revi
   res.sendFile(path.join(__dirname, "../public/athlete-progress-review.html"));
 });
 
+// Personalised Development Plan Page (Figma node 32906:2936)
+app.get(["/my-dev-plan", "/dev-plan", "/athlete/my-dev-plan", "/athlete/dev-plan", "/roadmap"], (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/my-dev-plan.html"));
+});
+
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.json([{

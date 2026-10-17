@@ -28,6 +28,9 @@ const challengeSchema = new mongoose.Schema(
       },
     ],
     assignedAthletes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    rewardBadge: { type: String, default: 'Exclusive Badge' },
+    rewardTrophy: { type: String, default: '' },
+    isHero: { type: Boolean, default: false },
     status: {
       type: String,
       enum: ['draft', 'upcoming', 'active', 'completed', 'archived'],

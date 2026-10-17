@@ -28,7 +28,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{url}}/api/v1/user/profile?athleteId=6acc80dca1df2a2ed315c20e",
+                  "raw": "{{url}}/api/v1/user/profile?athleteId={{athleteId}}",
                   "host": [
                     "{{url}}"
                   ],
@@ -41,7 +41,7 @@
                   "query": [
                     {
                       "key": "athleteId",
-                      "value": "6acc80dca1df2a2ed315c20e",
+                      "value": "{{athleteId}}",
                       "description": "Optional athlete child ID"
                     }
                   ]
@@ -69,7 +69,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"badgeId\": \"streak_7\",\n  \"icon\": \"🔥\",\n  \"title\": \"7-Day Streak\",\n  \"description\": \"Maintained a consistent 7-day training streak\"\n}",
+                  "raw": "{\n  \"athleteId\": \"{{athleteId}}\",\n  \"badgeId\": \"streak_7\",\n  \"icon\": \"🔥\",\n  \"title\": \"7-Day Streak\",\n  \"description\": \"Maintained a consistent 7-day training streak\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -107,7 +107,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{url}}/api/v1/user/progress-review?athleteId=6acc80dca1df2a2ed315c20e&timeframe=week",
+                  "raw": "{{url}}/api/v1/user/progress-review?athleteId={{athleteId}}&timeframe=week",
                   "host": [
                     "{{url}}"
                   ],
@@ -119,7 +119,7 @@
                   ],
                   "query": [
                     {
-                      "value": "6acc80dca1df2a2ed315c20e",
+                      "value": "{{athleteId}}",
                       "description": "Athlete user ID",
                       "key": "athleteId"
                     },
@@ -134,17 +134,18 @@
               },
               "response": [
                 {
-                  "name": "200 Success - Week View",
+                  "id": "resp-progress-review-200",
+                  "name": "200 OK - Athlete Progress Review (Clean Metrics)",
                   "originalRequest": {
                     "method": "GET",
                     "header": [
                       {
-                        "key": "Authorization",
-                        "value": "Bearer {{token}}"
+                        "value": "Bearer {{token}}",
+                        "key": "Authorization"
                       }
                     ],
                     "url": {
-                      "raw": "{{url}}/api/v1/user/progress-review?athleteId=6acc80dca1df2a2ed315c20e&timeframe=week",
+                      "raw": "{{url}}/api/v1/user/progress-review?athleteId={{athleteId}}&timeframe=week",
                       "host": [
                         "{{url}}"
                       ],
@@ -156,15 +157,18 @@
                       ],
                       "query": [
                         {
-                          "key": "athleteId",
-                          "value": "6acc80dca1df2a2ed315c20e"
+                          "value": "{{athleteId}}",
+                          "description": "Athlete user ID",
+                          "key": "athleteId"
                         },
                         {
-                          "key": "timeframe",
-                          "value": "week"
+                          "value": "week",
+                          "description": "Filter timeframe: week (default) or month",
+                          "key": "timeframe"
                         }
                       ]
-                    }
+                    },
+                    "description": "Athlete Progress Review screen (Figma nodes 32905:2100 & 32906:2338) - Single unified endpoint with timeframe filter (week or month)."
                   },
                   "status": "OK",
                   "code": 200,
@@ -175,8 +179,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "cookie": [],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"week\",\n      \"dateRange\": \"Mon – Sun\",\n      \"performanceScore\": {\n        \"average\": 100,\n        \"scores\": [\n          { \"day\": \"M\", \"score\": 100 },\n          { \"day\": \"T\", \"score\": 100 },\n          { \"day\": \"W\", \"score\": 100 },\n          { \"day\": \"T\", \"score\": 100 },\n          { \"day\": \"F\", \"score\": 0 },\n          { \"day\": \"S\", \"score\": 0 },\n          { \"day\": \"S\", \"score\": 0 }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"key\": \"mentalScore\",\n          \"label\": \"Mental Score\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"🧠\",\n          \"color\": \"#3B82F6\",\n          \"borderColor\": \"rgba(59, 130, 246, 0.15)\",\n          \"description\": \"Overall mental toughness and training composite score\"\n        },\n        \"consistency\": {\n          \"key\": \"consistency\",\n          \"label\": \"Consistency\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"%\",\n          \"display\": \"100%\",\n          \"icon\": \"📅\",\n          \"color\": \"#10B981\",\n          \"borderColor\": \"rgba(16, 185, 129, 0.15)\",\n          \"description\": \"Habit adherence and active training day regularity\"\n        },\n        \"focusRating\": {\n          \"key\": \"focusRating\",\n          \"label\": \"Focus Rating\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"🎯\",\n          \"color\": \"#E8A820\",\n          \"borderColor\": \"rgba(201, 145, 26, 0.15)\",\n          \"description\": \"Performance in visual scanning and pre-match rituals\"\n        },\n        \"resilience\": {\n          \"key\": \"resilience\",\n          \"label\": \"Resilience\",\n          \"value\": 100,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"100/100\",\n          \"icon\": \"💪\",\n          \"color\": \"#EC4899\",\n          \"borderColor\": \"rgba(236, 72, 153, 0.15)\",\n          \"description\": \"Composure check-ins, breathwork, and reset protocols\"\n        }\n      },\n      \"coachEvaluation\": {\n        \"id\": \"670a4a82b3d81023c109d431\",\n        \"coachId\": \"6acc80dca1df2a2ed315c20d\",\n        \"coachName\": \"Coach Rivera\",\n        \"rating\": 4,\n        \"message\": \"Exceptional visual scan frequency in transition.\",\n        \"date\": \"2026-10-12T06:51:37.530Z\"\n      }\n    }\n  }\n}"
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"week\",\n      \"dateRange\": \"Mon – Sun\",\n      \"performanceScore\": {\n        \"average\": 0,\n        \"scores\": [\n          {\n            \"day\": \"M\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"W\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"F\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"key\": \"mentalScore\",\n          \"label\": \"Mental Score\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"🧠\",\n          \"description\": \"Overall mental toughness and training composite score\"\n        },\n        \"consistency\": {\n          \"key\": \"consistency\",\n          \"label\": \"Consistency\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"%\",\n          \"display\": \"0%\",\n          \"icon\": \"📅\",\n          \"description\": \"Habit adherence and active training day regularity\"\n        },\n        \"focusRating\": {\n          \"key\": \"focusRating\",\n          \"label\": \"Focus Rating\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"🎯\",\n          \"description\": \"Performance in visual scanning and pre-match rituals\"\n        },\n        \"resilience\": {\n          \"key\": \"resilience\",\n          \"label\": \"Resilience\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"💪\",\n          \"description\": \"Composure check-ins, breathwork, and reset protocols\"\n        }\n      },\n      \"coachEvaluation\": null\n    }\n  },\n  \"errors\": []\n}"
                 }
               ],
               "createdAt": "2026-10-15T08:46:02.000Z",
@@ -200,7 +203,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"message\": \"Excellent progress this week. Focus metrics are trending up strongly. Keep reinforcing the pre-match ritual — it's making a measurable difference.\",\n  \"rating\": 4,\n  \"timeframe\": \"This Week\",\n  \"tags\": [\n    \"Focus\",\n    \"Composure\"\n  ]\n}",
+                  "raw": "{\n  \"athleteId\": \"{{athleteId}}\",\n  \"message\": \"Excellent progress this week. Focus metrics are trending up strongly. Keep reinforcing the pre-match ritual — it's making a measurable difference.\",\n  \"rating\": 4,\n  \"timeframe\": \"This Week\",\n  \"tags\": [\n    \"Focus\",\n    \"Composure\"\n  ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -226,6 +229,131 @@
               "createdAt": "2026-10-15T08:46:19.000Z",
               "updatedAt": "2026-10-15T08:46:19.000Z",
               "uid": "48870830-5831f42d-bf6e-7c83-99cc-5062ea0e4440"
+            },
+            {
+              "name": "Get Athlete Dev Plan",
+              "id": "c138b0d2-9214-41d9-8fa9-968b5a0e2936",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/dev-plan?athleteId={{athleteId}}",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "dev-plan"
+                  ],
+                  "query": [
+                    {
+                      "key": "athleteId",
+                      "value": "{{athleteId}}",
+                      "description": "Optional athlete child ID for coaches/parents"
+                    }
+                  ]
+                },
+                "description": "Get personalised 12-week roadmap development plan including Current Objectives and Daily Habits matching Figma Node 32906:2936."
+              },
+              "response": [
+                {
+                  "id": "resp-dev-plan-200",
+                  "name": "200 OK - Personalised Development Plan",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/user/dev-plan?athleteId={{athleteId}}",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "user",
+                        "dev-plan"
+                      ],
+                      "query": [
+                        {
+                          "key": "athleteId",
+                          "value": "{{athleteId}}",
+                          "description": "Optional athlete child ID for coaches/parents"
+                        }
+                      ]
+                    },
+                    "description": "Get personalised 12-week roadmap development plan including Current Objectives and Daily Habits matching Figma Node 32906:2936."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Personalised development plan retrieved successfully\",\n  \"data\": {\n    \"type\": \"DevPlan\",\n    \"attributes\": {\n      \"title\": \"MY DEV PLAN\",\n      \"roadmapDuration\": \"Personalised 12-week roadmap\",\n      \"currentWeek\": 1,\n      \"totalWeeks\": 12,\n      \"athlete\": {\n        \"_id\": \"{{athleteId}}\",\n        \"fullName\": \"Marcus Sterling\",\n        \"email\": \"marcus.sterling1@example.com\",\n        \"currentClub\": \"Regional Stars U18\",\n        \"tier\": \"90-day-mentorship\"\n      },\n      \"objectives\": [\n        {\n          \"objectiveId\": \"obj_focus_ritual\",\n          \"title\": \"Master Pre-Match Ritual\",\n          \"category\": \"Focus\",\n          \"icon\": \"🎯\",\n          \"progress\": 0\n        },\n        {\n          \"objectiveId\": \"obj_resilience_pressure\",\n          \"title\": \"Build Resilience Under Pressure\",\n          \"category\": \"Resilience\",\n          \"icon\": \"💪\",\n          \"progress\": 0\n        },\n        {\n          \"objectiveId\": \"obj_confidence_consistent\",\n          \"title\": \"Develop Consistent Confidence\",\n          \"category\": \"Confidence\",\n          \"icon\": \"⚡\",\n          \"progress\": 0\n        }\n      ],\n      \"habits\": [\n        {\n          \"_id\": \"{{habitId}}\",\n          \"id\": \"{{habitId}}\",\n          \"title\": \"Morning Journal\",\n          \"icon\": \"📓\",\n          \"streak\": 0,\n          \"streakDisplay\": \"🔥 0 days\",\n          \"isCompletedToday\": false\n        },\n        {\n          \"_id\": \"hab_breathing_reset\",\n          \"id\": \"hab_breathing_reset\",\n          \"title\": \"Breathing Reset\",\n          \"icon\": \"💨\",\n          \"streak\": 0,\n          \"streakDisplay\": \"🔥 0 days\",\n          \"isCompletedToday\": false\n        },\n        {\n          \"_id\": \"hab_visualization\",\n          \"id\": \"hab_visualization\",\n          \"title\": \"Visualization\",\n          \"icon\": \"🧠\",\n          \"streak\": 0,\n          \"streakDisplay\": \"🔥 0 days\",\n          \"isCompletedToday\": false\n        },\n        {\n          \"_id\": \"hab_reflection_log\",\n          \"id\": \"hab_reflection_log\",\n          \"title\": \"Reflection Log\",\n          \"icon\": \"✍️\",\n          \"streak\": 0,\n          \"streakDisplay\": \"🔥 0 days\",\n          \"isCompletedToday\": false\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ],
+              "createdAt": "2026-10-17T06:40:00.000Z",
+              "updatedAt": "2026-10-17T06:40:00.000Z",
+              "uid": "48870830-c138b0d2-9214-41d9-8fa9-968b5a0e2936"
+            },
+            {
+              "name": "Toggle Athlete Habit for Today",
+              "id": "e429c118-8426-47b2-a392-1205ea8d2936",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"{{athleteId}}\",\n  \"habitId\": \"{{habitId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/dev-plan/toggle-habit",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "dev-plan",
+                    "toggle-habit"
+                  ]
+                },
+                "description": "Toggle habit completion for today and dynamically update current streak and completion status."
+              },
+              "response": [],
+              "createdAt": "2026-10-17T06:40:00.000Z",
+              "updatedAt": "2026-10-17T06:40:00.000Z",
+              "uid": "48870830-e429c118-8426-47b2-a392-1205ea8d2936"
             }
           ],
           "id": "770c91ee-8266-41da-a3a7-8cf05ea73b54",
@@ -454,6 +582,444 @@
           "createdAt": "2026-10-15T06:07:26.000Z",
           "updatedAt": "2026-10-15T06:07:34.000Z",
           "uid": "48870830-6b269930-cf87-4d7e-b9db-e6879a50428a"
+        },
+        {
+          "name": "Community",
+          "description": "Community Module APIs matching Figma nodes 32823:8977 (Feed), 32823:9296 (Challenges), and 32827:9607 (Teams).",
+          "item": [
+            {
+              "name": "Get Community Overview (All Tabs)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/community/overview",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "overview"
+                  ]
+                },
+                "description": "Get unified community overview containing tabs, top feed posts, active challenges, and team leaderboard. Authenticated user ID is extracted automatically from Bearer token."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-overview-200",
+                  "name": "200 OK - Community Overview",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community overview retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityOverview\",\n    \"attributes\": {\n      \"title\": \"COMMUNITY\",\n      \"subtitle\": \"Connect · inspire · grow together\",\n      \"tabs\": [\n        {\n          \"key\": \"feed\",\n          \"label\": \"📰 Feed\"\n        },\n        {\n          \"key\": \"challenges\",\n          \"label\": \"🏅 Challenges\"\n        },\n        {\n          \"key\": \"teams\",\n          \"label\": \"👥 Teams\"\n        }\n      ],\n      \"feed\": {\n        \"categories\": [\n          \"All\",\n          \"Focus\",\n          \"Resilience\",\n          \"Mindset\",\n          \"Achievement\"\n        ],\n        \"selectedCategory\": \"All\",\n        \"posts\": [\n          {\n            \"id\": \"post_1\",\n            \"author\": {\n              \"_id\": \"6acb269481bb041722d7e889\",\n              \"fullName\": \"Jordan K.\",\n              \"avatarEmoji\": \"🏆\",\n              \"currentClub\": \"Academy\"\n            },\n            \"category\": \"Focus\",\n            \"content\": \"Just crushed my focus ritual before training. Feeling locked in! 🎯\",\n            \"timeAgo\": \"2m ago\",\n            \"likesCount\": 24,\n            \"isLikedByMe\": false\n          }\n        ]\n      },\n      \"challenges\": {\n        \"heroChallenge\": {\n          \"id\": \"chal_1\",\n          \"badgeLabel\": \"🔥 Active Now\",\n          \"title\": \"MENTAL TOUGHNESS WEEK\",\n          \"statsDisplay\": \"147 athletes · 3 days left · Complete 7 daily challenges\",\n          \"rewardDisplay\": \"+2,000 XP · Exclusive Badge\",\n          \"isJoined\": false\n        },\n        \"challenges\": [\n          {\n            \"id\": \"chal_1\",\n            \"title\": \"Mental Toughness Week\",\n            \"rewardDisplay\": \"2,000 XP + Badge · 3d left\",\n            \"isJoined\": false\n          }\n        ]\n      },\n      \"teams\": {\n        \"title\": \"Team Leaderboard\",\n        \"leaderboard\": [\n          {\n            \"rank\": 1,\n            \"id\": \"team_1\",\n            \"name\": \"Thunder FC\",\n            \"membersDisplay\": \"24 members\",\n            \"xpDisplay\": \"48,200\",\n            \"isMyTeam\": false\n          }\n        ]\n      }\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Community Feed (Tab 1)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/community/feed?category=All&page=1&limit=20",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "feed"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "All",
+                      "description": "Filter: All, Focus, Resilience, Mindset, Achievement"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "Page number"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "description": "Items per page"
+                    }
+                  ]
+                },
+                "description": "Get Community Feed (Figma node 32823:8977) with category filters, authors, timestamps, and like counts. Authenticated user ID is extracted from Bearer token."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-feed-200",
+                  "name": "200 OK - Community Feed",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community feed retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityFeed\",\n    \"attributes\": {\n      \"categories\": [\n        \"All\",\n        \"Focus\",\n        \"Resilience\",\n        \"Mindset\",\n        \"Achievement\"\n      ],\n      \"selectedCategory\": \"All\",\n      \"posts\": [\n        {\n          \"id\": \"post_1\",\n          \"author\": {\n            \"_id\": \"6acb269481bb041722d7e889\",\n            \"fullName\": \"Jordan K.\",\n            \"avatarEmoji\": \"🏆\",\n            \"currentClub\": \"Academy\"\n          },\n          \"category\": \"Focus\",\n          \"content\": \"Just crushed my focus ritual before training. Feeling locked in! 🎯\",\n          \"timeAgo\": \"2m ago\",\n          \"createdAt\": \"2026-10-17T15:00:00.000Z\",\n          \"likesCount\": 24,\n          \"isLikedByMe\": false,\n          \"isMindsetWin\": true\n        }\n      ],\n      \"pagination\": {\n        \"total\": 4,\n        \"page\": 1,\n        \"limit\": 20,\n        \"totalPages\": 1\n      }\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Share Mindset Win (Create Post)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Just crushed my focus ritual before training. Feeling locked in! 🎯\",\n  \"category\": \"Focus\",\n  \"avatarEmoji\": \"🏆\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/community/feed",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "feed"
+                  ]
+                },
+                "description": "Post a Mindset Win to the Community Feed (Figma node 32823:8977 \"+ Share Your Mindset Win\"). Authenticated user ID is taken directly from Bearer token (req.user). Awards +20 XP to athlete."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-post-201",
+                  "name": "201 Created - Mindset Win Shared",
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 201,\n  \"message\": \"Mindset win shared successfully\",\n  \"data\": {\n    \"type\": \"CommunityPost\",\n    \"attributes\": {\n      \"id\": \"post_new_id\",\n      \"author\": {\n        \"_id\": \"6acb269481bb041722d7e889\",\n        \"fullName\": \"Marcus Sterling\",\n        \"avatarEmoji\": \"🏆\",\n        \"currentClub\": \"Regional Stars U18\"\n      },\n      \"category\": \"Focus\",\n      \"content\": \"Just crushed my focus ritual before training. Feeling locked in! 🎯\",\n      \"timeAgo\": \"just now\",\n      \"likesCount\": 0,\n      \"isLikedByMe\": false,\n      \"xpAwarded\": 20,\n      \"message\": \"Mindset win shared successfully! (+20 XP)\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Like or Cheer Post",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/community/feed/{{postId}}/like",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "feed",
+                    "{{postId}}",
+                    "like"
+                  ]
+                },
+                "description": "Toggle Like / Cheer on a Community Post (Figma node 32823:8977). Athlete ID is taken directly from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-like-200",
+                  "name": "200 OK - Post Liked",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Liked post\",\n  \"data\": {\n    \"type\": \"CommunityPostLike\",\n    \"attributes\": {\n      \"postId\": \"{{postId}}\",\n      \"isLiked\": true,\n      \"likesCount\": 25,\n      \"message\": \"Liked post\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Community Challenges (Tab 2)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/community/challenges",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "challenges"
+                  ]
+                },
+                "description": "Get Community Challenges (Figma node 32823:9296) including Active Now Hero challenge, days left, and rewards. Inferred from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-chal-200",
+                  "name": "200 OK - Community Challenges",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community challenges retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityChallenges\",\n    \"attributes\": {\n      \"heroChallenge\": {\n        \"id\": \"chal_hero_1\",\n        \"badgeLabel\": \"🔥 Active Now\",\n        \"title\": \"MENTAL TOUGHNESS WEEK\",\n        \"statsDisplay\": \"147 athletes · 3 days left · Complete 7 daily challenges\",\n        \"participantsCount\": 147,\n        \"daysLeft\": 3,\n        \"duration\": \"Complete 7 daily challenges\",\n        \"xpReward\": 2000,\n        \"rewardDisplay\": \"+2,000 XP · Exclusive Badge\",\n        \"rewardBadge\": \"Exclusive Badge\",\n        \"isJoined\": false,\n        \"status\": \"active\"\n      },\n      \"challenges\": [\n        {\n          \"id\": \"chal_1\",\n          \"title\": \"Mental Toughness Week\",\n          \"description\": \"Complete 7 daily challenges\",\n          \"icon\": \"🏆\",\n          \"xpReward\": 2000,\n          \"rewardDisplay\": \"2,000 XP + Badge · 3d left\",\n          \"daysLeft\": 3,\n          \"participantsCount\": 147,\n          \"isJoined\": false,\n          \"status\": \"active\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Join Community Challenge",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/community/challenges/{{challengeId}}/join",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "challenges",
+                    "{{challengeId}}",
+                    "join"
+                  ]
+                },
+                "description": "Join / Enroll athlete into a Community Challenge (Figma node 32823:9296 \"Join Now\"). User ID is taken directly from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-join-chal-200",
+                  "name": "200 OK - Challenge Joined",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Successfully joined Mental Toughness Week!\",\n  \"data\": {\n    \"type\": \"ChallengeParticipation\",\n    \"attributes\": {\n      \"challengeId\": \"{{challengeId}}\",\n      \"title\": \"Mental Toughness Week\",\n      \"isJoined\": true,\n      \"message\": \"Successfully joined Mental Toughness Week!\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Community Teams Leaderboard (Tab 3)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/community/teams",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "teams"
+                  ]
+                },
+                "description": "Get Community Team Leaderboard (Figma node 32827:9607) ranked by XP. User membership is inferred from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-teams-200",
+                  "name": "200 OK - Team Leaderboard",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community team leaderboard retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityTeams\",\n    \"attributes\": {\n      \"title\": \"Team Leaderboard\",\n      \"leaderboard\": [\n        {\n          \"rank\": 1,\n          \"id\": \"team_1\",\n          \"name\": \"Thunder FC\",\n          \"icon\": \"⚡\",\n          \"membersCount\": 24,\n          \"membersDisplay\": \"24 members\",\n          \"totalXp\": 48200,\n          \"xpDisplay\": \"48,200\",\n          \"isMyTeam\": false\n        }\n      ],\n      \"myTeam\": null,\n      \"totalTeams\": 4\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Create Community Team",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Apex Strikers\",\n  \"description\": \"Elite technical and mindset strikers squad\",\n  \"icon\": \"⚽\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/community/teams",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "teams"
+                  ]
+                },
+                "description": "Create a new team (Figma node 32827:9607 \"+ Create or Join a Team\"). Creator ID is taken directly from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-create-team-201",
+                  "name": "201 Created - Team Created",
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 201,\n  \"message\": \"Team \\\"Apex Strikers\\\" created successfully!\",\n  \"data\": {\n    \"type\": \"CommunityTeam\",\n    \"attributes\": {\n      \"id\": \"team_apex_id\",\n      \"name\": \"Apex Strikers\",\n      \"description\": \"Elite technical and mindset strikers squad\",\n      \"icon\": \"⚽\",\n      \"membersCount\": 1,\n      \"membersDisplay\": \"1 member\",\n      \"totalXp\": 100,\n      \"xpDisplay\": \"100\",\n      \"isMyTeam\": true\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Join Community Team",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/community/teams/{{teamId}}/join",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "community",
+                    "teams",
+                    "{{teamId}}",
+                    "join"
+                  ]
+                },
+                "description": "Join an existing Community Team. User ID is taken directly from Bearer token (req.user)."
+              },
+              "response": [
+                {
+                  "id": "resp-comm-join-team-200",
+                  "name": "200 OK - Joined Team",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Successfully joined Thunder FC!\",\n  \"data\": {\n    \"type\": \"TeamMembership\",\n    \"attributes\": {\n      \"teamId\": \"{{teamId}}\",\n      \"name\": \"Thunder FC\",\n      \"isMember\": true,\n      \"membersCount\": 25,\n      \"message\": \"Successfully joined Thunder FC!\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            }
+          ]
         }
       ],
       "id": "f59e14a8-2120-4315-a804-f0e9ca9070c8",
@@ -1954,6 +2520,10 @@
                 "method": "POST",
                 "header": [
                   {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
                     "key": "Content-Type",
                     "value": "application/json"
                   }
@@ -1988,7 +2558,12 @@
               "id": "513f0d62-2c60-4c73-b04a-ab23aa6a5308",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e",
                   "host": [
@@ -2015,6 +2590,10 @@
               "request": {
                 "method": "POST",
                 "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -2051,6 +2630,10 @@
               "request": {
                 "method": "POST",
                 "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -2091,7 +2674,12 @@
               "id": "99f53186-95e3-46b0-8ca2-d993a878d0a4",
               "request": {
                 "method": "PATCH",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/tasks/6ad06d80949f3a7b82f5f0ae/status",
                   "host": [
@@ -2119,6 +2707,10 @@
               "request": {
                 "method": "POST",
                 "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -2215,6 +2807,10 @@
                 "method": "POST",
                 "header": [
                   {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
                     "key": "Content-Type",
                     "value": "application/json"
                   }
@@ -2250,6 +2846,10 @@
               "request": {
                 "method": "POST",
                 "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -2287,6 +2887,10 @@
                 "method": "POST",
                 "header": [
                   {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
                     "key": "Content-Type",
                     "value": "application/json"
                   }
@@ -2321,7 +2925,12 @@
               "id": "302c90d3-1ff3-4767-9972-2edf6a759331",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/dashboard",
                   "host": [
@@ -2347,6 +2956,10 @@
               "request": {
                 "method": "POST",
                 "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -2382,7 +2995,12 @@
               "id": "2e4b2553-8b55-53f9-4364-a2e6de7cd7bb",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/habits",
                   "host": [
@@ -2409,7 +3027,12 @@
               "id": "e8535bd0-dcce-05e9-4a5e-674806092db2",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/training",
                   "host": [
@@ -2436,7 +3059,12 @@
               "id": "c52b7269-3a2c-3257-0c50-724c44de5a43",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/tasks",
                   "host": [
@@ -2463,7 +3091,12 @@
               "id": "7a4828ab-df2c-24f6-854c-caadc6078128",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/action-steps",
                   "host": [
@@ -2490,7 +3123,12 @@
               "id": "9051dc7a-7cf1-194d-8ee6-d0878a2daf8c",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/feedback",
                   "host": [
@@ -2517,7 +3155,12 @@
               "id": "d3979fcc-19e9-01f4-b2a5-12b7612fd36d",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/sessions",
                   "host": [
@@ -2544,7 +3187,12 @@
               "id": "6e97b560-4478-4285-bc09-1b7d194d78e9",
               "request": {
                 "method": "GET",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/progress?filter=monthly",
                   "host": [
@@ -2584,7 +3232,12 @@
           "id": "f8a2bc9f-d1da-3f2d-ef7b-31369ddef078",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/players/6acc80dca1df2a2ed315c20e/group-chat",
               "host": [
@@ -2611,7 +3264,12 @@
           "id": "03dee15d-219e-5181-2980-acd61bf56d2c",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/tasks",
               "host": [
@@ -2636,7 +3294,12 @@
           "id": "79b6c43d-9452-6b26-b450-a7893d7bf4aa",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/training",
               "host": [
@@ -2661,7 +3324,12 @@
           "id": "c38744a7-6958-fb8b-de72-cf4c09dc4e69",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/feedback",
               "host": [
@@ -2686,7 +3354,12 @@
           "id": "4b3b7813-e76a-5729-bd34-0a5a0fa50b7b",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/sessions",
               "host": [
@@ -2711,7 +3384,12 @@
           "id": "0f2c9a05-2046-63cf-e11c-2814508fb09c",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{url}}/api/v1/coach/players",
               "host": [
