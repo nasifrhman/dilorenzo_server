@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     // Status & System Controls
     isBan: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
+    tokenVersion: { type: Number, default: 0 },
     enabledPushNotification: { type: Boolean, default: true },
     fcmToken: { type: String, default: '' },
     digitalWallet: { type: Number, default: 0 },

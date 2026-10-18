@@ -166,7 +166,6 @@ const ensureInitialTeams = async () => {
     {
       name: 'Thunder FC',
       description: 'High-intensity mental training squad pushing for elite academy contracts.',
-      icon: '⚡',
       type: 'team',
       totalXp: 48200,
       rank: 1,
@@ -176,7 +175,6 @@ const ensureInitialTeams = async () => {
     {
       name: 'Elite Minds',
       description: 'Composure and resilience specialists mastering game pressure.',
-      icon: '🧠',
       type: 'team',
       totalXp: 41600,
       rank: 2,
@@ -186,7 +184,6 @@ const ensureInitialTeams = async () => {
     {
       name: 'Focus Squad',
       description: 'Dedicated to visual scanning, tactical anticipation, and pre-match focus.',
-      icon: '🎯',
       type: 'team',
       totalXp: 38900,
       rank: 3,
@@ -196,7 +193,6 @@ const ensureInitialTeams = async () => {
     {
       name: 'Iron Will',
       description: 'Grinders building physical grit and bulletproof mental toughness.',
-      icon: '💪',
       type: 'team',
       totalXp: 29400,
       rank: 4,
@@ -242,33 +238,29 @@ const getCommunityFeedService = async ({ category, page = 1, limit = 20, athlete
   const targetAthleteId = athleteId ? athleteId.toString() : null;
 
   const formattedPosts = posts.map((post) => {
-    const isLikedByMe = targetAthleteId
-      ? Array.isArray(post.likes) && post.likes.some((id) => id.toString() === targetAthleteId)
+    const isLiked = targetAthleteId
+      ? Array.isArray(post.likes) && post.likes.some((id) => (id?._id ? id._id.toString() : id?.toString()) === targetAthleteId)
       : false;
 
     return {
       id: post._id.toString(),
       _id: post._id.toString(),
       author: {
+        id: post.author?._id?.toString() || '',
         _id: post.author?._id?.toString() || '',
-        fullName: post.authorName || post.author?.fullName || 'Athlete',
-        avatarEmoji: post.authorEmoji || '🏆',
-        currentClub: post.author?.currentClub || 'Academy',
-        image: post.author?.image || null,
+        name: post.authorName || post.author?.fullName || '',
+        image: post.author?.image || '',
       },
       category: post.category || 'Focus',
       content: post.content,
       timeAgo: formatTimeAgo(post.createdAt),
-      createdAt: post.createdAt,
       likesCount: typeof post.likesCount === 'number' ? post.likesCount : (post.likes?.length || 0),
-      isLikedByMe,
-      isMindsetWin: Boolean(post.isMindsetWin),
+      isLiked,
     };
   });
 
   return {
-    categories: ['All', 'Focus', 'Resilience', 'Mindset', 'Achievement'],
-    selectedCategory: category || 'All',
+    actionButtonText: '+ Share Your Mindset Win',
     posts: formattedPosts,
     pagination: {
       total,
@@ -283,11 +275,11 @@ const getCommunityFeedService = async ({ category, page = 1, limit = 20, athlete
  * Create a new Mindset Win post (Figma Node 32823:8977 "+ Share Your Mindset Win")
  */
 const createCommunityPostService = async (payload, currentUserId = null) => {
-  const { content, category = 'Focus', avatarEmoji = '🏆', athleteId = null } = payload;
-  const targetAthleteId = athleteId || currentUserId;
+  const { content, category = 'Focus', athleteId = null } = payload;
+  const targetAthleteId = currentUserId || athleteId;
 
   if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Valid athlete ID is required.');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication token required (Bearer {{token}}).');
   }
 
   if (!content || !content.trim()) {
@@ -306,7 +298,6 @@ const createCommunityPostService = async (payload, currentUserId = null) => {
   const newPost = await CommunityPost.create({
     author: athlete._id,
     authorName: athlete.fullName || 'Athlete',
-    authorEmoji: avatarEmoji || '🏆',
     category: validCategory,
     content: content.trim(),
     likes: [],
@@ -324,18 +315,16 @@ const createCommunityPostService = async (payload, currentUserId = null) => {
     id: newPost._id.toString(),
     _id: newPost._id.toString(),
     author: {
+      id: athlete._id.toString(),
       _id: athlete._id.toString(),
-      fullName: athlete.fullName,
-      avatarEmoji: newPost.authorEmoji,
-      currentClub: athlete.currentClub || 'Academy',
+      name: athlete.fullName,
+      image: athlete.image || '',
     },
     category: newPost.category,
     content: newPost.content,
     timeAgo: 'just now',
-    createdAt: newPost.createdAt,
     likesCount: 0,
-    isLikedByMe: false,
-    xpAwarded: 20,
+    isLiked: false,
     message: 'Mindset win shared successfully! (+20 XP)',
   };
 };
@@ -346,7 +335,7 @@ const createCommunityPostService = async (payload, currentUserId = null) => {
 const toggleCommunityPostLikeService = async (postId, currentUserId = null, fallbackAthleteId = null) => {
   const targetAthleteId = currentUserId || fallbackAthleteId;
   if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Valid user ID is required to like a post.');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication token required (Bearer {{token}}).');
   }
   if (!postId || !mongoose.isValidObjectId(postId)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Valid post ID is required.');
@@ -382,6 +371,7 @@ const toggleCommunityPostLikeService = async (postId, currentUserId = null, fall
  * Returns active challenges, featured hero challenge, and athlete join status
  */
 const getCommunityChallengesService = async (athleteId = null) => {
+  console.log({athleteId})
   await ensureInitialChallenges();
 
   const challenges = await Challenge.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
@@ -397,13 +387,14 @@ const getCommunityChallengesService = async (athleteId = null) => {
   const formattedChallenges = await Promise.all(
     challenges.map(async (c) => {
       const dbParticipantCount = await ChallengeParticipant.countDocuments({ challenge: c._id });
-      // Real participant count or sensible baseline
-      const participantsCount = Math.max(dbParticipantCount, c.assignedAthletes?.length || 24);
+      const participantsCount = dbParticipantCount || (Array.isArray(c.assignedAthletes) ? c.assignedAthletes.length : 0);
 
-      const daysLeft = Math.max(1, Math.ceil((new Date(c.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-      const isJoined = targetAthleteId ? (joinedChallengeIds.has(c._id.toString()) || (c.assignedAthletes || []).some((id) => id.toString() === targetAthleteId)) : false;
+      const daysLeft = Math.max(0, Math.ceil((new Date(c.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      const isJoined = targetAthleteId
+        ? (joinedChallengeIds.has(c._id.toString()) || (c.assignedAthletes || []).some((id) => (id?._id ? id._id.toString() : id?.toString()) === targetAthleteId))
+        : false;
 
-      let rewardDisplay = `${(c.xpGoal || 500).toLocaleString()} XP`;
+      let rewardDisplay = `${(c.xpGoal || 0).toLocaleString()} XP`;
       if (c.rewardTrophy) {
         rewardDisplay += ` + Trophy · ${daysLeft}d left`;
       } else if (c.rewardBadge) {
@@ -417,10 +408,9 @@ const getCommunityChallengesService = async (athleteId = null) => {
         _id: c._id.toString(),
         title: c.title,
         description: c.description || '',
-        icon: c.icon || '🏆',
         category: c.category || 'mental',
         difficulty: c.difficulty || 'medium',
-        xpReward: c.xpGoal || 500,
+        xpReward: typeof c.xpGoal === 'number' ? c.xpGoal : 0,
         rewardDisplay,
         rewardBadge: c.rewardBadge || '',
         rewardTrophy: c.rewardTrophy || '',
@@ -433,11 +423,8 @@ const getCommunityChallengesService = async (athleteId = null) => {
     })
   );
 
-  // Identify Hero Challenge (Mental Toughness Week or first active)
-  let heroChallenge = formattedChallenges.find((c) => c.isHero || /mental toughness/i.test(c.title));
-  if (!heroChallenge && formattedChallenges.length > 0) {
-    heroChallenge = formattedChallenges[0];
-  }
+  // Identify Hero Challenge: Strictly the most newly created active challenge (সর্বোচ্চ নতুন অ্যাক্টিভ চ্যালেঞ্জ)
+  const heroChallenge = formattedChallenges.length > 0 ? formattedChallenges[0] : null;
 
   const heroData = heroChallenge
     ? {
@@ -450,16 +437,23 @@ const getCommunityChallengesService = async (athleteId = null) => {
         daysLeft: heroChallenge.daysLeft,
         duration: 'Complete 7 daily challenges',
         xpReward: heroChallenge.xpReward,
-        rewardDisplay: `+${heroChallenge.xpReward.toLocaleString()} XP · ${heroChallenge.rewardBadge || 'Exclusive Badge'}`,
-        rewardBadge: heroChallenge.rewardBadge || 'Exclusive Badge',
+        rewardDisplay: `+${heroChallenge.xpReward.toLocaleString()} XP · ${heroChallenge.rewardBadge || heroChallenge.rewardTrophy || 'Exclusive Badge'}`,
+        rewardBadge: heroChallenge.rewardBadge || '',
+        rewardTrophy: heroChallenge.rewardTrophy || '',
         isJoined: heroChallenge.isJoined,
+        isHero: true,
         status: heroChallenge.status,
       }
     : null;
 
+  const challengesWithHeroFlag = formattedChallenges.map((c, index) => ({
+    ...c,
+    isHero: index === 0,
+  }));
+
   return {
     heroChallenge: heroData,
-    challenges: formattedChallenges,
+    challenges: challengesWithHeroFlag,
   };
 };
 
@@ -469,7 +463,7 @@ const getCommunityChallengesService = async (athleteId = null) => {
 const joinCommunityChallengeService = async (challengeId, currentUserId = null, fallbackAthleteId = null) => {
   const targetAthleteId = currentUserId || fallbackAthleteId;
   if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Valid user ID is required to join challenge.');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication token required (Bearer {{token}}).');
   }
   if (!challengeId || !mongoose.isValidObjectId(challengeId)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Valid challenge ID is required.');
@@ -514,8 +508,6 @@ const joinCommunityChallengeService = async (challengeId, currentUserId = null, 
  * Team Leaderboard ranked by XP and team membership details
  */
 const getCommunityTeamsService = async (athleteId = null) => {
-  await ensureInitialTeams();
-
   const teams = await Group.find({ type: 'team', isActive: true })
     .populate('athletes', 'fullName xp')
     .sort({ totalXp: -1 })
@@ -523,43 +515,30 @@ const getCommunityTeamsService = async (athleteId = null) => {
 
   const targetAthleteId = athleteId && mongoose.isValidObjectId(athleteId) ? athleteId.toString() : null;
 
-  let athleteTeam = null;
-
   const leaderboard = teams.map((team, index) => {
     const rank = index + 1;
-    const realMembersCount = Array.isArray(team.athletes) && team.athletes.length > 0 ? team.athletes.length : (15 + (4 - rank) * 3);
-    const totalXp = team.totalXp || 25000 + (5 - rank) * 6000;
+    const membersCount = Array.isArray(team.athletes) ? team.athletes.length : 0;
+    const totalXp = typeof team.totalXp === 'number' ? team.totalXp : 0;
 
     const isMyTeam = targetAthleteId
-      ? Array.isArray(team.athletes) && team.athletes.some((a) => a._id?.toString() === targetAthleteId)
+      ? Array.isArray(team.athletes) && team.athletes.some((a) => (a?._id ? a._id.toString() : a?.toString()) === targetAthleteId)
       : false;
 
-    const teamItem = {
+    return {
       rank,
       id: team._id.toString(),
       _id: team._id.toString(),
       name: team.name,
-      description: team.description || '',
-      icon: team.icon || '⚡',
-      membersCount: realMembersCount,
-      membersDisplay: `${realMembersCount} members`,
+      membersCount,
       totalXp,
-      xpDisplay: Number(totalXp).toLocaleString(),
       isMyTeam,
     };
-
-    if (isMyTeam) {
-      athleteTeam = teamItem;
-    }
-
-    return teamItem;
   });
 
   return {
     title: 'Team Leaderboard',
+    actionButtonText: '+ Create or Join a Team',
     leaderboard,
-    myTeam: athleteTeam,
-    totalTeams: leaderboard.length,
   };
 };
 
@@ -567,8 +546,12 @@ const getCommunityTeamsService = async (athleteId = null) => {
  * Create a new Community Team (Figma Node 32827:9607 "+ Create or Join a Team")
  */
 const createCommunityTeamService = async (payload, currentUserId = null) => {
-  const { name, description = '', icon = '⚡', athleteId = null } = payload;
-  const targetAthleteId = athleteId || currentUserId;
+  const { name, description = '', athleteId = null } = payload;
+  const targetAthleteId = currentUserId || athleteId;
+
+  if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication token required (Bearer {{token}}).');
+  }
 
   if (!name || !name.trim()) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Team name is required.');
@@ -589,7 +572,6 @@ const createCommunityTeamService = async (payload, currentUserId = null) => {
   const newTeam = await Group.create({
     name: name.trim(),
     description: description.trim(),
-    icon: icon || '⚡',
     type: 'team',
     athletes: athletesList,
     totalXp: initialXp,
@@ -602,12 +584,8 @@ const createCommunityTeamService = async (payload, currentUserId = null) => {
     id: newTeam._id.toString(),
     _id: newTeam._id.toString(),
     name: newTeam.name,
-    description: newTeam.description,
-    icon: newTeam.icon,
     membersCount: newTeam.athletes.length,
-    membersDisplay: `${newTeam.athletes.length} member`,
     totalXp: newTeam.totalXp,
-    xpDisplay: Number(newTeam.totalXp).toLocaleString(),
     isMyTeam: true,
     message: `Team "${newTeam.name}" created successfully!`,
   };
@@ -619,7 +597,7 @@ const createCommunityTeamService = async (payload, currentUserId = null) => {
 const joinCommunityTeamService = async (teamId, currentUserId = null, fallbackAthleteId = null) => {
   const targetAthleteId = currentUserId || fallbackAthleteId;
   if (!targetAthleteId || !mongoose.isValidObjectId(targetAthleteId)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Valid user ID is required to join a team.');
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Authentication token required (Bearer {{token}}).');
   }
   if (!teamId || !mongoose.isValidObjectId(teamId)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Valid team ID is required.');

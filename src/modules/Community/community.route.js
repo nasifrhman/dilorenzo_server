@@ -13,21 +13,24 @@ const {
   joinCommunityTeamController,
 } = require('./community.controller');
 
+// Authenticate user if Bearer token is provided (populates req.user & req.User)
+router.use(auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }));
+
 // Master Community Overview (Figma nodes 32823:8977, 32823:9296, 32827:9607)
-router.get('/overview', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCommunityOverviewController);
+router.get('/overview', getCommunityOverviewController);
 
 // Tab 1: Community Feed (Figma node 32823:8977)
-router.get('/feed', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCommunityFeedController);
-router.post('/feed', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), createCommunityPostController);
-router.post('/feed/:id/like', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleCommunityPostLikeController);
+router.get('/feed', getCommunityFeedController);
+router.post('/feed', createCommunityPostController);
+router.post('/feed/:id/like', toggleCommunityPostLikeController);
 
 // Tab 2: Community Challenges (Figma node 32823:9296)
-router.get('/challenges', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCommunityChallengesController);
-router.post('/challenges/:id/join', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), joinCommunityChallengeController);
+router.get('/challenges', getCommunityChallengesController);
+router.post('/challenges/:id/join', joinCommunityChallengeController);
 
 // Tab 3: Community Teams & Leaderboard (Figma node 32827:9607)
-router.get('/teams', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCommunityTeamsController);
-router.post('/teams', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), createCommunityTeamController);
-router.post('/teams/:id/join', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), joinCommunityTeamController);
+router.get('/teams', getCommunityTeamsController);
+router.post('/teams', createCommunityTeamController);
+router.post('/teams/:id/join', joinCommunityTeamController);
 
 module.exports = router;
