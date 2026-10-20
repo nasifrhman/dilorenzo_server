@@ -9,9 +9,22 @@ const libraryRoutes = require('../modules/Library/library.route');
 const coachRoutes = require('../modules/Coach/coach.route');
 const parentRoutes = require('../modules/Parent/parent.route');
 const communityRoutes = require('../modules/Community/community.route');
+const trainRoutes = require('../modules/Train/train.route');
 
 
 const moduleRoutes = [
+  {
+    path: '/train',
+    route: trainRoutes,
+  },
+  {
+    path: '/planner',
+    route: trainRoutes,
+  },
+  {
+    path: '/drills',
+    route: trainRoutes,
+  },
   {
     path: '/community',
     route: communityRoutes,

@@ -49,6 +49,13 @@ const taskSchema = new mongoose.Schema(
       default: 'pending',
       index: true,
     },
+    evidence: {
+      isUploaded: { type: Boolean, default: false },
+      mediaUrl: { type: String, default: '' },
+      mediaType: { type: String, default: '' },
+      notes: { type: String, default: '' },
+      submittedAt: { type: Date, default: null },
+    },
     completedAt: {
       type: Date,
       default: null,

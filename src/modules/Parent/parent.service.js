@@ -865,15 +865,12 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
   if (athleteDoc.assignedCoach && mongoose.Types.ObjectId.isValid(athleteDoc.assignedCoach)) {
     coachDoc = await User.findById(athleteDoc.assignedCoach).lean();
   }
-  if (!coachDoc) {
-    coachDoc = await User.findOne({ role: 'coach', isDeleted: { $ne: true } }).lean();
-  }
 
   const coachInfo = coachDoc ? {
     _id: coachDoc._id.toString(),
-    fullName: coachDoc.fullName || 'Assigned Coach',
-    roleTitle: coachDoc.roleTitle || 'Mental Performance Specialist · 8 yrs',
-    avatarUrl: coachDoc.image || 'user.jpg',
+    fullName: coachDoc.fullName || '',
+    roleTitle: coachDoc.roleTitle || '',
+    avatarUrl: coachDoc.image || '',
     status: 'Active',
   } : null;
 
@@ -943,13 +940,17 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
     };
 
     const mapTask = (t) => {
-      const coachName = t.coach?.fullName || coachInfo?.fullName || 'Coach Rivera';
+      const coachName = t.coach?.fullName || coachInfo?.fullName || '';
       const dueDateLabel = formatDueLabel(t.dueDate);
-      const xpReward = Number(t.xpReward) || 80;
-      const xpLabel = `+${xpReward} XP`;
+      const xpReward = Number(t.xpReward) || 0;
+      const xpLabel = xpReward > 0 ? `+${xpReward} XP` : '';
       const isCompleted = t.status === 'completed';
       const statusBadge = isCompleted ? '✓ Done' : 'Pending';
-      const subtitle = `${coachName} · ${dueDateLabel} · ${xpLabel}`;
+      const subtitleParts = [];
+      if (coachName) subtitleParts.push(coachName);
+      if (dueDateLabel) subtitleParts.push(dueDateLabel);
+      if (xpLabel) subtitleParts.push(xpLabel);
+      const subtitle = subtitleParts.join(' · ');
 
       return {
         _id: t._id.toString(),
@@ -1005,16 +1006,22 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
     const upcomingSessions = sessions
       .filter((s) => s.status === 'scheduled' || s.status === 'in-progress')
       .map((s) => {
-        const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || 'Coach Rivera';
+        const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || '';
         const dateStr = s.dateTime || s.date;
         const formattedDate = dateStr ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-        const startTime = s.startTime || '10:30am';
-        const duration = s.duration || '30 min';
+        const startTime = s.startTime || '';
+        const duration = s.duration || '';
+        const scheduleParts = [];
+        if (coachDisplay) scheduleParts.push(coachDisplay);
+        const dateTimePart = [formattedDate, startTime].filter(Boolean).join(', ');
+        if (dateTimePart) scheduleParts.push(dateTimePart);
+        if (duration) scheduleParts.push(duration);
+
         return {
           _id: s._id.toString(),
-          icon: s.icon || '🎯',
+          icon: s.icon || '',
           title: s.title,
-          schedule: `${coachDisplay} · ${formattedDate}, ${startTime} · ${duration}`,
+          schedule: scheduleParts.join(' · '),
           meetingLink: s.meetingLink || '',
         };
       });
@@ -1022,14 +1029,20 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
     const completedSessions = sessions
       .filter((s) => s.status === 'completed')
       .map((s) => {
-        const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || 'Coach Rivera';
-        const formattedDate = s.date ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-        const startTime = s.startTime || '9:00am';
+        const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || '';
+        const dateStr = s.date || s.dateTime;
+        const formattedDate = dateStr ? new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+        const startTime = s.startTime || '';
+        const scheduleParts = [];
+        if (coachDisplay) scheduleParts.push(coachDisplay);
+        const dateTimePart = [formattedDate, startTime].filter(Boolean).join(', ');
+        if (dateTimePart) scheduleParts.push(dateTimePart);
+
         return {
           _id: s._id.toString(),
-          icon: s.icon || '📹',
+          icon: s.icon || '',
           title: s.title,
-          schedule: `${coachDisplay} · ${formattedDate}, ${startTime}`,
+          schedule: scheduleParts.join(' · '),
           status: 'Completed',
         };
       });
@@ -1056,7 +1069,7 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
       if (adminDoc) participants.push(adminDoc._id);
 
       const newRoom = await ChatRoom.create({
-        name: `${athleteDoc.fullName || 'Athlete'}'s Coaching Group`,
+        name: athleteDoc.fullName ? `${athleteDoc.fullName}'s Coaching Group` : 'Coaching Group',
         type: '3-way',
         athlete: athleteDoc._id,
         coach: coachDoc?._id || null,
@@ -1096,15 +1109,15 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
 
         let fileName = '';
         if (m.mediaUrl && (m.messageType === 'file' || m.messageType === 'video')) {
-          fileName = m.mediaUrl.split('/').pop() || 'recording.mp4';
+          fileName = m.mediaUrl.split('/').pop() || '';
         }
 
         return {
           _id: m._id.toString(),
           senderId: m.sender?._id?.toString() || null,
-          senderName: m.sender?.fullName || 'User',
+          senderName: m.sender?.fullName || '',
           role,
-          avatarUrl: m.sender?.image || 'user.jpg',
+          avatarUrl: m.sender?.image || '',
           messageType: m.messageType || 'text',
           content: m.content || '',
           mediaUrl: m.mediaUrl || '',
@@ -1211,7 +1224,7 @@ const sendParentCoachMessageService = async ({ parentId, athleteId, content, mes
     senderId: populated.sender?._id?.toString() || null,
     senderName: populated.sender?.fullName || '',
     role: 'Parent',
-    avatarUrl: populated.sender?.image || 'user.jpg',
+    avatarUrl: populated.sender?.image || '',
     messageType: populated.messageType,
     content: populated.content,
     mediaUrl: populated.mediaUrl,

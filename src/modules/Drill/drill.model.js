@@ -9,13 +9,30 @@ const drillSchema = new mongoose.Schema(
     duration: { type: Number, default: 10 }, // in minutes
     category: {
       type: String,
-      enum: ['ball-mastery', 'dribbling', 'passing', 'finishing', 'agility', 'mindset', 'tactical'],
-      default: 'ball-mastery',
+      enum: [
+        'all',
+        'focus',
+        'resilience',
+        'confidence',
+        'pressure',
+        'mindset',
+        'ball-mastery',
+        'dribbling',
+        'passing',
+        'finishing',
+        'agility',
+        'tactical',
+      ],
+      default: 'focus',
+      lowercase: true,
+      trim: true,
     },
+    // icon: { type: String, default: '🧠' },
+    isFeatured: { type: Boolean, default: false },
     difficulty: {
       type: String,
-      enum: ['beginner', 'intermediate', 'advanced', 'elite'],
-      default: 'intermediate',
+      enum: ['beginner', 'intermediate', 'advanced', 'elite', 'Beginner', 'Intermediate', 'Advanced', 'Elite'],
+      default: 'beginner',
     },
     tierRequired: {
       type: String,
@@ -26,6 +43,7 @@ const drillSchema = new mongoose.Schema(
     tags: [{ type: String, trim: true }],
     isMasterLibrary: { type: Boolean, default: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    completedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     isActive: { type: Boolean, default: true },
   },
   {

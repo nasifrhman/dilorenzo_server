@@ -43,8 +43,6 @@ const getCoachDashboardOverviewService = async (query = {}) => {
   let coachDoc = null;
   if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
     coachDoc = await User.findOne({ _id: query.coachId, role: 'coach', isDeleted: { $ne: true } }).lean();
-  } else {
-    coachDoc = await User.findOne({ role: 'coach', isDeleted: { $ne: true } }).lean();
   }
 
   const coach = coachDoc
@@ -54,7 +52,7 @@ const getCoachDashboardOverviewService = async (query = {}) => {
         email: coachDoc.email || '',
         role: coachDoc.roleTitle || '',
         title: coachDoc.currentClub || '',
-        avatarEmoji: '',
+        image: coachDoc.image || coachDoc.profileImage || '',
       }
     : null;
 
@@ -80,17 +78,9 @@ const getCoachDashboardOverviewService = async (query = {}) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  const emojiMap = {
-    'Alex Thompson': '🏃',
-    'Marcus Silva': '⚡',
-    'Jordan Lee': '🎯',
-    'Sam Davies': '🦁',
-  };
-  const fallbackEmojis = ['🏃', '⚡', '🎯', '🦁', '⚽', '🌟'];
-
   // Map real players with live pending action steps
   const players = await Promise.all(
-    dbAthletes.map(async (a, idx) => {
+    dbAthletes.map(async (a) => {
       const pendingCount = await ActionStep.countDocuments({
         athlete: a._id,
         status: 'pending',
@@ -102,12 +92,11 @@ const getCoachDashboardOverviewService = async (query = {}) => {
       const statusBadge = isAttention ? 'ATTENTION' : 'ACTIVE';
       const badgeType = isAttention ? 'attention' : 'active';
       const lastActive = formatRelativeTime(a.updatedAt || a.createdAt);
-      const avatarEmoji = emojiMap[a.fullName] || fallbackEmojis[idx % fallbackEmojis.length];
 
       return {
         _id: a._id.toString(),
         name: a.fullName || '',
-        avatarEmoji,
+        image: a.image || a.profileImage || '',
         club: a.currentClub || a.leagueDivision || '',
         statusBadge,
         badgeType,
@@ -1838,15 +1827,15 @@ const sendAthleteGroupMessageService = async (athleteId, data, senderId = null) 
 
   if (!chatRoom) {
     const athlete = await User.findById(athleteId);
-    const coach = await User.findOne({ role: 'coach' });
-    const admin = await User.findOne({ role: 'admin' });
+    const coach = athlete?.assignedCoach ? await User.findById(athlete.assignedCoach) : null;
+    const parent = athlete?.parent ? await User.findById(athlete.parent) : null;
     chatRoom = await ChatRoom.create({
       name: athlete?.fullName ? `${athlete.fullName}'s Coaching Group` : 'Coaching Group',
       type: '3-way',
       athlete: athleteId,
-      coach: coach?._id,
-      parent: admin?._id,
-      participants: [athleteId, coach?._id, admin?._id].filter(Boolean),
+      coach: coach?._id || null,
+      parent: parent?._id || null,
+      participants: [athleteId, coach?._id, parent?._id].filter(Boolean),
     });
   }
 
@@ -1857,8 +1846,7 @@ const sendAthleteGroupMessageService = async (athleteId, data, senderId = null) 
 
   let sender = senderId;
   if (!sender || !mongoose.Types.ObjectId.isValid(sender)) {
-    const coachUser = await User.findOne({ role: 'coach' });
-    sender = coachUser?._id;
+    throw new Error('Valid sender ID is required');
   }
 
   const message = await Message.create({

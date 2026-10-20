@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athlete Homepage — Di Lorenzo Soccer Academy</title>
+
+  <!-- Google Fonts: Barlow Condensed & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/css/homepage.css" />
+</head>
+<body>
+
+  <!-- Dev & State Control Toolbar -->
+  <header class="dev-banner" role="banner">
+    <div class="dev-banner-row">
+      <div class="dev-banner-left">
+        <span style="color: #27C281; font-weight: 700;">● Online</span>
+        <span>Athlete:</span>
+        <select id="athleteSelector" onchange="handleAthleteChange(this.value)" aria-label="Select Athlete">
+          <option value="">Loading Athletes...</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <a href="/my-program" title="Mentorship Dashboard (Node #32960:4016)" style="color: #60A5FA; font-weight: 600;">My Program ↗</a>
+        <a href="/my-dev-plan" title="Development Plan">Dev Plan ↗</a>
+        <a href="/progress-review" title="Progress Review">Progress ↗</a>
+        <a href="/api/v1/user/homepage" id="apiLink" target="_blank" title="Inspect API JSON">API ↗</a>
+      </div>
+    </div>
+
+    <!-- Interactive Figma State Switcher -->
+    <div class="dev-banner-row" style="border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: 11px; font-weight: 600;">Figma State:</span>
+        <div class="dev-state-switcher">
+          <button id="btnStatePre" class="dev-state-btn active" onclick="switchState(false)">
+            1. Pre-Purchase (#32801:5982)
+          </button>
+          <button id="btnStatePost" class="dev-state-btn" onclick="switchState(true)">
+            2. Active 90-Days (#32959:3560)
+          </button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button class="dev-action-btn" onclick="simulatePurchase()" title="Simulate 90-Day Purchase on Backend">
+          ⚡ Purchase 90-Days
+        </button>
+        <button class="dev-action-btn" onclick="resetToPrePurchase()" title="Reset athlete to pre-purchase state">
+          🔄 Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Screen Frame (Figma Nodes 32801:5982 & 32959:3560) -->
+  <main class="screen-wrapper" role="main">
+    <!-- Ambient Radial Glows -->
+    <div class="screen-glow-top-left" aria-hidden="true"></div>
+    <div class="screen-glow-middle-right" aria-hidden="true"></div>
+
+    <!-- iOS Status Bar -->
+    <div class="status-bar" aria-hidden="true">
+      <span id="currentTime">9:41</span>
+      <div class="status-icons">
+        <!-- Cellular Signal -->
+        <svg width="17" height="11" viewBox="0 0 17 11" fill="none">
+          <rect y="7" width="3" height="4" rx="1" fill="#FFFFFF"/>
+          <rect x="4.5" y="5" width="3" height="6" rx="1" fill="#FFFFFF"/>
+          <rect x="9" y="2.5" width="3" height="8.5" rx="1" fill="#FFFFFF"/>
+          <rect x="13.5" width="3" height="11" rx="1" fill="#FFFFFF"/>
+        </svg>
+        <!-- WiFi -->
+        <svg width="15" height="11" viewBox="0 0 16 12" fill="none">
+          <path d="M8 9.5C8.82843 9.5 9.5 10.1716 9.5 11C9.5 11.8284 8.82843 12.5 8 12.5C7.17157 12.5 6.5 11.8284 6.5 11C6.5 10.1716 7.17157 9.5 8 9.5Z" fill="#FFFFFF"/>
+          <path d="M4.5 7C5.5 6 6.7 5.5 8 5.5C9.3 5.5 10.5 6 11.5 7" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M1.5 4C3.3 2.5 5.5 1.5 8 1.5C10.5 1.5 12.7 2.5 14.5 4" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="22" height="11" viewBox="0 0 25 12" fill="none">
+          <rect x="0.5" y="0.5" width="20" height="11" rx="3.5" stroke="#FFFFFF" stroke-opacity="0.4"/>
+          <rect x="2" y="2" width="17" height="8" rx="2" fill="#FFFFFF"/>
+          <path d="M22 4C23 4.5 23 7.5 22 8" stroke="#FFFFFF" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Main Scrollable App Content -->
+    <div class="app-content">
+
+      <!-- Header: Avatar + Greeting + Name + Bell -->
+      <div class="home-header">
+        <div class="header-user-info">
+          <div class="avatar-wrapper" id="avatarWrapper">
+            <span class="avatar-fallback" id="avatarFallback">🦁</span>
+          </div>
+          <div class="header-titles">
+            <span class="greeting-text" id="greetingText">Good morning, Champion</span>
+            <h1 class="athlete-name" id="athleteName">ALEX 🦁</h1>
+          </div>
+        </div>
+        <button class="bell-btn" onclick="showToast('You have 3 unread notifications')" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span class="bell-badge" id="bellBadge">3</span>
+        </button>
+      </div>
+
+      <!-- Stats Row: Day Streak + XP Ring / Level -->
+      <div class="stats-row">
+        <!-- Streak Card -->
+        <div class="streak-card">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-info">
+            <span class="streak-number" id="streakNumber">5</span>
+            <span class="streak-label">Day Streak</span>
+          </div>
+        </div>
+
+        <!-- XP Card -->
+        <div class="xp-card">
+          <div class="xp-ring-container">
+            <svg class="xp-ring-svg" viewBox="0 0 48 48">
+              <circle class="xp-ring-bg" cx="24" cy="24" r="19" fill="none" />
+              <circle class="xp-ring-val" id="xpRingCircle" cx="24" cy="24" r="19" fill="none" />
+            </svg>
+            <span class="xp-ring-center" id="xpLevelCenter">5</span>
+          </div>
+          <div class="xp-info">
+            <span class="xp-amount" id="xpAmount">2,340 XP</span>
+            <span class="xp-level" id="xpLevelLabel">Level 5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Today's Mission -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">Today's Mission</span>
+        </div>
+        <div class="mission-card" id="missionCard">
+          <div class="mission-top-row">
+            <div class="mission-icon-box" id="missionIcon">🧠</div>
+            <div class="mission-details">
+              <h2 class="mission-title" id="missionTitle">Morning Mindset Journal</h2>
+              <p class="mission-desc" id="missionDesc">
+                Write 3 things you're grateful for and set one focus goal for today. Journaling primes your brain for high performance before the session even starts.
+              </p>
+              <div class="mission-meta">
+                <span class="mission-xp" id="missionXp">+50 XP</span>
+                <span class="mission-dot">·</span>
+                <span class="mission-cat" id="missionCat">Mental</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-complete" id="btnMarkComplete" onclick="handleMarkComplete()">
+            ✓ Mark Complete
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Today's Feedback Button -->
+      <button class="btn-feedback" onclick="openFeedbackModal()">
+        <span>⭐</span> Submit Today's Feedback
+      </button>
+
+      <!-- Section: MY 90-DAY PROGRAM (Only shown in Post-Purchase State - Node 32959:3560) -->
+      <div class="program-section" id="myProgramSection" style="display: none;">
+        <div class="section-header">
+          <span class="section-title">My 90-Day Program</span>
+          <span class="badge-active">ACTIVE</span>
+        </div>
+
+        <!-- Mentorship Dashboard Hero Card -->
+        <div class="mentorship-card" onclick="window.location.href='/my-program'" role="button" tabindex="0">
+          <div class="mentorship-card-content">
+            <div class="mentorship-icon-box">🎯</div>
+            <div class="mentorship-text">
+              <h3 class="mentorship-title">Mentorship Dashboard</h3>
+              <span class="mentorship-subtitle" id="mentorshipSubtitle">67 days remaining · Phase 2: Development</span>
+            </div>
+          </div>
+          <div class="card-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 2 Grid Action Buttons -->
+        <div class="program-action-grid">
+          <a href="/community" class="program-action-btn">
+            <span>💬</span> Private Group
+          </a>
+          <a href="/my-dev-plan" class="program-action-btn">
+            <span>📋</span> Action Steps
+          </a>
+        </div>
+      </div>
+
+      <!-- Section: ACADEMY FEATURES -->
+      <div>
+        <div class="section-header">
+          <span class="section-title">Academy Features</span>
+        </div>
+        <div class="academy-features-list" id="academyFeaturesList">
+          <!-- Dynamically populated based on state -->
+        </div>
+      </div>
+
+      <!-- Community Feed Full-width Card Button -->
+      <a href="/community" class="btn-community-feed">
+        <div class="community-left">
+          <span>👥</span>
+          <span>Community Feed</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </a>
+
+    </div>
+
+    <!-- Floating Navigation Bar for User (Figma component 32699:811) -->
+    <nav class="floating-navbar-container" aria-label="Bottom Navigation">
+      <div class="floating-navbar">
+        <a href="/homepage" class="nav-item-active" title="Home">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          <span>Home</span>
+        </a>
+        <a href="/planner" class="nav-item-btn" title="Train / Planner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </a>
+        <a href="/my-dev-plan" class="nav-item-btn" title="Responsibility & Habits">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+          </svg>
+        </a>
+        <a href="/community" class="nav-item-btn" title="Community Network">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </a>
+        <a href="/progress-review" class="nav-item-btn" title="Athlete Profile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </main>
+
+  <!-- Feedback Modal -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Submit Today's Feedback</h3>
+        <button class="modal-close-btn" onclick="closeFeedbackModal()">&times;</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-gray);">Share your mindset notes, match reflections, or training observations with your coach.</p>
+      <textarea id="feedbackText" class="modal-textarea" placeholder="How did today feel? Any mistakes to reset? What did you do well?"></textarea>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" onclick="closeFeedbackModal()">Cancel</button>
+        <button class="modal-submit-btn" onclick="submitFeedback()">Send Feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 90-Day Mentorship Admission Modal -->
+  <div class="modal-overlay" id="mentorshipModal">
+    <div class="modal-card" style="border-color: rgba(59, 130, 246, 0.4);">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #60A5FA;">90-Day Mentorship</h3>
+        <button class="modal-close-btn" onclick="closeMentorshipModal()">&times;</button>
+      </div>
+      <p style="font-size: 13px; line-height: 18px; color: var(--text-gray);">
+        Accelerate your mental and technical game with Valentin Di Lorenzo & dedicated 1-on-1 performance coaching.
+      </p>
+      <ul style="font-size: 12px; color: var(--text-light); line-height: 20px; padding-left: 18px;">
+        <li>Dedicated 1-on-1 Assigned Coach</li>
+        <li>Personalized 3-Phase Roadmap (Foundation → Acceleration → Mastery)</li>
+        <li>3-Way Parent-Player-Coach Communication Channel</li>
+        <li>Weekly Video & Action-Step Feedback</li>
+      </ul>
+      <div class="modal-actions">
+        <button class="modal-cancel-btn" onclick="closeMentorshipModal()">Cancel</button>
+        <button class="modal-submit-btn" style="background: #3B82F6; color: #FFF;" onclick="confirmPurchaseFromModal()">
+          Activate Program Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-notice" id="toastNotice">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">Action completed successfully</span>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // State Variables
+    let currentAthleteId = null;
+    let homepageData = null;
+    let isForcedState = null; // null = use API, true = force active 90 days, false = force pre-purchase
+
+    // Clock update
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      if (minutes < 10) minutes = '0' + minutes;
+      document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // Toast alert helper
+    function showToast(msg, icon = '✨') {
+      const toast = document.getElementById('toastNotice');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+
+    // Load list of athletes for the dev switcher
+    async function loadAthletes() {
+      try {
+        const res = await fetch('/api/v1/user/athlete');
+        const json = await res.json();
+        const selector = document.getElementById('athleteSelector');
+        selector.innerHTML = '';
+
+        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+          json.data.forEach((ath, idx) => {
+            const opt = document.createElement('option');
+            opt.value = ath._id;
+            opt.textContent = `${ath.fullName || 'Athlete'} (${ath.tier || 'free'})`;
+            if (ath.email === 'alex.thompson@example.com' || idx === 0) {
+              opt.selected = true;
+              currentAthleteId = ath._id;
+            }
+            selector.appendChild(opt);
+          });
+        } else {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'Alex Thompson (Demo)';
+          selector.appendChild(opt);
+        }
+
+        // Fetch homepage data for current athlete
+        fetchHomepageData();
+      } catch (err) {
+        console.error('Error loading athletes:', err);
+        fetchHomepageData();
+      }
+    }
+
+    // Athlete selection handler
+    function handleAthleteChange(newId) {
+      currentAthleteId = newId;
+      isForcedState = null;
+      fetchHomepageData();
+    }
+
+    // Fetch homepage data from API
+    async function fetchHomepageData() {
+      const url = currentAthleteId 
+        ? `/api/v1/user/homepage?athleteId=${currentAthleteId}` 
+        : `/api/v1/user/homepage`;
+
+      document.getElementById('apiLink').href = url;
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.status === 'success' && json.data) {
+          homepageData = json.data;
+          renderHomepage();
+        } else {
+          console.warn('API error, using fallback homepage data');
+          renderHomepage();
+        }
+      } catch (err) {
+        console.error('Fetch homepage error:', err);
+        renderHomepage();
+      }
+    }
+
+    // Render Homepage UI according to current state (Pre-Purchase vs Active 90 Days)
+    function renderHomepage() {
+      const data = homepageData || {};
+      const athlete = data.athlete || { fullName: 'Alex Thompson', tier: 'free' };
+
+      // Determine active 90-day status
+      let isActive90Days = false;
+      if (isForcedState !== null) {
+        isActive90Days = isForcedState;
+      } else {
+        isActive90Days = Boolean(data.isPurchased90Days || data.myProgram?.isPurchased || athlete.tier === '90-day-mentorship');
+      }
+
+      // Update state toggle buttons
+      document.getElementById('btnStatePre').className = `dev-state-btn ${!isActive90Days ? 'active' : ''}`;
+      document.getElementById('btnStatePost').className = `dev-state-btn ${isActive90Days ? 'active blue' : ''}`;
+
+      // Greeting & Name
+      document.getElementById('greetingText').textContent = data.greeting || 'Good morning, Champion';
+      document.getElementById('athleteName').textContent = (athlete.fullName ? athlete.fullName.toUpperCase() : 'ALEX') + ' 🦁';
+
+      // Bell badge
+      document.getElementById('bellBadge').textContent = data.unreadNotificationsCount || '3';
+
+      // Streak & XP
+      document.getElementById('streakNumber').textContent = data.streak?.count || 5;
+      document.getElementById('xpAmount').textContent = data.xpStats?.xpDisplay || '2,340 XP';
+      document.getElementById('xpLevelLabel').textContent = data.xpStats?.levelLabel || 'Level 5';
+      document.getElementById('xpLevelCenter').textContent = data.xpStats?.level || '5';
+
+      // Today's Mission
+      const mission = data.todayMission || {
+        _id: 'default-1',
+        icon: '🧠',
+        title: 'Morning Mindset Journal',
+        description: "Write 3 things you're grateful for and set one focus goal for today. Journaling primes your brain for high performance before the session even starts.",
+        xpReward: '+50 XP',
+        category: 'Mental',
+        isCompleted: false
+      };
+
+      document.getElementById('missionIcon').textContent = mission.icon || '🧠';
+      document.getElementById('missionTitle').textContent = mission.title || 'Morning Mindset Journal';
+      document.getElementById('missionDesc').textContent = mission.description;
+      document.getElementById('missionXp').textContent = mission.xpReward || '+50 XP';
+      document.getElementById('missionCat').textContent = mission.category || 'Mental';
+
+      const btnComplete = document.getElementById('btnMarkComplete');
+      if (mission.isCompleted) {
+        btnComplete.className = 'btn-complete completed';
+        btnComplete.textContent = '✓ Completed Today';
+      } else {
+        btnComplete.className = 'btn-complete';
+        btnComplete.textContent = '✓ Mark Complete';
+      }
+
+      // Render Program Section (Figma 32959:3560 Active 90-Days)
+      const progSec = document.getElementById('myProgramSection');
+      if (isActive90Days) {
+        progSec.style.display = 'flex';
+        const myProg = data.myProgram || {};
+        const dash = myProg.dashboard || {};
+        const subtitle = dash.subtitle || '67 days remaining · Phase 2: Development';
+        document.getElementById('mentorshipSubtitle').textContent = subtitle;
+      } else {
+        progSec.style.display = 'none';
+      }
+
+      // Render Academy Features List
+      renderAcademyFeatures(isActive90Days);
+    }
+
+    // Render Academy Features list dynamically
+    function renderAcademyFeatures(isActive90Days) {
+      const container = document.getElementById('academyFeaturesList');
+      container.innerHTML = '';
+
+      const features = [
+        {
+          icon: '📅',
+          title: 'Training Planner',
+          desc: 'Build your weekly mental training schedule',
+          badge: 'ACADEMY',
+          route: '/planner',
+          isCta: false,
+        },
+        {
+          icon: '👨‍👩‍👧',
+          title: 'Parent Dashboard',
+          desc: 'Share your progress with your parents',
+          badge: 'ACADEMY',
+          route: '/parent',
+          isCta: false,
+        },
+        {
+          icon: '🏅',
+          title: 'Exclusive Content',
+          desc: 'Assigned coach · Private group · Personalized program',
+          badge: 'ACADEMY',
+          route: '/train',
+          isCta: false,
+        },
+      ];
+
+      // If user has NOT purchased 90-Day Mentorship, show 90-Day Mentorship CTA card (Node 32801:5982)
+      if (!isActive90Days) {
+        features.push({
+          icon: '🏅',
+          title: '90-Day Mentorship',
+          desc: 'Assigned coach · Private group · Personalized program',
+          badge: 'APPLY',
+          route: '/my-program',
+          isCta: true,
+        });
+      }
+
+      features.forEach(f => {
+        const card = document.createElement(f.isCta ? 'div' : 'a');
+        card.className = `feature-card ${f.isCta ? 'mentorship-cta' : ''}`;
+        if (!f.isCta) card.href = f.route;
+        if (f.isCta) {
+          card.onclick = () => { window.location.href = '/my-program'; };
+          card.role = 'button';
+          card.tabIndex = 0;
+        }
+
+        card.innerHTML = `
+          <div class="feature-card-content">
+            <span class="feature-icon">${f.icon}</span>
+            <div class="feature-info">
+              <div class="feature-title-row">
+                <span class="feature-title">${f.title}</span>
+                <span class="feature-badge ${f.isCta ? 'badge-apply' : ''}">${f.badge}</span>
+              </div>
+              <span class="feature-desc">${f.desc}</span>
+            </div>
+          </div>
+          <div class="card-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${f.isCta ? '#3B82F6' : 'currentColor'}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Switch between Figma Pre-purchase & Active 90-days previews
+    function switchState(isPostPurchase) {
+      isForcedState = isPostPurchase;
+      renderHomepage();
+      showToast(
+        isPostPurchase 
+          ? 'Switched to Active 90-Days Homepage (Figma #32959:3560)' 
+          : 'Switched to Pre-Purchase Homepage (Figma #32801:5982)',
+        isPostPurchase ? '🎯' : '🦁'
+      );
+    }
+
+    // Simulate 90-Day Purchase on the backend
+    async function simulatePurchase() {
+      try {
+        const payload = currentAthleteId ? { athleteId: currentAthleteId } : {};
+        const res = await fetch('/api/v1/user/purchase-90days', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          isForcedState = true;
+          showToast('🎉 90-Day Mentorship Activated! Now viewing Node #32959:3560', '🎯');
+          fetchHomepageData();
+        } else {
+          showToast(json.message || 'Error activating program', '⚠️');
+        }
+      } catch (err) {
+        console.error('Purchase simulation error:', err);
+        isForcedState = true;
+        renderHomepage();
+        showToast('Activated 90-Day Mentorship preview mode', '🎯');
+      }
+    }
+
+    // Reset back to pre-purchase state
+    async function resetToPrePurchase() {
+      try {
+        const payload = currentAthleteId ? { athleteId: currentAthleteId } : {};
+        const res = await fetch('/api/v1/user/reset-90days', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+          isForcedState = false;
+          showToast('Program reset to Pre-Purchase. Now viewing Node #32801:5982', '🦁');
+          fetchHomepageData();
+        } else {
+          showToast(json.message || 'Error resetting program', '⚠️');
+        }
+      } catch (err) {
+        console.error('Reset error:', err);
+        isForcedState = false;
+        renderHomepage();
+        showToast('Reset to Pre-Purchase preview mode', '🦁');
+      }
+    }
+
+    // Mark mission complete
+    async function handleMarkComplete() {
+      const btn = document.getElementById('btnMarkComplete');
+      if (btn.classList.contains('completed')) return;
+
+      const missionId = homepageData?.todayMission?._id || 'default-1';
+      try {
+        if (missionId && missionId !== 'default-1') {
+          await fetch(`/api/v1/user/homepage/mission/${missionId}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ athleteId: currentAthleteId })
+          });
+        }
+      } catch (e) {
+        console.warn('API mission completion request:', e);
+      }
+
+      btn.className = 'btn-complete completed';
+      btn.textContent = '✓ Completed Today';
+      showToast('Mission Complete! +50 XP Awarded 🌟', '⚡');
+
+      // Animate XP amount
+      const xpEl = document.getElementById('xpAmount');
+      const curXp = parseInt(xpEl.textContent.replace(/\D/g, '')) || 2340;
+      xpEl.textContent = (curXp + 50).toLocaleString() + ' XP';
+    }
+
+    // Feedback Modal logic
+    function openFeedbackModal() {
+      document.getElementById('feedbackModal').classList.add('open');
+      document.getElementById('feedbackText').focus();
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedbackModal').classList.remove('open');
+      document.getElementById('feedbackText').value = '';
+    }
+
+    async function submitFeedback() {
+      const text = document.getElementById('feedbackText').value.trim();
+      if (!text) {
+        alert('Please enter your feedback or daily reflections.');
+        return;
+      }
+
+      try {
+        await fetch('/api/v1/user/homepage/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            athleteId: currentAthleteId,
+            message: text,
+            rating: 5,
+            tags: ['daily-reflection']
+          })
+        });
+        closeFeedbackModal();
+        showToast('Feedback submitted to Coach Rivera! ⭐', '🙌');
+      } catch (err) {
+        console.error('Feedback error:', err);
+        closeFeedbackModal();
+        showToast('Feedback sent to coach!', '🙌');
+      }
+    }
+
+    // Mentorship Purchase Modal logic
+    function openMentorshipModal() {
+      document.getElementById('mentorshipModal').classList.add('open');
+    }
+
+    function closeMentorshipModal() {
+      document.getElementById('mentorshipModal').classList.remove('open');
+    }
+
+    function confirmPurchaseFromModal() {
+      closeMentorshipModal();
+      simulatePurchase();
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAthletes();
+    });
+  </script>
+</body>
+</html>

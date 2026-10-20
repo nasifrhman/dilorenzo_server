@@ -21,200 +21,10 @@ const formatTimeAgo = (date) => {
 };
 
 /**
- * Seed initial Community Feed posts if none exist
- * Matches Figma node 32823:8977
- */
-const ensureInitialFeedPosts = async () => {
-  const count = await CommunityPost.countDocuments();
-  if (count > 0) return;
-
-  const sampleUsers = await User.find({ role: 'athlete', isDeleted: false }).limit(4).lean();
-  const fallbackAuthor = sampleUsers[0]?._id || new mongoose.Types.ObjectId();
-
-  const now = Date.now();
-  const initialPosts = [
-    {
-      author: sampleUsers[0]?._id || fallbackAuthor,
-      authorName: 'Jordan K.',
-      authorEmoji: '🏆',
-      category: 'Focus',
-      content: 'Just crushed my focus ritual before training. Feeling locked in! 🎯',
-      likesCount: 24,
-      createdAt: new Date(now - 2 * 60 * 1000), // 2m ago
-    },
-    {
-      author: sampleUsers[1]?._id || fallbackAuthor,
-      authorName: 'Amara D.',
-      authorEmoji: '⚽',
-      category: 'Resilience',
-      content: 'Day 18 of my streak! Mental training is changing how I handle pressure. Who else is grinding?',
-      likesCount: 41,
-      createdAt: new Date(now - 15 * 60 * 1000), // 15m ago
-    },
-    {
-      author: sampleUsers[2]?._id || fallbackAuthor,
-      authorName: 'Marcus F.',
-      authorEmoji: '🔥',
-      category: 'Mindset',
-      content: 'Completed the Resilience Reset drill 3 days in a row. My coach noticed I\'m calmer in tight games.',
-      likesCount: 33,
-      createdAt: new Date(now - 60 * 60 * 1000), // 1h ago
-    },
-    {
-      author: sampleUsers[3]?._id || fallbackAuthor,
-      authorName: 'Priya S.',
-      authorEmoji: '🌟',
-      category: 'Achievement',
-      content: 'Hit 2,000 XP milestone today! The consistency is paying off. Don\'t give up, fam 💪',
-      likesCount: 33,
-      createdAt: new Date(now - 2 * 60 * 60 * 1000), // 2h ago
-    },
-  ];
-
-  await CommunityPost.insertMany(initialPosts);
-};
-
-/**
- * Seed initial Community Challenges if needed
- * Matches Figma node 32823:9296
- */
-const ensureInitialChallenges = async () => {
-  const existingCount = await Challenge.countDocuments();
-  if (existingCount >= 3) return;
-
-  const now = new Date();
-  const threeDaysLater = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-  const oneDayLater = new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000);
-  const sixDaysLater = new Date(now.getTime() + 6 * 24 * 60 * 60 * 1000);
-
-  const initialChallenges = [
-    {
-      title: 'Mental Toughness Week',
-      description: 'Complete 7 daily challenges and build unstoppable mental fortitude under high game pressure.',
-      icon: '🏆',
-      category: 'resilience',
-      difficulty: 'elite',
-      startDate: now,
-      endDate: threeDaysLater,
-      xpGoal: 2000,
-      rewardBadge: 'Exclusive Badge',
-      isHero: true,
-      status: 'active',
-      activities: [
-        { title: 'Morning Mindset Primer', xpReward: 250, category: 'mindset' },
-        { title: 'Pre-Game 4-7-8 Breathing Protocol', xpReward: 250, category: 'resilience' },
-        { title: 'In-Game Goldfish Mistake Reset', xpReward: 300, category: 'focus' },
-      ],
-    },
-    {
-      title: 'Focus Sprint',
-      description: '15-minute high intensity visual scanning and situational awareness sprint.',
-      icon: '⚡',
-      category: 'mental',
-      difficulty: 'medium',
-      startDate: now,
-      endDate: oneDayLater,
-      xpGoal: 500,
-      rewardBadge: '',
-      isHero: false,
-      status: 'active',
-      activities: [
-        { title: 'Blindspot Scanning Drill', xpReward: 250, category: 'focus' },
-        { title: 'Vision Decision Matrix', xpReward: 250, category: 'technical' },
-      ],
-    },
-    {
-      title: 'Resilience Cup',
-      description: 'Squad tournament for composure, mistake bounce-backs, and clutch decision making.',
-      icon: '🏆',
-      category: 'resilience',
-      difficulty: 'hard',
-      startDate: now,
-      endDate: sixDaysLater,
-      xpGoal: 1000,
-      rewardTrophy: 'Resilience Trophy',
-      rewardBadge: 'Resilience Cup Badge',
-      isHero: false,
-      status: 'active',
-      activities: [
-        { title: 'High-Pressure Scrimmage Composure', xpReward: 500, category: 'resilience' },
-        { title: 'Post-Match Mentality Reflection', xpReward: 500, category: 'mindset' },
-      ],
-    },
-  ];
-
-  for (const item of initialChallenges) {
-    const exists = await Challenge.findOne({ title: { $regex: new RegExp(`^${item.title}$`, 'i') } });
-    if (!exists) {
-      await Challenge.create(item);
-    }
-  }
-};
-
-/**
- * Seed initial Community Teams if needed
- * Matches Figma node 32827:9607
- */
-const ensureInitialTeams = async () => {
-  const existingCount = await Group.countDocuments({ type: 'team' });
-  if (existingCount >= 4) return;
-
-  const sampleAthletes = await User.find({ role: 'athlete', isDeleted: false }).limit(10).select('_id').lean();
-  const athleteIds = sampleAthletes.map((a) => a._id);
-
-  const initialTeams = [
-    {
-      name: 'Thunder FC',
-      description: 'High-intensity mental training squad pushing for elite academy contracts.',
-      type: 'team',
-      totalXp: 48200,
-      rank: 1,
-      athletes: athleteIds.slice(0, 6),
-      isActive: true,
-    },
-    {
-      name: 'Elite Minds',
-      description: 'Composure and resilience specialists mastering game pressure.',
-      type: 'team',
-      totalXp: 41600,
-      rank: 2,
-      athletes: athleteIds.slice(2, 7),
-      isActive: true,
-    },
-    {
-      name: 'Focus Squad',
-      description: 'Dedicated to visual scanning, tactical anticipation, and pre-match focus.',
-      type: 'team',
-      totalXp: 38900,
-      rank: 3,
-      athletes: athleteIds.slice(4, 8),
-      isActive: true,
-    },
-    {
-      name: 'Iron Will',
-      description: 'Grinders building physical grit and bulletproof mental toughness.',
-      type: 'team',
-      totalXp: 29400,
-      rank: 4,
-      athletes: athleteIds.slice(6, 10),
-      isActive: true,
-    },
-  ];
-
-  for (const team of initialTeams) {
-    const exists = await Group.findOne({ name: team.name, type: 'team' });
-    if (!exists) {
-      await Group.create(team);
-    }
-  }
-};
-
-/**
  * 1. Community Feed API (Figma Node 32823:8977)
  * List mindset win posts with optional category filter
  */
 const getCommunityFeedService = async ({ category, page = 1, limit = 20, athleteId = null }) => {
-  await ensureInitialFeedPosts();
 
   const filter = { status: 'active' };
   if (category && category.toLowerCase() !== 'all') {
@@ -297,7 +107,7 @@ const createCommunityPostService = async (payload, currentUserId = null) => {
 
   const newPost = await CommunityPost.create({
     author: athlete._id,
-    authorName: athlete.fullName || 'Athlete',
+    authorName: athlete.fullName || '',
     category: validCategory,
     content: content.trim(),
     likes: [],
@@ -371,9 +181,6 @@ const toggleCommunityPostLikeService = async (postId, currentUserId = null, fall
  * Returns active challenges, featured hero challenge, and athlete join status
  */
 const getCommunityChallengesService = async (athleteId = null) => {
-  console.log({athleteId})
-  await ensureInitialChallenges();
-
   const challenges = await Challenge.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
 
   const targetAthleteId = athleteId && mongoose.isValidObjectId(athleteId) ? athleteId.toString() : null;
@@ -436,8 +243,9 @@ const getCommunityChallengesService = async (athleteId = null) => {
         participantsCount: heroChallenge.participantsCount,
         daysLeft: heroChallenge.daysLeft,
         duration: 'Complete 7 daily challenges',
-        xpReward: heroChallenge.xpReward,
-        rewardDisplay: `+${heroChallenge.xpReward.toLocaleString()} XP · ${heroChallenge.rewardBadge || heroChallenge.rewardTrophy || 'Exclusive Badge'}`,
+        rewardDisplay: heroChallenge.rewardBadge || heroChallenge.rewardTrophy
+          ? `+${heroChallenge.xpReward.toLocaleString()} XP · ${heroChallenge.rewardBadge || heroChallenge.rewardTrophy}`
+          : `+${heroChallenge.xpReward.toLocaleString()} XP`,
         rewardBadge: heroChallenge.rewardBadge || '',
         rewardTrophy: heroChallenge.rewardTrophy || '',
         isJoined: heroChallenge.isJoined,

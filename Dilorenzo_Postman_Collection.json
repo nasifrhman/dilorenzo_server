@@ -14,6 +14,457 @@
       "name": "User Role",
       "item": [
         {
+          "name": "Homepage",
+          "item": [
+            {
+              "name": "Get Athlete Homepage (Figma Node 32801:5982 & 32959:3560)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/homepage",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "homepage"
+                  ]
+                },
+                "description": "Get athlete homepage overview. If user has NOT purchased 90-day program, returns standard homepage (Figma Node 32801:5982) with myProgram: null. If user HAS purchased 90-day program, returns active 90-day homepage (Figma Node 32959:3560) with myProgram populated (dashboard days remaining, current phase, and quick action routes)."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark Today Mission Complete (Figma Node 32801:5982)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/homepage/mission/:missionId/complete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "homepage",
+                    "mission",
+                    ":missionId",
+                    "complete"
+                  ],
+                  "variable": [
+                    {
+                      "key": "missionId",
+                      "value": "",
+                      "description": "Today's Task / Mission ID"
+                    }
+                  ]
+                },
+                "description": "Mark Today Mission as complete, award XP to the athlete, and increment streak."
+              },
+              "response": []
+            },
+            {
+              "name": "Submit Today's Feedback (Figma Node 32801:5982)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Focused on ball control and cognitive breathing before practice today.\",\n  \"rating\": 5,\n  \"tags\": [\n    \"daily-feedback\",\n    \"mindset\",\n    \"focus\"\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/homepage/feedback",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "homepage",
+                    "feedback"
+                  ]
+                },
+                "description": "Submit athlete's daily reflection / feedback for today."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Training Planner - Monthly View (Figma Node 32954:2212)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/planner?month=2026-08",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "planner"
+                  ],
+                  "query": [
+                    {
+                      "key": "month",
+                      "value": "2026-08",
+                      "description": "Target month in YYYY-MM format"
+                    }
+                  ]
+                },
+                "description": "Get Training Planner monthly calendar days with indicator dots (session, assignment) and all upcoming events for that month."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Training Planner - Day Selected View (Figma Node 32954:2000)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/planner?month=2026-08&date=2026-08-04",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "planner"
+                  ],
+                  "query": [
+                    {
+                      "key": "month",
+                      "value": "2026-08",
+                      "description": "Target month in YYYY-MM format"
+                    },
+                    {
+                      "key": "date",
+                      "value": "2026-08-04",
+                      "description": "Specific day to view scheduled events for (e.g. August 4)"
+                    }
+                  ]
+                },
+                "description": "Filter Training Planner events by a specific day (e.g. August 4), showing day title, active day calendar state, and events."
+              },
+              "response": []
+            },
+            {
+              "name": "Get Exclusive Content (Figma Node 32959:2827)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/exclusive-content?category=pressure",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "exclusive-content"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "pressure",
+                      "description": "Optional filter: pressure | focus | resilience | confidence | mindset",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Get exclusive content video library. Supports optional query param ?category=pressure | focus | resilience | confidence | mindset."
+              },
+              "response": []
+            },
+            {
+              "name": "Update Exclusive Video Progress",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"progress\": 65,\n  \"isCompleted\": false\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/train/exclusive-content/:id/progress",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "exclusive-content",
+                    ":id",
+                    "progress"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "",
+                      "description": "Video / Drill ID"
+                    }
+                  ]
+                },
+                "description": "Save athlete watch progress (0-100%) or mark video complete (+awards XP)."
+              },
+              "response": []
+            },
+            {
+              "name": "Purchase / Activate 90-Day Program (Figma Node 32959:3560)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"plan\": \"90-day-mentorship\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/homepage/purchase-90days",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "homepage",
+                    "purchase-90days"
+                  ]
+                },
+                "description": "Activates or purchases the 90-Day Mentorship Program for the athlete. Sets tier = \"90-day-mentorship\", initial mentorshipDay = 1, mentorshipStartDate = now, mentorshipEndDate = now + 90 days, and synchronizes active subscription. Calling GET /api/v1/user/homepage afterwards returns the active 90-Day Program dashboard (Figma node 32959:3560)."
+              },
+              "response": []
+            },
+            {
+              "name": "Reset 90-Day Program (Pre-Purchase Simulation Figma Node 32801:5982)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/homepage/reset-90days",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "homepage",
+                    "reset-90days"
+                  ]
+                },
+                "description": "Resets the 90-Day Mentorship program back to free tier for pre-purchase preview (Figma node 32801:5982). Useful for demonstrating and simulating the before and after transition."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "My Program (90-Day Mentorship)",
+          "item": [
+            {
+              "name": "Get My Program Dashboard (Figma Node 32960:4016)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/my-program",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "my-program"
+                  ]
+                },
+                "description": "Mentorship Dashboard / MY PROGRAM Screen (Figma node 32960:4016). User sees this page after clicking 90-Day Mentorship on homepage. Returns 90-day countdown progress (67 days remaining, Day 23, 26% complete, Phase 2 of 3 — Development), assigned coach Rivera card with 'View' action, today's tasks list with XP badges, 6-grid navigation tiles (Private Group, Goals & Habits, Action Steps, Training Program, 90-Day Progress, My Coach), and upcoming scheduled video session (Session 4 — Resilience)."
+              },
+              "response": []
+            },
+            {
+              "name": "Toggle Today Task Complete (Figma Node 32960:4016)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"taskId\": \"6ad744ee7923f5e8f9055e80\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/my-program/toggle-task",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "my-program",
+                    "toggle-task"
+                  ]
+                },
+                "description": "Toggle task completion on the My Program / Mentorship Dashboard screen (Figma node 32960:4016). Awards XP on completion, updates strike-through formatting and progress."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
           "name": "Profile",
           "item": [
             {
@@ -1018,6 +1469,211 @@
                   "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Successfully joined Thunder FC!\",\n  \"data\": {\n    \"type\": \"TeamMembership\",\n    \"attributes\": {\n      \"teamId\": \"{{teamId}}\",\n      \"name\": \"Thunder FC\",\n      \"isMember\": true,\n      \"membersCount\": 25,\n      \"message\": \"Successfully joined Thunder FC!\"\n    }\n  },\n  \"errors\": []\n}"
                 }
               ]
+            }
+          ]
+        },
+        {
+          "name": "Train",
+          "item": [
+            {
+              "name": "Get Train Screen Overview (Figma Node 32772:5327)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text",
+                    "description": "Optional - athlete JWT token"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/train",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train"
+                  ]
+                },
+                "description": "Returns featured drill, weekly streak tracker, and mental drills."
+              }
+            },
+            {
+              "name": "Get Filtered Mental Drills (Category filter)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/train?category=focus",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train"
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "focus",
+                      "description": "Filter category: all | focus | resilience | confidence | pressure | mindset"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Coach Assignments (Figma Node 33000:12481)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text",
+                    "description": "Strictly required: Bearer athlete JWT"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/assignments",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "assignments"
+                  ]
+                },
+                "description": "Returns coach assignments strictly matching Figma node 33000:12481 without unnecessary data."
+              }
+            },
+            {
+              "name": "Upload Assignment Evidence / Mark Complete",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "notes",
+                      "value": "Completed 3 rounds of 4-7-8 breathing before today training.",
+                      "type": "text"
+                    },
+                    {
+                      "key": "mediaUrl",
+                      "value": "https://dilorenzosoccer.com/uploads/evidence/sample-breathing-log.pdf",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/train/assignments/:id/evidence",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "assignments",
+                    ":id",
+                    "evidence"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "6ad48765b94069bb6d53afb1",
+                      "description": "Assignment ID"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get Drill Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/drills/:id",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "drills",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "6ad48763b94069bb6d53afa6",
+                      "description": "Drill ID"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Complete Drill Session (+XP Award)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/train/drills/:id/complete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "train",
+                    "drills",
+                    ":id",
+                    "complete"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "6ad48763b94069bb6d53afa6",
+                      "description": "Drill ID"
+                    }
+                  ]
+                }
+              }
             }
           ]
         }

@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -451,6 +451,129 @@ const toggleAthleteHabitTodayController = catchAsync(async (req, res) => {
   );
 });
 
+/**
+ * Athlete Homepage Screen (Figma node 32801:5982)
+ */
+const getUserHomepageController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query.athleteId || null;
+  const result = await getUserHomepageService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Homepage',
+      message: 'Homepage data retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Mark Today's Mission Complete (Figma node 32801:5982)
+ */
+const completeHomepageMissionController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || null;
+  const { missionId, id } = req.params;
+  const targetId = missionId || id;
+  const result = await completeHomepageMissionService(userId, targetId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MissionCompletion',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
+/**
+ * Submit Today's Feedback (Figma node 32801:5982)
+ */
+const submitHomepageFeedbackController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || null;
+  const result = await submitHomepageFeedbackService(userId, req.body);
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'DailyFeedback',
+      message: 'Feedback submitted successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Purchase / Activate 90-Day Mentorship Program (Figma node 32959:3560)
+ */
+const purchase90DaysProgramController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.body?.athleteId || req.query?.athleteId;
+  const result = await purchase90DaysProgramService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ProgramEnrollment',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
+/**
+ * Reset 90-Day Mentorship Program (Figma node 32801:5982 simulation)
+ */
+const reset90DaysProgramController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.body?.athleteId || req.query?.athleteId;
+  const result = await reset90DaysProgramService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ProgramReset',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
+/**
+ * Mentorship Dashboard / MY PROGRAM Screen (Figma node 32960:4016)
+ * "after clicking 90days mentorship user will see this page"
+ */
+const getMyProgramController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const result = await getMyProgramService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipDashboard',
+      message: 'My Program dashboard data retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Toggle Program Task completion (Figma node 32960:4016)
+ */
+const toggleProgramTaskController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.body?.athleteId;
+  const taskId = req.params?.taskId || req.body?.taskId;
+  const result = await toggleProgramTaskService(userId, taskId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'TaskToggle',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   suspendUserController,
   fcmTokenController,
@@ -480,4 +603,11 @@ module.exports = {
   submitCoachEvaluationController,
   getAthleteDevPlanController,
   toggleAthleteHabitTodayController,
+  getUserHomepageController,
+  completeHomepageMissionController,
+  submitHomepageFeedbackController,
+  purchase90DaysProgramController,
+  reset90DaysProgramController,
+  getMyProgramController,
+  toggleProgramTaskController,
 };

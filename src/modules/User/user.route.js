@@ -25,7 +25,32 @@ const {
   submitCoachEvaluationController,
   getAthleteDevPlanController,
   toggleAthleteHabitTodayController,
+  getUserHomepageController,
+  completeHomepageMissionController,
+  submitHomepageFeedbackController,
+  purchase90DaysProgramController,
+  reset90DaysProgramController,
+  getMyProgramController,
+  toggleProgramTaskController,
 } = require("./user.controller");
+
+// Mentorship Dashboard / MY PROGRAM Screen (Figma node 32960:4016)
+// "after clicking 90days mentorship user will see this page"
+router.get("/my-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
+router.get("/program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
+router.get("/mentorship-dashboard", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
+router.post("/my-program/toggle-task", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
+router.post("/my-program/task/:taskId/toggle", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
+
+// Homepage Screen (Figma node 32801:5982 & 32959:3560)
+router.get("/homepage", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserHomepageController);
+router.get("/home", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserHomepageController);
+router.post("/homepage/mission/:missionId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeHomepageMissionController);
+router.post("/homepage/feedback", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), submitHomepageFeedbackController);
+router.post("/homepage/purchase-90days", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), purchase90DaysProgramController);
+router.post("/purchase-90days", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), purchase90DaysProgramController);
+router.post("/homepage/reset-90days", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), reset90DaysProgramController);
+router.post("/reset-90days", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), reset90DaysProgramController);
 
 // Personalised Development Plan Screen (Figma node 32906:2936)
 router.get("/dev-plan", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteDevPlanController);
