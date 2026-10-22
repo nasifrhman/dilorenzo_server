@@ -286,11 +286,18 @@ const login = async (identifier, receiverType, inputPassword) => {
 };
 
 
-const changePasswordService = async (userId, oldPassword, newPassword) => {
+const changePasswordService = async (userId, oldPassword, newPassword, confirmPassword) => {
   if (!oldPassword || !newPassword) {
     throw new ApiError(
       status.BAD_REQUEST,
-      "Old password and new password are required"
+      "Current password and new password are required"
+    );
+  }
+
+  if (confirmPassword && newPassword !== confirmPassword) {
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "New password and confirm password do not match"
     );
   }
 
@@ -304,7 +311,7 @@ const changePasswordService = async (userId, oldPassword, newPassword) => {
   if (oldPassword === newPassword) {
     throw new ApiError(
       status.BAD_REQUEST,
-      "New password must be different from old password"
+      "New password must be different from current password"
     );
   }
 
@@ -334,15 +341,14 @@ const changePasswordService = async (userId, oldPassword, newPassword) => {
   if (!isMatch) {
     throw new ApiError(
       status.UNAUTHORIZED,
-      "Old password is incorrect"
+      "Current password is incorrect"
     );
   }
 
   user.password = newPassword;
 
-  // Invalidate existing login tokens
+  // Invalidate previous sessions across devices by incrementing tokenVersion
   user.tokenVersion = (user.tokenVersion || 0) + 1;
-  user.isLoginToken = false;
 
   await user.save();
 
@@ -365,15 +371,34 @@ const getUserById = async (id) => {
 };
 
 const updateUserById = async (id, data) => {
-  console.log({id, data });
+  console.log({ id, data });
   const userPayload = {
     ...(data.fullName !== undefined && { fullName: data.fullName }),
     ...(data.image !== undefined && { image: data.image }),
     ...(data.email !== undefined && { email: data.email }),
+    ...(data.phoneNumber !== undefined && { phoneNumber: data.phoneNumber }),
+    ...(data.number !== undefined && { phoneNumber: data.number, number: data.number }),
+    ...(data.countryCode !== undefined && { countryCode: data.countryCode }),
+    ...(data.leagueDivision !== undefined && { leagueDivision: data.leagueDivision }),
+    ...(data.currentClub !== undefined && { currentClub: data.currentClub }),
+    ...(data.leagueDivision !== undefined && !data.currentClub && { currentClub: data.leagueDivision }),
+    ...(data.parentFullName !== undefined && { parentFullName: data.parentFullName }),
+    ...(data.parentEmail !== undefined && { parentEmail: data.parentEmail }),
+    ...(data.intakeNotes !== undefined && { intakeNotes: data.intakeNotes }),
+    ...(data.focusGoals !== undefined && { focusGoals: data.focusGoals }),
+    ...(data.isProfileCompleted !== undefined && { isProfileCompleted: data.isProfileCompleted }),
+    ...(data.isEmailVerified !== undefined && { isEmailVerified: data.isEmailVerified }),
+    ...(data.trialStartDate !== undefined && { trialStartDate: data.trialStartDate }),
+    ...(data.trialEndDate !== undefined && { trialEndDate: data.trialEndDate }),
+    ...(data.isTrialActive !== undefined && { isTrialActive: data.isTrialActive }),
+    ...(data.age !== undefined && { age: Number(data.age) }),
+    ...(data.dob !== undefined && { dob: data.dob }),
+    ...(data.gender !== undefined && { gender: data.gender }),
+    ...(data.nationality !== undefined && { nationality: data.nationality }),
+    ...(data.position !== undefined && { position: data.position }),
+    ...(data.preferredFoot !== undefined && { preferredFoot: data.preferredFoot }),
     ...(data.location !== undefined && { location: data.location }),
     ...(data.address !== undefined && { address: data.address }),
-    ...(data.number !== undefined && { number: data.number }),
-    ...(data.countryCode !== undefined && { countryCode: data.countryCode }),
     ...(data.bio !== undefined && { bio: data.bio }),
     ...(data.about !== undefined && { about: data.about }),
     ...(data.experienceYears !== undefined && { experienceYears: Number(data.experienceYears) }),

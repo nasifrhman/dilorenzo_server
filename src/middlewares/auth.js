@@ -106,15 +106,19 @@ const auth = (userRoles, { optional = false } = {}) => {
 
 
 const resetTokenCheck = (req, res, next) => {
-
   const authHeader = req.headers.authorization;
+  let token = null;
 
-  if (!authHeader?.startsWith("Bearer "))
-    return res.status(401).json({ message: "Unauthorized" });
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.split(" ")[1];
+  } else if (req.body && req.body.resetToken) {
+    token = req.body.resetToken;
+  }
+
+  if (!token)
+    return res.status(401).json({ message: "Unauthorized: Reset token is required" });
 
   try {
-    const token = authHeader.split(" ")[1];
-
     const decoded = jwt.verify(
       token,
       process.env.JWT_ACCESS_TOKEN
@@ -136,19 +140,22 @@ const resetTokenCheck = (req, res, next) => {
 
 const tokenCheck = catchAsync(async (req, res, next) => {
   const authHeader = req.headers.authorization;
+  let token = null;
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
+    token = authHeader.split(" ")[1];
+  } else if (req.body && (req.body.tempToken || req.body.token)) {
+    token = req.body.tempToken || req.body.token;
+  }
 
-    if (token && token !== "null") {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
-        req.User = decoded;
-        req.user = decoded;
-      } catch (error) {
-        req.User = null;
-        req.user = null;
-      }
+  if (token && token !== "null") {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
+      req.User = decoded;
+      req.user = decoded;
+    } catch (error) {
+      req.User = null;
+      req.user = null;
     }
   }
   next();

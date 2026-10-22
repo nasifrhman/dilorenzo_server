@@ -19,6 +19,11 @@ const userSchema = new mongoose.Schema(
     // Status & System Controls
     isBan: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
+    isProfileCompleted: { type: Boolean, default: false },
+    trialStartDate: { type: Date, required: false },
+    trialEndDate: { type: Date, required: false },
+    isTrialActive: { type: Boolean, default: false },
     tokenVersion: { type: Number, default: 0 },
     enabledPushNotification: { type: Boolean, default: true },
     fcmToken: { type: String, default: '' },
@@ -33,6 +38,8 @@ const userSchema = new mongoose.Schema(
     nationality: { type: String, required: false },
     currentClub: { type: String, required: false }, // e.g. "Regional Stars U18"
     leagueDivision: { type: String, default: '' }, // e.g. "Regional Stars U18"
+    parentFullName: { type: String, default: '' },
+    parentEmail: { type: String, default: '', trim: true, lowercase: true },
     intakeNotes: { type: String, default: '' },
     focusGoals: { type: String, default: '' },
     position: {

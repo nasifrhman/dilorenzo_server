@@ -52,12 +52,14 @@ const localAuth = catchAsync(async (req, res) => {
   const {
     email,
     number,
+    phoneNumber,
     countryCode,
     password,
   } = req.body;
 
+  const phone = phoneNumber || number;
   const hasEmail = !!email;
-  const hasPhone = !!number || !!countryCode;
+  const hasPhone = !!phone;
 
   if ((hasEmail && hasPhone) || (!hasEmail && !hasPhone)) {
     throw new ApiError(
@@ -74,30 +76,32 @@ const localAuth = catchAsync(async (req, res) => {
       "email",
       password
     );
-    // console.log("user1", user);
   } else {
-    if (!number || !countryCode) {
+    if (!phone) {
       throw new ApiError(
         status.BAD_REQUEST,
-        "Country code and phone number are required"
+        "Phone number is required"
       );
     }
 
     user = await login(
       {
-        number,
-        countryCode,
+        number: phone,
+        countryCode: countryCode || "",
       },
       "phone",
       password
     );
   }
 
-  // console.log({ user });
+  // Auto-check 7-day trial expiration
+  if (user.trialEndDate && new Date() > new Date(user.trialEndDate) && user.isTrialActive) {
+    user.isTrialActive = false;
+    await user.save();
+  }
+
   let admin;
-  // if (user.role === 'admin' || user.role === 'hr') {
   if (['admin', 'hr', 'sub_hr_admin', 'sub_admin'].includes(user.role)) {
-    // console.log("role", user.role)
     admin = await getAdminByUserId(user._id);
   }
   const token = await tokenGenerator(user, admin);
@@ -110,74 +114,118 @@ const localAuth = catchAsync(async (req, res) => {
     data: {
       _id: user._id,
       email: user.email,
-      number: user.number,
-      countryCode: user.countryCode,
       fullName: user.fullName,
+      phoneNumber: user.phoneNumber || user.number,
+      number: user.number || user.phoneNumber,
+      countryCode: user.countryCode,
       role: user.role,
       image: user.image,
-      isVerified: user.isVerified,
+      isEmailVerified: user.isEmailVerified,
+      isProfileCompleted: user.isProfileCompleted,
+      tier: user.tier,
+      isTrialActive: user.isTrialActive,
+      trialStartDate: user.trialStartDate,
+      trialEndDate: user.trialEndDate,
+      leagueDivision: user.leagueDivision,
+      currentClub: user.currentClub,
+      parentFullName: user.parentFullName,
+      parentEmail: user.parentEmail,
+      intakeNotes: user.intakeNotes,
+      focusGoals: user.focusGoals,
+      mentorshipDay: user.mentorshipDay,
+      mentorshipPhase: user.mentorshipPhase,
       categoryPermissions: admin?.categoryPermissions,
       parent: admin?.parent
     },
-    accessToken: token
+    accessToken: token,
+    refreshToken
   }));
 });
 
 
-//Sign up
+// Sign up (Step 1: Create Account - Figma Node 33768:1965)
+// Account will NOT be created in the database until OTP verification (Step 3)!
 const signUp = catchAsync(async (req, res) => {
-
-  const { email, role, fullName } = req.body;
-
-  if (!role) {
-    throw new ApiError(status.BAD_REQUEST, "Role is required!");
-  }
-  let sentTo;
-  let receiverType;
-  let existingOTP;
+  const {
+    fullName,
+    email,
+    phoneNumber,
+    number,
+    countryCode,
+    password,
+    confirmPassword,
+    role
+  } = req.body;
 
   if (!email) {
     throw new ApiError(status.BAD_REQUEST, "Email is required!");
   }
+  if (!fullName) {
+    throw new ApiError(status.BAD_REQUEST, "Full Name is required!");
+  }
+  if (!password) {
+    throw new ApiError(status.BAD_REQUEST, "Password is required!");
+  }
+  if (confirmPassword && password !== confirmPassword) {
+    throw new ApiError(status.BAD_REQUEST, "Passwords do not match!");
+  }
+  if (password.length < 6) {
+    throw new ApiError(status.BAD_REQUEST, "Password must be at least 6 characters long!");
+  }
 
+  const phone = phoneNumber || number || "";
+  const userRole = role || "user";
   const existingUser = await getUserByEmail(email);
 
   if (existingUser) {
-    throw new ApiError(status.CONFLICT, "This email already used!");
+    throw new ApiError(status.CONFLICT, "This email is already registered!");
   }
 
-  sentTo = email;
-  receiverType = "email";
-  existingOTP = await checkOTPService(email, "email");
-
+  // Send 6-digit OTP
+  let existingOTP = await checkOTPService(email, "email");
   let message = "";
 
   if (existingOTP) {
-    message = "OTP already sent. Please wait for a few minutes.";
+    message = "OTP already sent. Please wait for a few minutes or check your email.";
   } else {
     const otpData = await sendOTP(
       fullName,
-      sentTo,
-      receiverType,
+      email,
+      "email",
       "email-verification"
     );
-
-    message = otpData.message;
+    message = otpData.message || "Verification code sent to your email";
   }
 
-  const accessToken = jwt.sign(
-    { ...req.body },
+  // Temporary signed token containing registration data (account is NOT created in DB yet)
+  const tempToken = jwt.sign(
+    {
+      fullName,
+      email,
+      phoneNumber: phone,
+      number: phone,
+      countryCode: countryCode || "",
+      password,
+      role: userRole,
+      purpose: "email-verification"
+    },
     process.env.JWT_ACCESS_TOKEN,
     { expiresIn: "1h" }
   );
 
-  return res.status(status.CREATED).json(
+  return res.status(status.OK).json(
     response({
       status: "OK",
-      statusCode: status.CREATED,
+      statusCode: status.OK,
       type: "user",
-      message,
-      accessToken,
+      message: message || "Verification code sent to your email. Verify OTP to complete account creation.",
+      data: {
+        email,
+        fullName,
+        phoneNumber: phone,
+      },
+      tempToken,
+      accessToken: tempToken,
     })
   );
 });
@@ -238,72 +286,228 @@ const allUserController = catchAsync(async (req, res) => {
 });
 
 
-// Validate OTP
+// Validate OTP (Handles both Email Verification & Password Reset OTP)
 const otpVerification = catchAsync(async (req, res) => {
-  const email = req.User?.email || req.body.email;
-
-  let otpData;
-
-  if (email) {
-    otpData = await verifyOTP(
-      email,
-      "email",
-      req.body.purpose,
-      req.body.otp
-    );
+  let userPayloadFromToken = req.User;
+  if (!userPayloadFromToken) {
+    const rawToken = req.body?.tempToken || req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || req.headers?.token;
+    if (rawToken && rawToken !== "null") {
+      try {
+        userPayloadFromToken = jwt.verify(rawToken, process.env.JWT_ACCESS_TOKEN);
+        req.User = userPayloadFromToken;
+      } catch (err) {}
+    }
   }
 
+  // Extract email from token as requested!
+  const email = userPayloadFromToken?.email || req.body.email;
+  const purpose = req.body.purpose || (userPayloadFromToken?.purpose || "email-verification");
+  const otp = req.body.otp;
+
+  if (!email) {
+    throw new ApiError(status.BAD_REQUEST, "Verification token is required. Email could not be resolved from token.");
+  }
+  if (!otp) {
+    throw new ApiError(status.BAD_REQUEST, "6-digit OTP code is required");
+  }
+
+  const otpData = await verifyOTP(
+    email,
+    "email",
+    purpose,
+    otp
+  );
+
   if (otpData && otpData.purpose === "email-verification") {
-    const registeredUser = await addUser(req.User);
+    let registeredUser = await getUserByEmail(email);
+
+    if (!registeredUser) {
+      // Account is created in DB ONLY upon successful OTP verification!
+      const signupData = req.User || {};
+      const passwordToSave = signupData.password || req.body.password;
+
+      if (!passwordToSave) {
+        throw new ApiError(
+          status.BAD_REQUEST,
+          "Registration session expired or password missing. Please sign up again."
+        );
+      }
+
+      const trialStart = new Date();
+      const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const phone = signupData.phoneNumber || signupData.number || req.body.phoneNumber || req.body.number || "";
+
+      registeredUser = await userModel.create({
+        fullName: signupData.fullName || req.body.fullName || "Athlete",
+        email: email,
+        phoneNumber: phone,
+        number: phone,
+        countryCode: signupData.countryCode || req.body.countryCode || "",
+        password: passwordToSave,
+        role: signupData.role || req.body.role || "user",
+        isEmailVerified: true,
+        isProfileCompleted: false,
+        tier: "free",
+        trialStartDate: trialStart,
+        trialEndDate: trialEnd,
+        isTrialActive: true,
+      });
+    } else {
+      registeredUser.isEmailVerified = true;
+      if (!registeredUser.trialStartDate) {
+        registeredUser.trialStartDate = new Date();
+        registeredUser.trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        registeredUser.isTrialActive = true;
+      }
+      await registeredUser.save();
+    }
 
     const accessToken = await tokenGenerator(registeredUser);
+    const refreshToken = refreshTokenGenerator(registeredUser);
 
     return res.status(status.CREATED).json(
       response({
         status: "OK",
         statusCode: status.CREATED,
         type: "user",
-        message: "Verified",
-        data: registeredUser,
+        message: "Account created and email verified successfully! Your 7-day free trial has begun.",
+        data: {
+          _id: registeredUser._id,
+          fullName: registeredUser.fullName,
+          email: registeredUser.email,
+          phoneNumber: registeredUser.phoneNumber || registeredUser.number,
+          number: registeredUser.number || registeredUser.phoneNumber,
+          role: registeredUser.role,
+          image: registeredUser.image,
+          isEmailVerified: registeredUser.isEmailVerified,
+          isProfileCompleted: registeredUser.isProfileCompleted,
+          tier: registeredUser.tier,
+          isTrialActive: registeredUser.isTrialActive,
+          trialStartDate: registeredUser.trialStartDate,
+          trialEndDate: registeredUser.trialEndDate,
+          leagueDivision: registeredUser.leagueDivision,
+          currentClub: registeredUser.currentClub,
+          parentFullName: registeredUser.parentFullName,
+          parentEmail: registeredUser.parentEmail,
+          intakeNotes: registeredUser.intakeNotes,
+          focusGoals: registeredUser.focusGoals,
+        },
         accessToken,
+        refreshToken,
       })
     );
   }
 
   if (otpData && otpData.purpose === "forget-password") {
-    let user;
-
-    if (email) {
-      user = await getUserByEmail(email);
+    let user = await getUserByEmail(email);
+    if (!user) {
+      throw new ApiError(status.NOT_FOUND, "User not found");
     }
 
-    const accessToken = resetTokenGenerator(user);
+    const resetToken = resetTokenGenerator(user);
 
     return res.status(status.OK).json(
       response({
         status: "OK",
         statusCode: status.OK,
-        message: "OTP verified",
-        accessToken,
+        message: "OTP verified successfully. You may now reset your password.",
+        resetToken,
+        accessToken: resetToken,
       })
     );
   }
 });
 
+// Dedicated Verify Email OTP (Step 3 / Verify Email - Figma Node 33768:2169)
+const verifyEmailOtp = catchAsync(async (req, res) => {
+  req.body.purpose = "email-verification";
+  return otpVerification(req, res);
+});
 
+// Dedicated Verify Reset OTP (Reset Password Step 2 - Figma Node 33768:2320)
+const verifyResetOtp = catchAsync(async (req, res) => {
+  req.body.purpose = "forget-password";
+  return otpVerification(req, res);
+});
 
+// Complete Profile (Step 2: Complete Profile - Figma Node 33768:2056)
+const completeProfile = catchAsync(async (req, res) => {
+  const userId = req.User?._id || req.user?._id;
+  if (!userId) {
+    throw new ApiError(status.UNAUTHORIZED, "Unauthorized user");
+  }
 
-// Forget password
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, "User not found");
+  }
+
+  if (req.file) {
+    const { filename } = req.file;
+    if (filename && filename.length > 0) {
+      const defaultPath1 = 'user.png';
+      const defaultPath2 = 'user.jpg';
+
+      if (user.image && user.image !== defaultPath1 && user.image !== defaultPath2 && !user.image.includes('default')) {
+        unlinkImage(`uploads/users/${user.image}`);
+      }
+
+      req.body.image = filename;
+    }
+  }
+
+  req.body.isProfileCompleted = true;
+  if (!user.trialStartDate) {
+    req.body.trialStartDate = new Date();
+    req.body.trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    req.body.isTrialActive = true;
+  }
+
+  const result = await updateUserById(user._id, req.body);
+  const updatedUser = result.user || result;
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      message: "Profile completed successfully. Your 7-day free trial is active!",
+      data: {
+        _id: updatedUser._id,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        phoneNumber: updatedUser.phoneNumber || updatedUser.number,
+        number: updatedUser.number || updatedUser.phoneNumber,
+        image: updatedUser.image,
+        role: updatedUser.role,
+        leagueDivision: updatedUser.leagueDivision,
+        currentClub: updatedUser.currentClub,
+        parentFullName: updatedUser.parentFullName,
+        parentEmail: updatedUser.parentEmail,
+        intakeNotes: updatedUser.intakeNotes,
+        focusGoals: updatedUser.focusGoals,
+        isEmailVerified: updatedUser.isEmailVerified,
+        isProfileCompleted: updatedUser.isProfileCompleted,
+        tier: updatedUser.tier,
+        isTrialActive: updatedUser.isTrialActive,
+        trialStartDate: updatedUser.trialStartDate,
+        trialEndDate: updatedUser.trialEndDate,
+        mentorshipDay: updatedUser.mentorshipDay,
+        mentorshipPhase: updatedUser.mentorshipPhase
+      }
+    })
+  );
+});
+
+// Forget password (Step 1: Request OTP - Figma Node 33768:2270)
 const forgetPassword = catchAsync(async (req, res) => {
-  const { email, number, countryCode } = req.body;
+  const { email, number, phoneNumber, countryCode } = req.body;
+  const targetEmail = email;
+  const phone = phoneNumber || number;
 
-  const hasEmail = !!email;
-  const hasPhone = !!number || !!countryCode;
-
-  if ((hasEmail && hasPhone) || (!hasEmail && !hasPhone)) {
+  if (!targetEmail && !phone) {
     throw new ApiError(
       status.BAD_REQUEST,
-      "Provide either email OR phone, not both"
+      "Email address is required"
     );
   }
 
@@ -311,35 +515,24 @@ const forgetPassword = catchAsync(async (req, res) => {
   let sentTo;
   let receiverType;
 
-  if (email) {
-    user = await getUserByEmail(email);
-
+  if (targetEmail) {
+    user = await getUserByEmail(targetEmail);
     if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
+      throw new ApiError(status.NOT_FOUND, "No account found with this email address");
     }
-
-    sentTo = email;
+    sentTo = targetEmail;
     receiverType = "email";
   } else {
-    if (!number || !countryCode) {
-      throw new ApiError(
-        status.BAD_REQUEST,
-        "Country code and phone number are required"
-      );
-    }
-
-    user = await getUserByPhoneNumber(number, countryCode);
-
+    user = await getUserByPhoneNumber(phone, countryCode);
     if (!user) {
-      throw new ApiError(status.NOT_FOUND, "User not found");
+      throw new ApiError(status.NOT_FOUND, "No account found with this phone number");
     }
-
-    sentTo = `${countryCode}${number}`;
+    sentTo = `${countryCode || ""}${phone}`;
     receiverType = "phone";
   }
 
   const otpData = await sendOTP(
-    user.fullName,
+    user.fullName || "User",
     sentTo,
     receiverType,
     "forget-password"
@@ -352,22 +545,19 @@ const forgetPassword = catchAsync(async (req, res) => {
     );
   }
 
-  const message =
-    receiverType === "email"
-      ? "OTP sent to your email"
-      : "OTP sent to your phone";
+  const message = `A 6-digit verification code has been sent to your ${receiverType}`;
 
-  const payload = {
-    email: user.email,
-    role: user.role,
-    number: user.number,
-    countryCode: user.countryCode,
-    fullName: user.fullName,
-  };
-
-  const token = jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, {
-    expiresIn: "1h",
-  });
+  const token = jwt.sign(
+    {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      fullName: user.fullName,
+      purpose: "forget-password"
+    },
+    process.env.JWT_ACCESS_TOKEN,
+    { expiresIn: "15m" }
+  );
 
   return res.status(status.OK).json(
     response({
@@ -375,32 +565,56 @@ const forgetPassword = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: "user",
       message,
-      data: token,
+      data: {
+        email: user.email,
+        purpose: "forget-password"
+      },
+      token,
+      tempToken: token,
+      accessToken: token
     })
   );
 });
 
-
+// Reset Password (Step 3: Set New Password - Figma Node 33768:2373)
 const resetPassword = catchAsync(async (req, res) => {
+  const userId = req.ResetUser?._id;
+  if (!userId) {
+    throw new ApiError(status.UNAUTHORIZED, "Unauthorized: Valid reset token is required");
+  }
 
-  const user = await getUserById(req.ResetUser._id);
-  // console.log({ user });
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, "User not found");
+  }
 
-  if (!user)
-    throw new ApiError(404, "User not found");
+  const newPassword = req.body.newPassword || req.body.password;
+  const confirmPassword = req.body.confirmPassword;
 
-  user.password = req.body.password;
-  user.tokenVersion = user.tokenVersion + 1;
+  if (!newPassword) {
+    throw new ApiError(status.BAD_REQUEST, "New password is required");
+  }
 
+  if (confirmPassword && newPassword !== confirmPassword) {
+    throw new ApiError(status.BAD_REQUEST, "Passwords do not match");
+  }
+
+  if (newPassword.length < 6) {
+    throw new ApiError(status.BAD_REQUEST, "Password must be at least 6 characters long");
+  }
+
+  user.password = newPassword;
+  user.tokenVersion = (user.tokenVersion || 0) + 1;
   await user.save();
 
-  return res.status(200).json(
+  return res.status(status.OK).json(
     response({
       status: "OK",
       statusCode: status.OK,
       type: "user",
-      message: "Password reset successful"
-    }));
+      message: "Password reset successful. Please sign in with your new password."
+    })
+  );
 });
 
 
@@ -413,13 +627,18 @@ const deleteAccountController = catchAsync(async (req, res) => {
 
 
 const changePassword = catchAsync(async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+  const { oldPassword, currentPassword, newPassword, confirmPassword } = req.body;
+  const effectiveOldPassword = oldPassword || currentPassword;
 
-  await changePasswordService(
+  const user = await changePasswordService(
     req.User._id,
-    oldPassword,
-    newPassword
+    effectiveOldPassword,
+    newPassword,
+    confirmPassword
   );
+
+  const token = await tokenGenerator(user);
+  const refreshToken = refreshTokenGenerator(user);
 
   return res.status(status.OK).json(
     response({
@@ -427,29 +646,67 @@ const changePassword = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: "user",
       message: "Password changed successfully",
+      data: {
+        accessToken: token,
+        refreshToken,
+      },
+      accessToken: token,
     })
   );
 });
 
 
 const resendOTP = catchAsync(async (req, res) => {
-  const { email, purpose, phoneNumber } = req.body;
+  let userPayloadFromToken = req.User;
+  if (!userPayloadFromToken) {
+    const rawToken = req.body?.tempToken || req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || req.headers?.token;
+    if (rawToken && rawToken !== "null") {
+      try {
+        userPayloadFromToken = jwt.verify(rawToken, process.env.JWT_ACCESS_TOKEN);
+        req.User = userPayloadFromToken;
+      } catch (err) {}
+    }
+  }
+
+  const email = userPayloadFromToken?.email || req.body.email;
+  const phoneNumber = userPayloadFromToken?.phoneNumber || userPayloadFromToken?.number || req.body.phoneNumber || req.body.number;
+  const purpose = req.body.purpose || (userPayloadFromToken?.purpose || "email-verification");
+
   let user;
   if (email) {
     user = await getUserByEmail(email);
 
-    const fullName = user?.fullName || "User";
+    const fullName = user?.fullName || userPayloadFromToken?.fullName || "User";
     const otpData = await sendOTP(fullName, email, "email", purpose);
-    if (otpData) { return res.status(status.OK).json(response({ status: "OK", statusCode: status.OK, type: "user", message: 'otp resent to  email' })); }
+    if (otpData) {
+      return res.status(status.OK).json(
+        response({
+          status: "OK",
+          statusCode: status.OK,
+          type: "user",
+          message: 'OTP resent to email'
+        })
+      );
+    }
   }
   if (phoneNumber) {
     user = await getUserByPhoneNumber(phoneNumber);
 
-    const fullName = user?.fullName || "User";
+    const fullName = user?.fullName || userPayloadFromToken?.fullName || "User";
     const otpData = await sendOTP(fullName, phoneNumber, "phone", purpose);
-    if (otpData) { return res.status(status.OK).json(response({ status: "OK", statusCode: status.OK, type: "user", message: 'otp resent to phone' })); }
+    if (otpData) {
+      return res.status(status.OK).json(
+        response({
+          status: "OK",
+          statusCode: status.OK,
+          type: "user",
+          message: 'OTP resent to phone'
+        })
+      );
+    }
   }
 
+  throw new ApiError(status.BAD_REQUEST, "Email or phone number is required to resend OTP");
 });
 
 
@@ -515,14 +772,33 @@ const updateProfile = catchAsync(async (req, res) => {
   }
 
   else {
+    const targetUser = result.user || result;
     formattedData = {
-      name: result.user.fullName,
-      email: result.user.email,
-      image: result.user.image,
-      number: result.user.number,
-      countryCode: result.user.countryCode,
-      address: result.user.address,
-      location: result.user.location
+      _id: targetUser._id,
+      name: targetUser.fullName,
+      fullName: targetUser.fullName,
+      email: targetUser.email,
+      image: targetUser.image,
+      phoneNumber: targetUser.phoneNumber || targetUser.number,
+      number: targetUser.number || targetUser.phoneNumber,
+      countryCode: targetUser.countryCode,
+      role: targetUser.role,
+      address: targetUser.address,
+      location: targetUser.location,
+      leagueDivision: targetUser.leagueDivision,
+      currentClub: targetUser.currentClub,
+      parentFullName: targetUser.parentFullName,
+      parentEmail: targetUser.parentEmail,
+      intakeNotes: targetUser.intakeNotes,
+      focusGoals: targetUser.focusGoals,
+      isEmailVerified: targetUser.isEmailVerified,
+      isProfileCompleted: targetUser.isProfileCompleted,
+      tier: targetUser.tier,
+      isTrialActive: targetUser.isTrialActive,
+      trialStartDate: targetUser.trialStartDate,
+      trialEndDate: targetUser.trialEndDate,
+      mentorshipDay: targetUser.mentorshipDay,
+      mentorshipPhase: targetUser.mentorshipPhase,
     };
   }
 
@@ -566,7 +842,6 @@ const userDetailsByID = catchAsync(async (req, res) => {
       number: result.user?.number,
       countryCode: result.user?.countryCode,
       serviceAutoApproved: result.partner?.serviceAutoApproved,
-      // whatsappNumber: result.user.whatsappNumber,
       number: result.user.number,
       countryCode: result.user.countryCode,
       image: result.user.image,
@@ -594,14 +869,33 @@ const userDetailsByID = catchAsync(async (req, res) => {
   }
 
   else {
+    const targetUser = result.user || result;
     formattedData = {
-      name: result.user.fullName,
-      email: result.user.email,
-      image: result.user.image,
-      number: result.user.number,
-      countryCode: result.user.countryCode,
-      address: result.user.address,
-      location: result.user.location
+      _id: targetUser._id,
+      name: targetUser.fullName,
+      fullName: targetUser.fullName,
+      email: targetUser.email,
+      image: targetUser.image,
+      phoneNumber: targetUser.phoneNumber || targetUser.number,
+      number: targetUser.number || targetUser.phoneNumber,
+      countryCode: targetUser.countryCode,
+      role: targetUser.role,
+      address: targetUser.address,
+      location: targetUser.location,
+      leagueDivision: targetUser.leagueDivision,
+      currentClub: targetUser.currentClub,
+      parentFullName: targetUser.parentFullName,
+      parentEmail: targetUser.parentEmail,
+      intakeNotes: targetUser.intakeNotes,
+      focusGoals: targetUser.focusGoals,
+      isEmailVerified: targetUser.isEmailVerified,
+      isProfileCompleted: targetUser.isProfileCompleted,
+      tier: targetUser.tier,
+      isTrialActive: targetUser.isTrialActive,
+      trialStartDate: targetUser.trialStartDate,
+      trialEndDate: targetUser.trialEndDate,
+      mentorshipDay: targetUser.mentorshipDay,
+      mentorshipPhase: targetUser.mentorshipPhase,
     };
   }
 
@@ -623,6 +917,9 @@ module.exports = {
   localAuth,
   signUp,
   otpVerification,
+  verifyEmailOtp,
+  verifyResetOtp,
+  completeProfile,
   forgetPassword,
   resetPassword,
   changePassword,

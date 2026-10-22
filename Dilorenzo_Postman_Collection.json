@@ -816,8 +816,7 @@
           "name": "Auth",
           "item": [
             {
-              "name": "Sign in",
-              "id": "b5c5d636-8f2e-4037-998d-489d7e676b74",
+              "name": "1. Create Account - Step 1 (Figma Node 33768:1965)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -828,7 +827,132 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"email\" : \"nasif@gmail.com\",\r\n    \"password\" : \"hello123\"\r\n}",
+                  "raw": "{\n  \"fullName\": \"Leo Messi\",\n  \"email\": \"leo.messi@example.com\",\n  \"phoneNumber\": \"+1 (555) 019-2834\",\n  \"password\": \"Password123!\",\n  \"confirmPassword\": \"Password123!\",\n  \"role\": \"user\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/sign-up",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "sign-up"
+                  ]
+                },
+                "description": "Step 1 of Onboarding (Figma Node 33768:1965). Submits athlete registration details and dispatches a 6-digit OTP verification code to the registered email. NOTE: The account is NOT created in the database until the OTP is verified in Step 3."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Verify Email OTP - Step 3 (Figma Node 33768:2169)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/verify-email-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "verify-email-otp"
+                  ]
+                },
+                "description": "Verify Email (Figma Node 33768:2169). Verifies the 6-digit OTP code sent to email. Email is automatically resolved from the Bearer token (no email needed in request body). Upon verification, the user account is created in the database and returns full JWT accessToken & refreshToken.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Complete Profile - Step 2 (Figma Node 33768:2056)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"leagueDivision\": \"Regional Stars U18\",\n  \"parentFullName\": \"Jane Doe\",\n  \"parentEmail\": \"jane.doe@example.com\",\n  \"intakeNotes\": \"Strengthen weak left foot and build tactical composure under high-pressure matches.\",\n  \"focusGoals\": \"Develop speed, ball retention, and elite decision-making in the final third.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/complete-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "complete-profile"
+                  ]
+                },
+                "description": "Step 2 of Onboarding (Figma Node 33768:2056). Tell us about your soccer journey to tailor your plan. Submits League/Division, Parent Full Name, Parent Email, and Intake Notes / Focus Goals. Confirms 7-day free trial full access."
+              },
+              "response": []
+            },
+            {
+              "name": "4. Sign In - Welcome Back (Figma Node 33768:2213)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"leo.messi@example.com\",\n  \"password\": \"Password123!\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -846,16 +970,13 @@
                     "auth",
                     "signin"
                   ]
-                }
+                },
+                "description": "Sign In / Welcome Back (Figma Node 33768:2213). Sign in to continue elite soccer training. Returns JWT accessToken, refreshToken, user profile, and active 7-day trial status."
               },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:08:11.000Z",
-              "uid": "48870830-b5c5d636-8f2e-4037-998d-489d7e676b74"
+              "response": []
             },
             {
-              "name": "Verify OTP",
-              "id": "97f54e90-c292-46eb-8ed9-f2a107ea4357",
+              "name": "5. Reset Password Step 1 - Send Code (Figma Node 33768:2270)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -866,7 +987,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"otp\": \"123456\"\n}",
+                  "raw": "{\n  \"email\": \"leo.messi@example.com\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -874,159 +995,221 @@
                   }
                 },
                 "url": {
-                  "raw": ""
-                }
+                  "raw": "{{url}}/api/v1/auth/forget-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "forget-password"
+                  ]
+                },
+                "description": "Reset Password Step 1 of 3 (Figma Node 33768:2270). Enter your registered email address to receive a 6-digit verification code."
               },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-97f54e90-c292-46eb-8ed9-f2a107ea4357"
+              "response": []
             },
             {
-              "name": "my profile",
-              "id": "c1289a21-8fb6-4ee1-82fb-bb667f626654",
+              "name": "6. Reset Password Step 2 - Verify Code (Figma Node 33768:2320)",
               "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/verify-reset-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "verify-reset-otp"
+                  ]
+                },
+                "description": "Reset Password Step 2 of 3 (Figma Node 33768:2320). Verifies the 6-digit reset code sent to email. Email is automatically resolved from the Bearer token from Step 1 (no email needed in body). OTP verification is required to generate the resetToken needed to set a new password in Step 3.",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "7. Reset Password Step 3 - Set New Password (Figma Node 33768:2373)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{resetToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resetToken\": \"{{resetToken}}\",\n  \"newPassword\": \"NewPassword123!\",\n  \"confirmPassword\": \"NewPassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/reset-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "reset-password"
+                  ]
+                },
+                "description": "Reset Password Step 3 of 3 (Figma Node 33768:2373). Create a strong new password for your account using the resetToken from Step 2."
+              },
+              "response": []
+            },
+            {
+              "name": "8. Resend OTP Code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"leo.messi@example.com\",\n  \"purpose\": \"email-verification\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/resend-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "resend-otp"
+                  ]
+                },
+                "description": "Resend 6-digit OTP code to email for either email verification or password reset."
+              },
+              "response": []
+            },
+            {
+              "name": "9. Get My Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-c1289a21-8fb6-4ee1-82fb-bb667f626654"
-            },
-            {
-              "name": "Forget Password",
-              "id": "57908d76-2196-42b5-969c-2356ed31fd6b",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
+                  "raw": "{{url}}/api/v1/auth/my-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "my-profile"
+                  ]
                 },
-                "url": {
-                  "raw": ""
-                }
+                "description": "Retrieve logged-in athlete profile, 7-day trial status, parent details, and mentorship progress."
               },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-57908d76-2196-42b5-969c-2356ed31fd6b"
+              "response": []
             },
             {
-              "name": "resend otp",
-              "id": "aa272af5-0130-4339-860f-872d84537a7b",
+              "name": "10. Change Password",
               "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
                     }
-                  }
+                  ]
                 },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-aa272af5-0130-4339-860f-872d84537a7b"
-            },
-            {
-              "name": "Reset Password",
-              "id": "3ec1a2e9-6e83-46ab-a2db-553cae9dc4cc",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-3ec1a2e9-6e83-46ab-a2db-553cae9dc4cc"
-            },
-            {
-              "name": "Change Password",
-              "id": "05d5ab0d-4aa5-4676-af57-f496a7e3a77a",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"newhello123\",\n  \"confirmPassword\": \"newhello123\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-05d5ab0d-4aa5-4676-af57-f496a7e3a77a"
-            },
-            {
-              "name": "update profile",
-              "id": "b45f2785-026e-40e5-a207-e91ec7c05fb9",
-              "request": {
                 "method": "PATCH",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"CurrentPassword123!\",\n  \"newPassword\": \"NewSecurePassword123!\",\n  \"confirmPassword\": \"NewSecurePassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
                 "url": {
-                  "raw": ""
-                }
+                  "raw": "{{url}}/api/v1/auth/change-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "change-password"
+                  ]
+                },
+                "description": "Change password for an authenticated user. Validates current password, enforces minimum 8 characters, verifies confirmation matching, updates password, increments tokenVersion, and returns fresh accessToken & refreshToken."
               },
-              "response": [],
-              "createdAt": "2026-10-15T06:07:26.000Z",
-              "updatedAt": "2026-10-15T06:07:26.000Z",
-              "uid": "48870830-b45f2785-026e-40e5-a207-e91ec7c05fb9"
+              "response": []
             }
           ],
           "id": "6b269930-cf87-4d7e-b9db-e6879a50428a",

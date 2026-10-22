@@ -136,12 +136,6 @@ app.get(["/homepage", "/home", "/athlete-home", "/user-home"], (req, res) => {
   res.sendFile(path.join(__dirname, "../public/homepage.html"));
 });
 
-// Mentorship Dashboard / MY PROGRAM Page (Figma node 32960:4016)
-// "after clicking 90days mentorship user will see this page"
-app.get(["/my-program", "/mentorship-dashboard", "/program", "/90days-mentorship"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/my-program.html"));
-});
-
 // Personalised Development Plan Page (Figma node 32906:2936)
 app.get(["/my-dev-plan", "/dev-plan", "/athlete/my-dev-plan", "/athlete/dev-plan", "/roadmap"], (req, res) => {
   res.sendFile(path.join(__dirname, "../public/my-dev-plan.html"));

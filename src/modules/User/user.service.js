@@ -1984,9 +1984,15 @@ const toggleProgramTaskService = async (userId, taskId) => {
   }
 
   const Task = require('../Coach/task.model');
-  const task = await Task.findById(taskId);
+  let task = null;
+  if (taskId && mongoose.Types.ObjectId.isValid(taskId)) {
+    task = await Task.findById(taskId);
+  }
+  if (!task && taskId) {
+    task = await Task.findOne({ athlete: athlete?._id, title: taskId });
+  }
   if (!task) {
-    const error = new Error('Task not found.');
+    const error = new Error('Task not found. Please provide a valid taskId or task title.');
     error.statusCode = 404;
     throw error;
   }
