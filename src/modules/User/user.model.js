@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
     image: { type: String, required: false, default: 'user.jpg' },
     role: {
       type: String,
-      enum: ['user', 'athlete', 'parent', 'coach', 'admin'],
+      enum: ['user', 'athlete', 'parent', 'coach', 'admin', 'super_admin', 'sub_admin'],
       default: 'user',
     },
     password: { type: String, required: false },
@@ -128,6 +128,9 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
+
+    // Admin Specific Fields
+    isSuperAdmin: { type: Boolean, default: false },
 
     // Stripe Billing
     stripeCustomerId: { type: String, default: '' },

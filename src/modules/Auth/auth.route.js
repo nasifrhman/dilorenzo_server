@@ -21,14 +21,26 @@ const {
   verifyEmailOtp,
   verifyResetOtp,
   signUp,
-  deleteAccountController
+  deleteAccountController,
+  adminSignIn,
+  adminForgetPassword,
+  adminVerifyOtp,
+  adminResendOtp,
+  adminResetPassword,
+  adminGetProfile,
+  adminUpdateProfile,
+  adminChangePassword,
+  refreshTokenController,
+  adminRefreshTokenController,
 } = require("./auth.controller");
 ensureUploadFolderExists(UPLOADS_FOLDER_USERS);
 
-const ALL_ROLES = ['user', 'athlete', 'parent', 'coach', 'instructor', 'admin'];
+const ALL_ROLES = ['user', 'athlete', 'parent', 'coach', 'instructor', 'admin', 'super_admin', 'sub_admin'];
+const ADMIN_ROLES = ['admin', 'super_admin', 'sub_admin'];
 
 // 1. Sign In (Welcome Back - Figma Node 33768:2213)
 router.post("/signin", localAuth);
+router.post("/refresh-token", refreshTokenController);
 
 // 2. Create Account (Step 1 - Figma Node 33768:1965)
 router.post(
@@ -86,6 +98,38 @@ router.put(
   parseData(),
   updateProfile
 );
+
+// ==========================================
+// ADMIN DASHBOARD AUTHENTICATION ROUTES
+// ==========================================
+router.post("/admin/signin", adminSignIn);
+router.post("/admin/login", adminSignIn);
+router.post("/admin/forget-password", adminForgetPassword);
+router.post("/admin/verify-otp", tokenCheck, adminVerifyOtp);
+router.post("/admin/verify-reset-otp", tokenCheck, adminVerifyOtp);
+router.post("/admin/resend-otp", tokenCheck, adminResendOtp);
+router.post("/admin/reset-password", resetTokenCheck, adminResetPassword);
+router.get("/admin/my-profile", auth(ADMIN_ROLES), adminGetProfile);
+router.get("/admin/profile", auth(ADMIN_ROLES), adminGetProfile);
+router.patch(
+  "/admin/update-profile",
+  uploadUsers.single('image'),
+  convertHeicToPng(UPLOADS_FOLDER_USERS),
+  auth(ADMIN_ROLES),
+  parseData(),
+  adminUpdateProfile
+);
+router.put(
+  "/admin/update-profile",
+  uploadUsers.single('image'),
+  convertHeicToPng(UPLOADS_FOLDER_USERS),
+  auth(ADMIN_ROLES),
+  parseData(),
+  adminUpdateProfile
+);
+router.patch("/admin/change-password", auth(ADMIN_ROLES), adminChangePassword);
+router.post("/admin/change-password", auth(ADMIN_ROLES), adminChangePassword);
+router.post("/admin/refresh-token", adminRefreshTokenController);
 
 module.exports = router;
 

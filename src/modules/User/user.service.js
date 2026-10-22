@@ -1824,11 +1824,9 @@ const getMyProgramService = async (userId) => {
     athlete = await userModel.findById(userId).populate('assignedCoach');
   }
 
-  if (!athlete) {
-    athlete = await userModel.findOne({ email: 'alex.thompson@example.com', isDeleted: false }).populate('assignedCoach');
-    if (!athlete) {
-      athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
-    }
+  // If no userId provided, find first athlete in DB
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
   }
 
   if (!athlete) {
@@ -1837,136 +1835,70 @@ const getMyProgramService = async (userId) => {
     throw error;
   }
 
-  const Task = require('../Coach/task.model');
-
-  // Days and Progress calculations matching Figma node 32960:4016
   const totalDays = 90;
-  // If athlete has a specific mentorshipDay set, use it; otherwise default to Day 23 (Figma spec: 67 days remaining, 26% complete)
-  const currentDay = athlete.mentorshipDay && athlete.mentorshipDay > 1 ? athlete.mentorshipDay : 23;
+  let currentDay = Number(athlete.mentorshipDay) || 1;
+  if (athlete.mentorshipStartDate) {
+    const elapsed = Math.floor((Date.now() - new Date(athlete.mentorshipStartDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    currentDay = Math.min(totalDays, Math.max(1, elapsed));
+  }
   const daysRemaining = Math.max(0, totalDays - currentDay);
   const percentComplete = Math.min(100, Math.round((currentDay / totalDays) * 100));
 
-  let currentPhase = 'Phase 2 of 3 — Development';
-  let phaseNumber = 2;
-  if (currentDay === 23 || athlete.mentorshipPhase === 'development' || athlete.mentorshipPhase === 'acceleration') {
-    currentPhase = 'Phase 2 of 3 — Development';
-    phaseNumber = 2;
-  } else if (athlete.mentorshipPhase === 'mastery' || athlete.mentorshipPhase === 'performance' || currentDay > 60) {
-    currentPhase = 'Phase 3 of 3 — Performance';
-    phaseNumber = 3;
-  } else if (athlete.mentorshipPhase === 'foundation' || currentDay <= 20) {
-    currentPhase = 'Phase 1 of 3 — Foundation';
-    phaseNumber = 1;
-  }
-
-  // Coach Details matching Figma node 32960:4016 ("Coach Rivera" - "Mental Performance Specialist")
-  let coachName = 'Coach Rivera';
-  let coachRole = 'Mental Performance Specialist';
+  // Coach: fetched strictly from athlete.assignedCoach in DB
+  let coach = null;
   if (athlete.assignedCoach) {
-    coachName = athlete.assignedCoach.fullName || coachName;
-    if (athlete.assignedCoach.roleTitle && athlete.assignedCoach.roleTitle.toLowerCase().includes('mental')) {
-      coachRole = athlete.assignedCoach.roleTitle;
-    }
+    coach = {
+      _id: athlete.assignedCoach._id.toString(),
+      name: athlete.assignedCoach.fullName || '',
+      role: athlete.assignedCoach.roleTitle || athlete.assignedCoach.role || 'Coach',
+    };
   }
 
-  // Check or Seed Today's Tasks for this athlete
-  let tasks = await Task.find({
-    athlete: athlete._id,
-    title: { $in: ['Ball Mastery Session', 'Submit Practice Feedback', 'Watch Assigned Video'] }
-  });
-
-  if (!tasks || tasks.length < 3) {
-    // Seed standard tasks matching Figma 32960:4016
-    const standardTasks = [
-      {
-        athlete: athlete._id,
-        coach: athlete.assignedCoach?._id || null,
-        title: 'Ball Mastery Session',
-        category: 'TRAINING',
-        xpReward: 75,
-        status: 'pending',
-      },
-      {
-        athlete: athlete._id,
-        coach: athlete.assignedCoach?._id || null,
-        title: 'Submit Practice Feedback',
-        category: 'ACTION',
-        xpReward: 50,
-        status: 'completed',
-        completedAt: new Date(),
-      },
-      {
-        athlete: athlete._id,
-        coach: athlete.assignedCoach?._id || null,
-        title: 'Watch Assigned Video',
-        category: 'TRAINING',
-        xpReward: 40,
-        status: 'pending',
-      },
-    ];
-
-    await Task.deleteMany({ athlete: athlete._id, title: { $in: standardTasks.map(t => t.title) } });
-    tasks = await Task.insertMany(standardTasks);
-  }
-
-  // Preserve ordering: Ball Mastery Session, Submit Practice Feedback, Watch Assigned Video
-  const orderMap = { 'Ball Mastery Session': 1, 'Submit Practice Feedback': 2, 'Watch Assigned Video': 3 };
-  tasks.sort((a, b) => (orderMap[a.title] || 99) - (orderMap[b.title] || 99));
+  // Today's Tasks: fetched strictly from Task collection in DB
+  const Task = require('../Coach/task.model');
+  const tasks = await Task.find({ athlete: athlete._id }).sort({ createdAt: -1 });
 
   const formattedTasks = tasks.map(t => ({
     _id: t._id.toString(),
     title: t.title,
     category: (t.category || 'TRAINING').toUpperCase(),
-    xp: t.xpReward || 50,
-    xpDisplay: `+${t.xpReward || 50} XP`,
+    xp: t.xpReward || 0,
     isCompleted: t.status === 'completed',
   }));
 
+  // Scheduled Session: fetched strictly from Session collection in DB
+  const Session = require('../Session/session.model');
+  const nextSession = await Session.findOne({
+    athlete: athlete._id,
+    status: { $in: ['scheduled', 'in-progress'] },
+  }).sort({ date: 1 });
+
+  let scheduledSession = null;
+  if (nextSession) {
+    const formattedDate = nextSession.date ? new Date(nextSession.date).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    }) : '';
+
+    scheduledSession = {
+      _id: nextSession._id.toString(),
+      title: nextSession.title || '',
+      datetime: formattedDate && nextSession.startTime ? `${formattedDate} · ${nextSession.startTime}` : (formattedDate || nextSession.startTime || ''),
+      meetingLink: nextSession.meetingLink || '',
+    };
+  }
+
   return {
-    figmaNode: '32960:4016',
-    figmaTitle: 'Mentorship Dashboard (MY PROGRAM - 90-Day Mentorship)',
-    athlete: {
-      _id: athlete._id,
-      fullName: athlete.fullName,
-      avatar: athlete.avatar || 'user.jpg',
-      xp: athlete.xp || 2340,
-      streak: athlete.streak || 5,
-    },
     program: {
-      title: 'MY PROGRAM',
-      subtitle: '90-Day Mentorship',
       daysRemaining,
       totalDays,
       currentDay,
       percentComplete,
-      currentPhase,
-      phaseNumber,
-      totalPhases: 3,
     },
-    coach: {
-      label: 'YOUR COACH',
-      name: coachName,
-      role: coachRole,
-      badgeIcon: '🎯',
-      viewRoute: '/coach-player-detail',
-    },
+    coach,
     todayTasks: formattedTasks,
-    navigationGrid: [
-      { id: 'private-group', icon: '💬', title: 'Private Group', route: '/community' },
-      { id: 'goals-habits', icon: '🎯', title: 'Goals & Habits', route: '/my-dev-plan' },
-      { id: 'action-steps', icon: '📋', title: 'Action Steps', route: '/my-dev-plan' },
-      { id: 'training-program', icon: '🎬', title: 'Training Program', route: '/planner' },
-      { id: 'progress-review', icon: '📊', title: '90-Day Progress', route: '/progress-review' },
-      { id: 'my-coach', icon: '👤', title: 'My Coach', route: '/coach-player-detail' },
-    ],
-    scheduledSession: {
-      id: 'session-4-resilience',
-      icon: '📹',
-      title: 'Session 4 — Resilience',
-      datetime: 'Tue, Aug 19 · 3:00 PM',
-      action: 'Join',
-      joinRoute: '/scheduling',
-    },
+    scheduledSession,
   };
 };
 
@@ -1978,9 +1910,8 @@ const toggleProgramTaskService = async (userId, taskId) => {
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
     athlete = await userModel.findById(userId);
   }
-  if (!athlete) {
-    athlete = await userModel.findOne({ email: 'alex.thompson@example.com', isDeleted: false });
-    if (!athlete) athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
   }
 
   const Task = require('../Coach/task.model');
@@ -2013,8 +1944,564 @@ const toggleProgramTaskService = async (userId, taskId) => {
     title: task.title,
     isCompleted: willComplete,
     xpDelta,
-    currentXp: athlete ? athlete.xp : 2340,
+    currentXp: athlete ? athlete.xp : 0,
     message: willComplete ? `Task completed! +${task.xpReward || 50} XP awarded` : 'Task marked pending',
+  };
+};
+
+/**
+ * My Coach Detail View (Figma nodes 32961:4430, 32963:4767, 32963:5063)
+ * Opened when user clicks "View" on the Coach card in 90-Day Mentorship
+ */
+const getMyCoachService = async (userId, coachId, tab) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId).populate('assignedCoach');
+  }
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
+  }
+
+  // Determine coach document strictly from DB (no dummy fallback)
+  let coachDoc = null;
+  if (coachId && mongoose.Types.ObjectId.isValid(coachId)) {
+    coachDoc = await userModel.findById(coachId);
+  }
+  if (!coachDoc && athlete?.assignedCoach) {
+    coachDoc = athlete.assignedCoach;
+  }
+  if (!coachDoc && !userId) {
+    coachDoc = await userModel.findOne({ role: 'coach', isDeleted: false });
+  }
+
+  // Base coach card (visible in all 3 tabs: About, Sessions, Feedback)
+  const coachHeader = coachDoc ? {
+    _id: coachDoc._id.toString(),
+    name: coachDoc.fullName || '',
+    role: coachDoc.roleTitle || coachDoc.role || '',
+    specialties: Array.isArray(coachDoc.specialties) ? coachDoc.specialties : [],
+    image: coachDoc.image || '',
+  } : null;
+
+  const normalizedTab = (tab || 'all').toLowerCase().trim();
+
+  // 1. Tab: About (Figma node 32961:4430)
+  // Shows coach card + bio. No sessions, no feedback.
+  if (normalizedTab === 'about') {
+    return {
+      coach: coachHeader ? {
+        ...coachHeader,
+        bio: coachDoc.bio || coachDoc.coachingPhilosophy || '',
+      } : null,
+    };
+  }
+
+  // 2. Tab: Sessions (Figma node 32963:4767)
+  // Shows coach card + upcoming/done sessions. No bio, no feedback.
+  if (normalizedTab === 'sessions') {
+    const Session = require('../Session/session.model');
+    const sessionQuery = {
+      ...(athlete && { athlete: athlete._id }),
+      ...(coachDoc && { coach: coachDoc._id }),
+    };
+    const sessions = await Session.find(sessionQuery).sort({ date: -1 });
+
+    const formattedSessions = sessions.map(s => {
+      const formattedDate = s.date ? new Date(s.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }) : '';
+      const isCompleted = s.status === 'completed';
+
+      const item = {
+        _id: s._id.toString(),
+        title: s.title || '',
+        datetime: formattedDate && s.startTime ? `${formattedDate} · ${s.startTime}` : (formattedDate || s.startTime || ''),
+        status: isCompleted ? 'DONE' : 'UPCOMING',
+      };
+
+      if (isCompleted) {
+        if (s.notes) item.notes = s.notes;
+      } else {
+        if (s.meetingLink) item.meetingLink = s.meetingLink;
+      }
+
+      return item;
+    });
+
+    return {
+      coach: coachHeader,
+      sessions: formattedSessions,
+    };
+  }
+
+  // 3. Tab: Feedback (Figma node 32963:5063)
+  // Shows coach card + coach evaluations/feedback. No bio, no sessions.
+  if (normalizedTab === 'feedback') {
+    const CoachFeedback = require('../Coach/coachFeedback.model');
+    const feedbackQuery = {
+      ...(athlete && { athlete: athlete._id }),
+      ...(coachDoc && {
+        $or: [
+          { coach: coachDoc._id },
+          { coach: null },
+          { coach: { $exists: false } }
+        ]
+      }),
+    };
+    const feedbacks = await CoachFeedback.find(feedbackQuery).sort({ date: -1 });
+
+    const formattedFeedback = feedbacks.map(f => ({
+      _id: f._id.toString(),
+      date: f.date ? new Date(f.date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      }) : '',
+      rating: typeof f.rating === 'number' ? f.rating : 5,
+      message: f.message || '',
+      tags: Array.isArray(f.tags) ? f.tags : [],
+    }));
+
+    return {
+      coach: coachHeader,
+      feedback: formattedFeedback,
+    };
+  }
+
+  // Default: Return all 3 sections for all-in-one screen hydration
+  const Session = require('../Session/session.model');
+  const sessionQuery = {
+    ...(athlete && { athlete: athlete._id }),
+    ...(coachDoc && { coach: coachDoc._id }),
+  };
+  const sessions = await Session.find(sessionQuery).sort({ date: -1 });
+  const formattedSessions = sessions.map(s => {
+    const formattedDate = s.date ? new Date(s.date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    }) : '';
+    const isCompleted = s.status === 'completed';
+
+    const item = {
+      _id: s._id.toString(),
+      title: s.title || '',
+      datetime: formattedDate && s.startTime ? `${formattedDate} · ${s.startTime}` : (formattedDate || s.startTime || ''),
+      status: isCompleted ? 'DONE' : 'UPCOMING',
+    };
+
+    if (isCompleted) {
+      if (s.notes) item.notes = s.notes;
+    } else {
+      if (s.meetingLink) item.meetingLink = s.meetingLink;
+    }
+
+    return item;
+  });
+
+  const CoachFeedback = require('../Coach/coachFeedback.model');
+  const feedbackQuery = {
+    ...(athlete && { athlete: athlete._id }),
+    ...(coachDoc && {
+      $or: [
+        { coach: coachDoc._id },
+        { coach: null },
+        { coach: { $exists: false } }
+      ]
+    }),
+  };
+  const feedbacks = await CoachFeedback.find(feedbackQuery).sort({ date: -1 });
+  const formattedFeedback = feedbacks.map(f => ({
+    _id: f._id.toString(),
+    date: f.date ? new Date(f.date).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    }) : '',
+    rating: typeof f.rating === 'number' ? f.rating : 5,
+    message: f.message || '',
+    tags: Array.isArray(f.tags) ? f.tags : [],
+  }));
+
+  return {
+    coach: coachHeader ? {
+      ...coachHeader,
+      bio: coachDoc.bio || coachDoc.coachingPhilosophy || '',
+    } : null,
+    sessions: formattedSessions,
+    feedback: formattedFeedback,
+  };
+};
+
+/**
+ * Goals & Habits Screen (Figma node 32966:6467)
+ * Opened when user clicks on "Goals & Habits" in 90-Day Mentorship overview
+ */
+const getMentorshipGoalsHabitsService = async (userId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId);
+  }
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+  }
+  if (!athlete) {
+    const error = new Error('Athlete profile not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const Task = require('../Coach/task.model');
+  const Habit = require('../Habit/habit.model');
+  const HabitLog = require('../Habit/habitLog.model');
+
+  // 1. Active Goals (devPlan.objectives or calculated from real task/habit completions)
+  let activeGoals = [];
+  if (athlete.devPlan?.objectives && athlete.devPlan.objectives.length > 0) {
+    activeGoals = athlete.devPlan.objectives.map((obj, idx) => ({
+      _id: obj.objectiveId || `goal_${idx + 1}`,
+      title: obj.title,
+      description: obj.description || `Complete your ${obj.category || 'focus'} goals.`,
+      progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
+    }));
+  } else {
+    const [allTasks, allHabitLogs] = await Promise.all([
+      Task.find({ athlete: athlete._id }).lean(),
+      HabitLog.find({ athlete: athlete._id }).lean(),
+    ]);
+
+    const compTasks = allTasks.filter(t => t.status === 'completed');
+    const compHabits = allHabitLogs.filter(h => h.status === 'completed');
+
+    const ballMasteryTasks = allTasks.filter(t => (t.title || '').toLowerCase().includes('ball') || (t.category || '').toLowerCase().includes('technical'));
+    const ballMasteryCompleted = ballMasteryTasks.filter(t => t.status === 'completed').length;
+    const ballMasteryPct = ballMasteryTasks.length > 0 ? Math.round((ballMasteryCompleted / ballMasteryTasks.length) * 100) : (compTasks.length > 0 ? 65 : 0);
+
+    const habitPct = allHabitLogs.length > 0 ? Math.round((compHabits.length / allHabitLogs.length) * 100) : 40;
+
+    activeGoals = [
+      {
+        _id: 'goal_1',
+        title: 'Ball Mastery Session',
+        description: 'Complete your 5-step pre-game routine before every match.',
+        progress: ballMasteryPct,
+      },
+      {
+        _id: 'goal_2',
+        title: 'Consistent Ball Mastery Habit',
+        description: 'Complete ball mastery 5× per week for 8 weeks straight.',
+        progress: habitPct,
+      },
+      {
+        _id: 'goal_3',
+        title: 'Submit All Practice Feedbacks',
+        description: 'Submit action steps for every session assigned by coach.',
+        progress: allTasks.length > 0 ? Math.min(100, Math.round((compTasks.length / allTasks.length) * 100)) : 80,
+      },
+    ];
+  }
+
+  // 2. Daily Goals (today's tasks)
+  const tasks = await Task.find({
+    athlete: athlete._id,
+  }).sort({ createdAt: -1 }).limit(10).lean();
+
+  const dailyGoals = tasks.slice(0, 5).map(t => ({
+    _id: t._id.toString(),
+    title: t.title,
+    category: (t.category || 'training').toLowerCase(),
+    xp: t.xpReward || 50,
+    isCompleted: t.status === 'completed',
+  }));
+
+  // 3. Weekly Habits
+  const habits = await Habit.find({
+    $or: [
+      { assignedAthletes: athlete._id },
+      { isActive: true },
+    ],
+  }).limit(5).lean();
+
+  const weeklyHabits = habits.map(h => ({
+    _id: h._id.toString(),
+    title: h.title,
+    frequency: h.frequency || 'Weekly · By Sunday',
+    xp: h.xpReward || 40,
+    isCompleted: Boolean(h.completionRate >= 100),
+  }));
+
+  // 4. Weekly Streak & Tracker Days
+  const streak = athlete.streak || 0;
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayOffset);
+  monday.setHours(0, 0, 0, 0);
+
+  const weekLogs = await HabitLog.find({
+    athlete: athlete._id,
+    date: { $gte: monday },
+    status: 'completed',
+  }).lean();
+
+  const dayLetters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weeklyDays = dayLetters.map((d, idx) => {
+    const dayDate = new Date(monday);
+    dayDate.setDate(monday.getDate() + idx);
+    const dayEnd = new Date(dayDate);
+    dayEnd.setHours(23, 59, 59, 999);
+
+    const hasLog = weekLogs.some(l => {
+      const logDate = new Date(l.date);
+      return logDate >= dayDate && logDate <= dayEnd;
+    });
+
+    return {
+      day: d,
+      completed: hasLog || (streak > idx && idx <= (dayOfWeek === 0 ? 6 : dayOfWeek - 1)),
+    };
+  });
+
+  return {
+    activeGoals,
+    dailyGoals,
+    weeklyHabits,
+    tracker: {
+      streak,
+      weeklyDays,
+    },
+  };
+};
+
+/**
+ * Training Program Screen (Figma node 32973:7799)
+ * Opened when user clicks on "Training Program" in 90-Day Mentorship overview
+ */
+const getMentorshipTrainingProgramService = async (userId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId).populate('assignedCoach');
+  }
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
+  }
+  if (!athlete) {
+    const error = new Error('Athlete profile not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const coachName = athlete.assignedCoach?.fullName || 'Coach Rivera';
+
+  const TrainingAssignment = require('../Coach/trainingAssignment.model');
+  let assignments = await TrainingAssignment.find({ athlete: athlete._id }).sort({ week: 1, createdAt: 1 }).lean();
+
+  if (assignments.length === 0) {
+    assignments = await TrainingAssignment.find({}).sort({ week: 1, createdAt: 1 }).limit(10).lean();
+  }
+
+  const totalCount = assignments.length;
+  const completedCount = assignments.filter(a => a.status === 'completed').length;
+  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const weeksMap = {};
+  assignments.forEach(a => {
+    const wNum = a.week || 1;
+    if (!weeksMap[wNum]) {
+      weeksMap[wNum] = {
+        weekNumber: wNum,
+        weekLabel: `Week ${wNum}`,
+        drills: [],
+      };
+    }
+    weeksMap[wNum].drills.push({
+      _id: a._id.toString(),
+      title: a.title,
+      category: a.category || 'Technical',
+      duration: a.duration || '15 min',
+      xp: a.xpReward || 70,
+      isCompleted: a.status === 'completed',
+      videoUrl: a.videoUrl || '',
+    });
+  });
+
+  const weeks = Object.values(weeksMap);
+
+  return {
+    coachName,
+    summary: {
+      completedCount,
+      totalCount,
+      percent,
+      text: `${completedCount} of ${totalCount} completed`,
+    },
+    weeks,
+  };
+};
+
+/**
+ * Mark a training drill complete (Figma node 32973:7799 "Mark Complete" action)
+ */
+const completeMentorshipTrainingDrillService = async (userId, drillId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId);
+  }
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+  }
+
+  const TrainingAssignment = require('../Coach/trainingAssignment.model');
+  let assignment = null;
+  if (drillId && mongoose.Types.ObjectId.isValid(drillId)) {
+    assignment = await TrainingAssignment.findById(drillId);
+  }
+  if (!assignment) {
+    const error = new Error('Training drill assignment not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const willComplete = assignment.status !== 'completed';
+  assignment.status = willComplete ? 'completed' : 'assigned';
+  assignment.completedAt = willComplete ? new Date() : null;
+  await assignment.save();
+
+  const xpReward = 70;
+  if (athlete) {
+    const xpDelta = willComplete ? xpReward : -xpReward;
+    athlete.xp = Math.max(0, (athlete.xp || 0) + xpDelta);
+    await athlete.save();
+  }
+
+  return {
+    drillId: assignment._id.toString(),
+    title: assignment.title,
+    isCompleted: willComplete,
+    xpDelta: willComplete ? xpReward : -xpReward,
+    currentXp: athlete ? athlete.xp : 0,
+    message: willComplete ? `Drill completed! +${xpReward} XP awarded` : 'Drill marked pending',
+  };
+};
+
+/**
+ * 90-Day Progress Screen (Figma node 32975:8114)
+ * Opened when user clicks on "90-Day Progress" in 90-Day Mentorship overview
+ */
+const getMentorshipProgressService = async (userId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId);
+  }
+  if (!athlete && !userId) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+  }
+  if (!athlete) {
+    const error = new Error('Athlete profile not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const startDate = athlete.mentorshipStartDate ? new Date(athlete.mentorshipStartDate) : new Date();
+  const endDate = athlete.mentorshipEndDate ? new Date(athlete.mentorshipEndDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+  const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const dateRange = `${formatDate(startDate)} → ${formatDate(endDate)}`;
+
+  const totalDays = 90;
+  let currentDay = Number(athlete.mentorshipDay) || 1;
+  if (athlete.mentorshipStartDate) {
+    const diffTime = Math.max(0, Date.now() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    currentDay = Math.min(totalDays, Math.max(1, diffDays));
+  }
+  const daysRemaining = Math.max(0, totalDays - currentDay);
+  const percentComplete = Math.min(100, Math.round((currentDay / totalDays) * 100));
+
+  let currentPhase = 'Phase 1: Foundation';
+  if (currentDay > 60 || athlete.mentorshipPhase === 'mastery') {
+    currentPhase = 'Phase 3: Performance';
+  } else if (currentDay > 30 || athlete.mentorshipPhase === 'acceleration') {
+    currentPhase = 'Phase 2: Development';
+  }
+
+  const Session = require('../Session/session.model');
+  const ActionStep = require('../ActionStep/actionStep.model');
+  const HabitLog = require('../Habit/habitLog.model');
+
+  const [sessionsCount, submissionsCount, habitsDoneCount] = await Promise.all([
+    Session.countDocuments({ athlete: athlete._id }),
+    ActionStep.countDocuments({ athlete: athlete._id }),
+    HabitLog.countDocuments({ athlete: athlete._id, status: 'completed' }),
+  ]);
+
+  const phases = [
+    {
+      phaseNumber: 1,
+      title: 'Phase 1: Foundation',
+      days: 'Days 1–30',
+      status: currentDay <= 30 ? 'CURRENT' : 'COMPLETED',
+      progress: Math.min(100, Math.round((Math.min(30, currentDay) / 30) * 100)),
+    },
+    {
+      phaseNumber: 2,
+      title: 'Phase 2: Development',
+      days: 'Days 31–60',
+      status: currentDay > 30 && currentDay <= 60 ? 'CURRENT' : (currentDay > 60 ? 'COMPLETED' : 'UPCOMING'),
+      progress: currentDay <= 30 ? 0 : Math.min(100, Math.round((Math.min(30, currentDay - 30) / 30) * 100)),
+    },
+    {
+      phaseNumber: 3,
+      title: 'Phase 3: Performance',
+      days: 'Days 61–90',
+      status: currentDay > 60 ? 'CURRENT' : 'UPCOMING',
+      progress: currentDay <= 60 ? 0 : Math.min(100, Math.round(((currentDay - 60) / 30) * 100)),
+    },
+  ];
+
+  const milestones = [
+    {
+      title: 'First coaching session completed',
+      day: 'Day 7',
+      isCompleted: sessionsCount > 0 || currentDay >= 7,
+    },
+    {
+      title: 'Foundation habits established',
+      day: 'Day 14',
+      isCompleted: habitsDoneCount >= 7 || currentDay >= 14,
+    },
+    {
+      title: 'Pre-game routine locked in',
+      day: 'Day 30',
+      isCompleted: currentDay >= 30,
+    },
+    {
+      title: 'Development phase review',
+      day: 'Day 60',
+      isCompleted: currentDay >= 60,
+    },
+    {
+      title: 'Final 90-day review',
+      day: 'Day 90',
+      isCompleted: currentDay >= 90,
+    },
+  ];
+
+  return {
+    dateRange,
+    program: {
+      currentDay,
+      totalDays,
+      daysRemaining,
+      percentComplete,
+      currentPhase,
+    },
+    stats: {
+      sessions: sessionsCount,
+      submissions: submissionsCount,
+      habitsDone: habitsDoneCount,
+    },
+    phases,
+    milestones,
   };
 };
 
@@ -2053,4 +2540,9 @@ module.exports = {
   reset90DaysProgramService,
   getMyProgramService,
   toggleProgramTaskService,
+  getMyCoachService,
+  getMentorshipGoalsHabitsService,
+  getMentorshipTrainingProgramService,
+  completeMentorshipTrainingDrillService,
+  getMentorshipProgressService,
 };

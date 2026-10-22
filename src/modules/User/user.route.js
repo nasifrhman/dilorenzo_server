@@ -32,15 +32,50 @@ const {
   reset90DaysProgramController,
   getMyProgramController,
   toggleProgramTaskController,
+  getMyCoachController,
+  getMentorshipGoalsHabitsController,
+  getMentorshipTrainingProgramController,
+  completeMentorshipTrainingDrillController,
+  getMentorshipProgressController,
 } = require("./user.controller");
 
-// Mentorship Dashboard / MY PROGRAM Screen (Figma node 32960:4016)
+// Mentorship Dashboard / 90-Day Mentorship Overview Screen (Figma node 32960:4016)
 // "after clicking 90days mentorship user will see this page"
+router.get("/mentorship/overview", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
+router.get("/my-program/overview", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
+router.get("/90days-mentorship/overview", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
 router.get("/my-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
 router.get("/program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
 router.get("/mentorship-dashboard", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
 router.post("/my-program/toggle-task", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
 router.post("/my-program/task/:taskId/toggle", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
+
+// Goals & Habits Screen (Figma node 32966:6467)
+// "when user click on goal habit"
+router.get("/mentorship/goals-habits", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipGoalsHabitsController);
+router.get("/my-program/goals-habits", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipGoalsHabitsController);
+router.get("/goals-habits", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipGoalsHabitsController);
+
+// Training Program Screen (Figma node 32973:7799)
+// "when click on training program"
+router.get("/mentorship/training-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipTrainingProgramController);
+router.get("/my-program/training-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipTrainingProgramController);
+router.get("/training-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipTrainingProgramController);
+router.post("/mentorship/training-program/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
+router.post("/my-program/training-program/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
+
+// 90-Day Progress Screen (Figma node 32975:8114)
+// "when click 90days progress"
+router.get("/mentorship/90days-progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
+router.get("/my-program/90days-progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
+router.get("/mentorship/progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
+
+// My Coach Screen (Figma nodes 32961:4430, 32963:4767, 32963:5063)
+// "when user click on coach view"
+router.get("/my-coach", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyCoachController);
+router.get("/my-coach/:coachId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyCoachController);
+router.get("/coach/detail", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyCoachController);
+router.get("/coach/detail/:coachId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyCoachController);
 
 // Homepage Screen (Figma node 32801:5982 & 32959:3560)
 router.get("/homepage", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserHomepageController);

@@ -5,13 +5,23 @@ const seedAdmin = async () => {
   try {
     const user = await User.findOne({ email: process.env.ADMIN_EMAIL });
     if (user) {
+      if (!user.isSuperAdmin) {
+        user.isSuperAdmin = true;
+        user.isEmailVerified = true;
+        user.isProfileCompleted = true;
+        await user.save();
+      }
       return;
     }
     await User.create({
-      fullName: "Admin",
+      fullName: "Di Lorenzo Admin",
       email: process.env.ADMIN_EMAIL,
       password: process.env.ADMIN_PASSWORD,
-      role: "admin"
+      role: "admin",
+      isSuperAdmin: true,
+      isEmailVerified: true,
+      isProfileCompleted: true,
+      roleTitle: "Head of Operations & Academy Director"
     });
 
     console.log("✅ Super Admin created successfully.");

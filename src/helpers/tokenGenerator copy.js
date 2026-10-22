@@ -13,9 +13,8 @@ const tokenGenerator = async (user, admin) => {
     tokenVersion: user.tokenVersion
   }
   if (admin && admin !== null && admin !== 'null') {
-    payload.categoryPermissions = admin.categoryPermissions,
-    payload.isSupperAdmin = admin.isSupperAdmin,
-    payload.parent = admin.parent
+    payload.isSupperAdmin = admin.isSupperAdmin;
+    payload.parent = admin.parent;
   }
   // console.log("payload", payload);
   return await jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, {

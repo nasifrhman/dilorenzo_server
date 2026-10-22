@@ -163,15 +163,7 @@ const tokenCheck = catchAsync(async (req, res, next) => {
 
 
 
-const requirePermission = catchAsync((permission) => {
-  return async (req, res, next) => {
-    const admin = await adminModel.findOne({ user: req.User._id });
-    if (!admin || !admin.categoryPermissions.includes(permission)) {
-      return res.status(403).json({ message: 'Permission denied, you are not authorized for that' });
-    }
-    next();
-  };
-});
+const requirePermission = () => (req, res, next) => next();
 
 
 

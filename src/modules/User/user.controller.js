@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService, getMyCoachService, getMentorshipGoalsHabitsService, getMentorshipTrainingProgramService, completeMentorshipTrainingDrillService, getMentorshipProgressService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -574,6 +574,96 @@ const toggleProgramTaskController = catchAsync(async (req, res) => {
   );
 });
 
+/**
+ * My Coach Detail View (Figma nodes 32961:4430, 32963:4767, 32963:5063)
+ * Opened when user clicks "View" on coach card in 90-Day Mentorship
+ */
+const getMyCoachController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const coachId = req.params?.coachId || req.query?.coachId;
+  const tab = req.query?.tab;
+
+  const result = await getMyCoachService(userId, coachId, tab);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MyCoach',
+      message: 'Coach details retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Goals & Habits Screen (Figma node 32966:6467)
+ */
+const getMentorshipGoalsHabitsController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const result = await getMentorshipGoalsHabitsService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipGoalsHabits',
+      message: 'Goals and habits data retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Training Program Screen (Figma node 32973:7799)
+ */
+const getMentorshipTrainingProgramController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const result = await getMentorshipTrainingProgramService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipTrainingProgram',
+      message: 'Training program data retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Complete Training Drill Action (Figma node 32973:7799)
+ */
+const completeMentorshipTrainingDrillController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const drillId = req.params?.drillId || req.params?.id || req.body?.drillId;
+  const result = await completeMentorshipTrainingDrillService(userId, drillId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipDrill',
+      message: result.message || 'Drill updated successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * 90-Day Progress Screen (Figma node 32975:8114)
+ */
+const getMentorshipProgressController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const result = await getMentorshipProgressService(userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipProgress',
+      message: '90-Day progress data retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   suspendUserController,
   fcmTokenController,
@@ -610,4 +700,9 @@ module.exports = {
   reset90DaysProgramController,
   getMyProgramController,
   toggleProgramTaskController,
+  getMyCoachController,
+  getMentorshipGoalsHabitsController,
+  getMentorshipTrainingProgramController,
+  completeMentorshipTrainingDrillController,
+  getMentorshipProgressController,
 };

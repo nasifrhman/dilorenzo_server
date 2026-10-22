@@ -13,13 +13,12 @@ const tokenGenerator = async (user, admin) => {
     tokenVersion: user.tokenVersion
   }
   if (admin && admin !== null && admin !== 'null') {
-    payload.categoryPermissions = admin.categoryPermissions,
-    payload.isSupperAdmin = admin.isSupperAdmin,
-    payload.parent = admin.parent
+    payload.isSupperAdmin = admin.isSupperAdmin;
+    payload.parent = admin.parent;
   }
   // console.log("payload", payload);
   return await jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, {
-    expiresIn: '1y',
+    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
   });
 }
 
@@ -28,11 +27,12 @@ const refreshTokenGenerator = (user) => {
   return jwt.sign(
     {
       _id: user._id,
-      tokenVersion: user.tokenVersion
+      role: user.role,
+      tokenVersion: user.tokenVersion || 0
     },
     process.env.JWT_REFRESH_TOKEN,
     {
-      expiresIn: '7d'
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d'
     }
   );
 };

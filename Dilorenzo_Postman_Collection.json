@@ -390,7 +390,7 @@
           "name": "My Program (90-Day Mentorship)",
           "item": [
             {
-              "name": "Get My Program Dashboard (Figma Node 32960:4016)",
+              "name": "90-Day Mentorship Overview",
               "request": {
                 "auth": {
                   "type": "bearer",
@@ -405,7 +405,7 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{url}}/api/v1/user/my-program",
+                  "raw": "{{url}}/api/v1/user/mentorship/overview",
                   "host": [
                     "{{url}}"
                   ],
@@ -413,15 +413,30 @@
                     "api",
                     "v1",
                     "user",
-                    "my-program"
+                    "mentorship",
+                    "overview"
                   ]
                 },
-                "description": "Mentorship Dashboard / MY PROGRAM Screen (Figma node 32960:4016). User sees this page after clicking 90-Day Mentorship on homepage. Returns 90-day countdown progress (67 days remaining, Day 23, 26% complete, Phase 2 of 3 — Development), assigned coach Rivera card with 'View' action, today's tasks list with XP badges, 6-grid navigation tiles (Private Group, Goals & Habits, Action Steps, Training Program, 90-Day Progress, My Coach), and upcoming scheduled video session (Session 4 — Resilience)."
+                "description": "90-Day Mentorship Overview page (Figma node 32960:4016). Returns clean dynamic metrics: daysRemaining, totalDays, currentDay, percentComplete, currentPhase, coach, todayTasks, and scheduledSession. All static navigation tiles are omitted."
               },
-              "response": []
+              "response": [
+                {
+                  "name": "200 OK - 90-Day Mentorship Overview (Real DB Data)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"My Program dashboard data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipDashboard\",\n    \"attributes\": {\n      \"program\": {\n        \"daysRemaining\": 78,\n        \"totalDays\": 90,\n        \"currentDay\": 12,\n        \"percentComplete\": 13\n      },\n      \"coach\": {\n        \"_id\": \"6acb088d1585cdc26ae1d8b9\",\n        \"name\": \"Coach Rivera\",\n        \"role\": \"High-Performance Mindset Coach\"\n      },\n      \"todayTasks\": [\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb1\",\n          \"title\": \"Resilience Journal Entry\",\n          \"category\": \"RESILIENCE\",\n          \"xp\": 100,\n          \"isCompleted\": false\n        },\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb0\",\n          \"title\": \"Pre-Match Breathing Log\",\n          \"category\": \"MINDSET\",\n          \"xp\": 80,\n          \"isCompleted\": true\n        }\n      ],\n      \"scheduledSession\": {\n        \"_id\": \"6acb7aa9308653c9792b15d9\",\n        \"title\": \"Week 4 Match Mentality Audit\",\n        \"datetime\": \"Sun, Oct 11 · 4:10 AM\",\n        \"meetingLink\": \"\"\n      }\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             },
             {
-              "name": "Toggle Today Task Complete (Figma Node 32960:4016)",
+              "name": "3. Toggle Today Task Complete (Figma Node 32960:4016)",
               "request": {
                 "auth": {
                   "type": "bearer",
@@ -461,6 +476,273 @@
                 "description": "Toggle task completion on the My Program / Mentorship Dashboard screen (Figma node 32960:4016). Awards XP on completion, updates strike-through formatting and progress."
               },
               "response": []
+            },
+            {
+              "name": "Get My Coach Details (Figma Nodes 32961:4430, 32963:4767, 32963:5063)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/my-coach?tab=about",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "my-coach"
+                  ],
+                  "query": [
+                    {
+                      "key": "tab",
+                      "value": "about",
+                      "description": "Select tab view: about (Figma Node 32961:4430), sessions (Figma Node 32963:4767), or feedback (Figma Node 32963:5063). Omit to get all 3 tabs.",
+                      "enabled": true
+                    },
+                    {
+                      "key": "coachId",
+                      "value": "{{coachId}}",
+                      "description": "Optional coach ID. Defaults to the athlete's assigned coach from MongoDB.",
+                      "enabled": false
+                    }
+                  ]
+                },
+                "description": "Single API endpoint for all 3 Coach View pages with 3 separate tab queries (zero unnecessary fields, zero dummy data):\n- ?tab=about (Figma node 32961:4430): Coach card + bio\n- ?tab=sessions (Figma node 32963:4767): Coach card + upcoming & completed sessions with meetingLink/notes\n- ?tab=feedback (Figma node 32963:5063): Coach card + coach evaluations with ratings, quotes & tags\n- (omitted / ?tab=all): Full data for complete screen hydration."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Tab 1: About (Figma Node 32961:4430)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Coach details retrieved successfully\",\n  \"data\": {\n    \"type\": \"MyCoach\",\n    \"attributes\": {\n      \"coach\": {\n        \"_id\": \"6acb088d1585cdc26ae1d8b9\",\n        \"name\": \"Coach Rivera\",\n        \"role\": \"High-Performance Mindset Coach\",\n        \"specialties\": [\n          \"Pre-Game Routines\",\n          \"Composure Under Pressure\"\n        ],\n        \"image\": \"user.jpg\",\n        \"bio\": \"10+ years specializing in mental fortitude, cognitive reaction speed, and pre-match composure for elite European youth academy players.\"\n      }\n    }\n  },\n  \"errors\": []\n}"
+                },
+                {
+                  "name": "200 OK - Tab 2: Sessions (Figma Node 32963:4767)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Coach details retrieved successfully\",\n  \"data\": {\n    \"type\": \"MyCoach\",\n    \"attributes\": {\n      \"coach\": {\n        \"_id\": \"6acb088d1585cdc26ae1d8b9\",\n        \"name\": \"Coach Rivera\",\n        \"role\": \"High-Performance Mindset Coach\",\n        \"specialties\": [\n          \"Pre-Game Routines\",\n          \"Composure Under Pressure\"\n        ],\n        \"image\": \"user.jpg\"\n      },\n      \"sessions\": [\n        {\n          \"_id\": \"6accc19c956a6790e64b5f87\",\n          \"title\": \"Resilience & Composure\",\n          \"datetime\": \"Oct 12 · 3:00 PM\",\n          \"status\": \"UPCOMING\",\n          \"meetingLink\": \"https://meet.google.com/dsm-coach-room\"\n        },\n        {\n          \"_id\": \"6accc19c956a6790e64b5f8d\",\n          \"title\": \"Focus & Flow\",\n          \"datetime\": \"Aug 5 · 2:30 PM\",\n          \"status\": \"DONE\",\n          \"notes\": \"Reviewed first touch in crowded midfields. Alex showed notable improvement in scanning before receiving.\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                },
+                {
+                  "name": "200 OK - Tab 3: Feedback (Figma Node 32963:5063)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Coach details retrieved successfully\",\n  \"data\": {\n    \"type\": \"MyCoach\",\n    \"attributes\": {\n      \"coach\": {\n        \"_id\": \"6acb088d1585cdc26ae1d8b9\",\n        \"name\": \"Coach Rivera\",\n        \"role\": \"High-Performance Mindset Coach\",\n        \"specialties\": [\n          \"Pre-Game Routines\",\n          \"Composure Under Pressure\"\n        ],\n        \"image\": \"user.jpg\"\n      },\n      \"feedback\": [\n        {\n          \"_id\": \"6acc80dda1df2a2ed315c232\",\n          \"date\": \"Aug 5\",\n          \"rating\": 4,\n          \"message\": \"Outstanding mental composure. Your pre-game breathing is visibly paying off — you stayed composed in tight moments during Wednesday session.\",\n          \"tags\": [\n            \"Focus\",\n            \"Composure\"\n          ]\n        },\n        {\n          \"_id\": \"6acc80dda1df2a2ed315c233\",\n          \"date\": \"Jul 22\",\n          \"rating\": 5,\n          \"message\": \"Good progress on the routine. Remember to run it on non-match days too — consistency builds automaticity.\",\n          \"tags\": [\n            \"Routine\",\n            \"Consistency\"\n          ]\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Goals & Habits (Figma Node 32966:6467)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/mentorship/goals-habits",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "mentorship",
+                    "goals-habits"
+                  ]
+                },
+                "description": "Goals & Habits screen (Figma Node 32966:6467). Opened when clicking Goal Habit on the 90-Day Mentorship overview. Returns Active Goals (with progress percentages), Daily Goals (today tasks with category & XP), Weekly Habits (recurrence & completion), and 7-Day Weekly Streak Tracker (Monday-Sunday)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Goals & Habits Screen",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Goals and habits data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipGoalsHabits\",\n    \"attributes\": {\n      \"activeGoals\": [\n        {\n          \"_id\": \"goal_1\",\n          \"title\": \"Ball Mastery Session\",\n          \"description\": \"Complete your 5-step pre-game routine before every match.\",\n          \"progress\": 65\n        },\n        {\n          \"_id\": \"goal_2\",\n          \"title\": \"Consistent Ball Mastery Habit\",\n          \"description\": \"Complete ball mastery 5× per week for 8 weeks straight.\",\n          \"progress\": 40\n        },\n        {\n          \"_id\": \"goal_3\",\n          \"title\": \"Submit All Practice Feedbacks\",\n          \"description\": \"Submit action steps for every session assigned by coach.\",\n          \"progress\": 80\n        }\n      ],\n      \"dailyGoals\": [\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb1\",\n          \"title\": \"Resilience Journal Entry\",\n          \"category\": \"resilience\",\n          \"xp\": 75,\n          \"isCompleted\": false\n        },\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb0\",\n          \"title\": \"Pre-Match Breathing Log\",\n          \"category\": \"mindset\",\n          \"xp\": 50,\n          \"isCompleted\": true\n        }\n      ],\n      \"weeklyHabits\": [\n        {\n          \"_id\": \"6acda079ff946c3c9b7745cb\",\n          \"title\": \"Watch Assigned Training Video\",\n          \"frequency\": \"Weekly · By Sunday\",\n          \"xp\": 40,\n          \"isCompleted\": false\n        }\n      ],\n      \"tracker\": {\n        \"streak\": 5,\n        \"weeklyDays\": [\n          {\n            \"day\": \"M\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"W\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"F\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          }\n        ]\n      }\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Training Program (Figma Node 32973:7799)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/mentorship/training-program",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "mentorship",
+                    "training-program"
+                  ]
+                },
+                "description": "Training Program screen (Figma Node 32973:7799). Opened when clicking Training Program on the 90-Day Mentorship overview. Returns personalized coach summary (completed count, total count, percent), and curriculum drills grouped by Week (titles, category, duration, XP, completed state, video link)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Training Program Screen",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Training program data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipTrainingProgram\",\n    \"attributes\": {\n      \"coachName\": \"Coach Rivera\",\n      \"summary\": {\n        \"completedCount\": 3,\n        \"totalCount\": 5,\n        \"percent\": 60,\n        \"text\": \"3 of 5 completed\"\n      },\n      \"weeks\": [\n        {\n          \"weekNumber\": 1,\n          \"weekLabel\": \"Week 1\",\n          \"drills\": [\n            {\n              \"_id\": \"6acda8d4587717ac62d6052d\",\n              \"title\": \"Elite Pre-Game Mental Activation\",\n              \"category\": \"Mental Prep\",\n              \"duration\": \"14 min\",\n              \"xp\": 60,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            },\n            {\n              \"_id\": \"6acda8d4587717ac62d6052e\",\n              \"title\": \"Ball Mastery Phase 1 — Foundation\",\n              \"category\": \"Technical\",\n              \"duration\": \"18 min\",\n              \"xp\": 70,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            }\n          ]\n        },\n        {\n          \"weekNumber\": 2,\n          \"weekLabel\": \"Week 2\",\n          \"drills\": [\n            {\n              \"_id\": \"6acda8d4587717ac62d6052f\",\n              \"title\": \"Ball Mastery Phase 1 — Foundation\",\n              \"category\": \"Technical\",\n              \"duration\": \"18 min\",\n              \"xp\": 70,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            },\n            {\n              \"_id\": \"6acda8d4587717ac62d60533\",\n              \"title\": \"Pressure Inoculation Drills\",\n              \"category\": \"Mental Training\",\n              \"duration\": \"22 min\",\n              \"xp\": 80,\n              \"isCompleted\": false,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Mark Training Drill Complete (Figma Node 32973:7799)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"drillId\": \"6acda8d4587717ac62d60533\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/mentorship/training-program/6acda8d4587717ac62d60533/complete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "mentorship",
+                    "training-program",
+                    "6acda8d4587717ac62d60533",
+                    "complete"
+                  ]
+                },
+                "description": "Triggered when clicking Mark Complete on a drill card in the Training Program (Figma Node 32973:7799). Toggles drill status and awards/updates XP."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 90-Day Progress Overview (Figma Node 32975:8114)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/mentorship/90days-progress",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "mentorship",
+                    "90days-progress"
+                  ]
+                },
+                "description": "90-Day Progress Overview screen (Figma Node 32975:8114). Opened when clicking 90-Day Progress on the 90-Day Mentorship overview. Returns date range, program metrics (current day, total days, days remaining, percent complete, current phase), 3 stat cards (sessions, submissions, habits done), program phases with progress bar, and 5 program milestones."
+              },
+              "response": [
+                {
+                  "name": "200 OK - 90-Day Progress Screen",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"90-Day progress data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipProgress\",\n    \"attributes\": {\n      \"dateRange\": \"Jul 8, 2026 → Oct 5, 2026\",\n      \"program\": {\n        \"currentDay\": 23,\n        \"totalDays\": 90,\n        \"daysRemaining\": 67,\n        \"percentComplete\": 26,\n        \"currentPhase\": \"Phase 1: Foundation\"\n      },\n      \"stats\": {\n        \"sessions\": 4,\n        \"submissions\": 12,\n        \"habitsDone\": 23\n      },\n      \"phases\": [\n        {\n          \"phaseNumber\": 1,\n          \"title\": \"Phase 1: Foundation\",\n          \"days\": \"Days 1–30\",\n          \"status\": \"CURRENT\",\n          \"progress\": 77\n        },\n        {\n          \"phaseNumber\": 2,\n          \"title\": \"Phase 2: Development\",\n          \"days\": \"Days 31–60\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        },\n        {\n          \"phaseNumber\": 3,\n          \"title\": \"Phase 3: Performance\",\n          \"days\": \"Days 61–90\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        }\n      ],\n      \"milestones\": [\n        {\n          \"title\": \"First coaching session completed\",\n          \"day\": \"Day 7\",\n          \"isCompleted\": true\n        },\n        {\n          \"title\": \"Foundation habits established\",\n          \"day\": \"Day 14\",\n          \"isCompleted\": true\n        },\n        {\n          \"title\": \"Pre-game routine locked in\",\n          \"day\": \"Day 30\",\n          \"isCompleted\": false\n        },\n        {\n          \"title\": \"Development phase review\",\n          \"day\": \"Day 60\",\n          \"isCompleted\": false\n        },\n        {\n          \"title\": \"Final 90-day review\",\n          \"day\": \"Day 90\",\n          \"isCompleted\": false\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             }
           ]
         },
@@ -893,7 +1175,29 @@
                   ]
                 }
               },
-              "response": []
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
             },
             {
               "name": "3. Complete Profile - Step 2 (Figma Node 33768:2056)",
@@ -973,7 +1277,29 @@
                 },
                 "description": "Sign In / Welcome Back (Figma Node 33768:2213). Sign in to continue elite soccer training. Returns JWT accessToken, refreshToken, user profile, and active 7-day trial status."
               },
-              "response": []
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
             },
             {
               "name": "5. Reset Password Step 1 - Send Code (Figma Node 33768:2270)",
@@ -1041,7 +1367,7 @@
                     "verify-reset-otp"
                   ]
                 },
-                "description": "Reset Password Step 2 of 3 (Figma Node 33768:2320). Verifies the 6-digit reset code sent to email. Email is automatically resolved from the Bearer token from Step 1 (no email needed in body). OTP verification is required to generate the resetToken needed to set a new password in Step 3.",
+                "description": "Reset Password Step 2 of 3 (Figma Node 33768:2320). Verifies the 6-digit reset code sent to email. Email is automatically resolved from the Bearer token from Step 1 (no email needed in body). OTP verification is required to generate the resetToken needed to set a new password in Step 3. (Email is safely extracted directly from the Bearer token, so only otp is required in the body).",
                 "auth": {
                   "type": "bearer",
                   "bearer": [
@@ -1207,7 +1533,478 @@
                     "change-password"
                   ]
                 },
-                "description": "Change password for an authenticated user. Validates current password, enforces minimum 8 characters, verifies confirmation matching, updates password, increments tokenVersion, and returns fresh accessToken & refreshToken."
+                "description": "Change password for an authenticated user. Validates current password and returns fresh accessToken."
+              },
+              "response": []
+            },
+            {
+              "name": "11. Refresh Access Token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/refresh-token",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "refresh-token"
+                  ]
+                },
+                "description": "Silent auto-refresh endpoint. Exchanges a valid 30-day refreshToken for a brand new 15-minute accessToken (and fresh refreshToken). Automatically updates {{token}} and {{refreshToken}}."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 1. Sign In (Admin Dashboard)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"hello123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/signin",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "signin"
+                  ]
+                },
+                "description": "Admin dashboard login. Enforces administrator privileges (admin, super_admin, sub_admin) and returns JWT accessToken."
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "[Admin] 2. Forget Password (Admin Dashboard)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/forget-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "forget-password"
+                  ]
+                },
+                "description": "Request a 6-digit verification code to the administrator email address. Returns 15-minute tempToken for the verification step."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 3. Verify OTP (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/verify-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "verify-otp"
+                  ]
+                },
+                "description": "Verify the 6-digit OTP sent to administrator email. Returns single-use resetToken for setting a new password. (Email is safely extracted directly from the Bearer token, so only otp is required in the body)."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 4. Resend OTP (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/resend-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "resend-otp"
+                  ]
+                },
+                "description": "Resend the 6-digit verification code to administrator email address."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 5. Reset Password (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{resetToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"NewAdminPassword123!\",\n  \"confirmPassword\": \"NewAdminPassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/reset-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "reset-password"
+                  ]
+                },
+                "description": "Set a new password for the administrator account using the resetToken from Step 3."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 6. My Profile (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/my-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "my-profile"
+                  ]
+                },
+                "description": "Get current authenticated administrator profile, roleTitle, bio, and high-level platform stats."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 7. Change Password (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"NewAdminPassword123!\",\n  \"confirmPassword\": \"NewAdminPassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/change-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "change-password"
+                  ]
+                },
+                "description": "Change password for an authenticated administrator. Validates old password and returns fresh accessToken."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 8. Update Profile (Admin Dashboard)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Di Lorenzo Admin\",\n  \"phoneNumber\": \"+15550000001\",\n  \"roleTitle\": \"Head of Operations & Academy Director\",\n  \"bio\": \"Di Lorenzo Soccer Academy Administrator\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/update-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "update-profile"
+                  ]
+                },
+                "description": "Update administrator name, phone, title, and bio."
+              },
+              "response": []
+            },
+            {
+              "name": "[Admin] 9. Refresh Admin Access Token (Admin Dashboard)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/refresh-token",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "refresh-token"
+                  ]
+                },
+                "description": "Admin silent auto-refresh endpoint. Exchanges valid 30-day administrator refreshToken for a brand new 15-minute accessToken."
               },
               "response": []
             }
@@ -1873,8 +2670,7 @@
           "name": "Auth",
           "item": [
             {
-              "name": "Sign in",
-              "id": "4a436b41-81c7-4e0d-a504-d4a5c3fe32d7",
+              "name": "1. Admin Sign In",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1885,7 +2681,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"email\" : \"marcus.sterling1@example.com\",\r\n    \"password\" : \"hello123\"\r\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"hello123\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1893,7 +2689,7 @@
                   }
                 },
                 "url": {
-                  "raw": "{{url}}/api/v1/auth/signin",
+                  "raw": "{{url}}/api/v1/auth/admin/signin",
                   "host": [
                     "{{url}}"
                   ],
@@ -1901,18 +2697,38 @@
                     "api",
                     "v1",
                     "auth",
+                    "admin",
                     "signin"
                   ]
-                }
+                },
+                "description": "Admin dashboard login. Enforces administrator privileges (admin, super_admin, sub_admin) and returns JWT accessToken."
               },
               "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T06:03:10.000Z",
-              "uid": "48870830-4a436b41-81c7-4e0d-a504-d4a5c3fe32d7"
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ]
             },
             {
-              "name": "Verify OTP",
-              "id": "0b543608-86e0-48be-83fd-697bc44565db",
+              "name": "2. Admin Forget Password",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1923,7 +2739,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"otp\": \"123456\"\n}",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1931,159 +2747,341 @@
                   }
                 },
                 "url": {
-                  "raw": ""
-                }
+                  "raw": "{{url}}/api/v1/auth/admin/forget-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "forget-password"
+                  ]
+                },
+                "description": "Request a 6-digit verification code to the administrator email address. Returns 15-minute tempToken for the verification step."
               },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:19.000Z",
-              "uid": "48870830-0b543608-86e0-48be-83fd-697bc44565db"
+              "response": []
             },
             {
-              "name": "my profile",
-              "id": "a635e03b-eff5-4810-b838-eae2ca01ddf8",
+              "name": "3. Admin Verify OTP",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"otp\": \"123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/verify-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "verify-otp"
+                  ]
+                },
+                "description": "Verify the 6-digit OTP sent to administrator email. Returns single-use resetToken for setting a new password. (Email is safely extracted directly from the Bearer token, so only otp is required in the body)."
+              },
+              "response": []
+            },
+            {
+              "name": "4. Admin Resend OTP",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{tempToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/resend-otp",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "resend-otp"
+                  ]
+                },
+                "description": "Resend the 6-digit verification code to administrator email address."
+              },
+              "response": []
+            },
+            {
+              "name": "5. Admin Reset Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{resetToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"NewAdminPassword123!\",\n  \"confirmPassword\": \"NewAdminPassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/reset-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "reset-password"
+                  ]
+                },
+                "description": "Set a new password for the administrator account using the resetToken from Step 3."
+              },
+              "response": []
+            },
+            {
+              "name": "6. Admin My Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-10T04:30:59.000Z",
-              "uid": "48870830-a635e03b-eff5-4810-b838-eae2ca01ddf8"
-            },
-            {
-              "name": "Forget Password",
-              "id": "896a8c7f-70c7-4507-aafa-7d4639395506",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
+                  "raw": "{{url}}/api/v1/auth/admin/my-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "my-profile"
+                  ]
                 },
-                "url": {
-                  "raw": ""
-                }
+                "description": "Get current authenticated administrator profile, roleTitle, bio, and high-level platform stats."
               },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:20.000Z",
-              "uid": "48870830-896a8c7f-70c7-4507-aafa-7d4639395506"
+              "response": []
             },
             {
-              "name": "resend otp",
-              "id": "8ed263e0-2632-408d-8751-a35cb218b58d",
+              "name": "7. Admin Change Password",
               "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
                     }
-                  }
+                  ]
                 },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:21.000Z",
-              "uid": "48870830-8ed263e0-2632-408d-8751-a35cb218b58d"
-            },
-            {
-              "name": "Reset Password",
-              "id": "a8f86ad8-dc7d-4494-8e8b-ff523c6a0c13",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"newPassword\": \"hello123\",\n  \"confirmPassword\": \"hello123\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:21.000Z",
-              "uid": "48870830-a8f86ad8-dc7d-4494-8e8b-ff523c6a0c13"
-            },
-            {
-              "name": "Change Password",
-              "id": "c22618c5-e88a-4ac5-b6be-1eed8940c150",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"newhello123\",\n  \"confirmPassword\": \"newhello123\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": ""
-                }
-              },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-11T08:31:22.000Z",
-              "uid": "48870830-c22618c5-e88a-4ac5-b6be-1eed8940c150"
-            },
-            {
-              "name": "update profile",
-              "id": "1facad73-370f-4891-b550-2066bc5a1b3a",
-              "request": {
                 "method": "PATCH",
-                "header": [],
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"hello123\",\n  \"newPassword\": \"NewAdminPassword123!\",\n  \"confirmPassword\": \"NewAdminPassword123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
                 "url": {
-                  "raw": ""
-                }
+                  "raw": "{{url}}/api/v1/auth/admin/change-password",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "change-password"
+                  ]
+                },
+                "description": "Change password for an authenticated administrator. Validates old password and returns fresh accessToken."
               },
-              "response": [],
-              "createdAt": "2026-10-10T04:30:59.000Z",
-              "updatedAt": "2026-10-10T04:30:59.000Z",
-              "uid": "48870830-1facad73-370f-4891-b550-2066bc5a1b3a"
+              "response": []
+            },
+            {
+              "name": "8. Admin Update Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullName\": \"Di Lorenzo Admin\",\n  \"phoneNumber\": \"+15550000001\",\n  \"roleTitle\": \"Head of Operations & Academy Director\",\n  \"bio\": \"Di Lorenzo Soccer Academy Administrator\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/update-profile",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "update-profile"
+                  ]
+                },
+                "description": "Update administrator name, phone, title, and bio."
+              },
+              "response": []
+            },
+            {
+              "name": "9. Admin Refresh Access Token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200 || pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    var token = (jsonData.data && jsonData.data.accessToken) || jsonData.accessToken;",
+                      "    var refreshToken = (jsonData.data && jsonData.data.refreshToken) || jsonData.refreshToken;",
+                      "    if (token) {",
+                      "        pm.environment.set(\"token\", token);",
+                      "        pm.environment.set(\"accessToken\", token);",
+                      "    }",
+                      "    if (refreshToken) {",
+                      "        pm.environment.set(\"refreshToken\", refreshToken);",
+                      "    }",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/auth/admin/refresh-token",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "admin",
+                    "refresh-token"
+                  ]
+                },
+                "description": "Admin silent auto-refresh endpoint. Exchanges valid administrator refreshToken for a brand new accessToken."
+              },
+              "response": []
             }
           ],
           "id": "72e36ba4-6322-4671-afbb-fa9d97238306",

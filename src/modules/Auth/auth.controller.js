@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const { tokenGenerator, refreshTokenGenerator, resetTokenGenerator } = require("../../helpers/tokenGenerator");
 const catchAsync = require("../../helpers/catchAsync");
 const response = require("../../helpers/response");
@@ -100,9 +101,12 @@ const localAuth = catchAsync(async (req, res) => {
     await user.save();
   }
 
-  let admin;
-  if (['admin', 'hr', 'sub_hr_admin', 'sub_admin'].includes(user.role)) {
-    admin = await getAdminByUserId(user._id);
+  let admin = null;
+  if (['admin', 'super_admin', 'sub_admin', 'hr', 'sub_hr_admin'].includes(user.role)) {
+    admin = {
+      isSupperAdmin: user.role === 'admin' || user.role === 'super_admin' || user.isSuperAdmin,
+      parent: null,
+    };
   }
   const token = await tokenGenerator(user, admin);
   const refreshToken = refreshTokenGenerator(user);
@@ -134,7 +138,6 @@ const localAuth = catchAsync(async (req, res) => {
       focusGoals: user.focusGoals,
       mentorshipDay: user.mentorshipDay,
       mentorshipPhase: user.mentorshipPhase,
-      categoryPermissions: admin?.categoryPermissions,
       parent: admin?.parent
     },
     accessToken: token,
@@ -299,13 +302,16 @@ const otpVerification = catchAsync(async (req, res) => {
     }
   }
 
-  // Extract email from token as requested!
-  const email = userPayloadFromToken?.email || req.body.email;
-  const purpose = req.body.purpose || (userPayloadFromToken?.purpose || "email-verification");
-  const otp = req.body.otp;
+  // Extract email strictly from the signed token (no email in request body)
+  const email = userPayloadFromToken?.email;
+  const purpose = userPayloadFromToken?.purpose || req.body?.purpose || "email-verification";
+  const { otp } = req.body;
 
   if (!email) {
-    throw new ApiError(status.BAD_REQUEST, "Verification token is required. Email could not be resolved from token.");
+    throw new ApiError(
+      status.UNAUTHORIZED,
+      "Verification token is required. Email is securely extracted from your Bearer token, so please provide a valid Bearer token."
+    );
   }
   if (!otp) {
     throw new ApiError(status.BAD_REQUEST, "6-digit OTP code is required");
@@ -323,8 +329,8 @@ const otpVerification = catchAsync(async (req, res) => {
 
     if (!registeredUser) {
       // Account is created in DB ONLY upon successful OTP verification!
-      const signupData = req.User || {};
-      const passwordToSave = signupData.password || req.body.password;
+      const signupData = userPayloadFromToken || {};
+      const passwordToSave = signupData.password;
 
       if (!passwordToSave) {
         throw new ApiError(
@@ -335,16 +341,16 @@ const otpVerification = catchAsync(async (req, res) => {
 
       const trialStart = new Date();
       const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-      const phone = signupData.phoneNumber || signupData.number || req.body.phoneNumber || req.body.number || "";
+      const phone = signupData.phoneNumber || signupData.number || "";
 
       registeredUser = await userModel.create({
-        fullName: signupData.fullName || req.body.fullName || "Athlete",
+        fullName: signupData.fullName || "Athlete",
         email: email,
         phoneNumber: phone,
         number: phone,
-        countryCode: signupData.countryCode || req.body.countryCode || "",
+        countryCode: signupData.countryCode || "",
         password: passwordToSave,
-        role: signupData.role || req.body.role || "user",
+        role: signupData.role || "user",
         isEmailVerified: true,
         isProfileCompleted: false,
         tier: "free",
@@ -638,7 +644,6 @@ const changePassword = catchAsync(async (req, res) => {
   );
 
   const token = await tokenGenerator(user);
-  const refreshToken = refreshTokenGenerator(user);
 
   return res.status(status.OK).json(
     response({
@@ -646,10 +651,6 @@ const changePassword = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: "user",
       message: "Password changed successfully",
-      data: {
-        accessToken: token,
-        refreshToken,
-      },
       accessToken: token,
     })
   );
@@ -849,11 +850,21 @@ const userDetailsByID = catchAsync(async (req, res) => {
     };
   }
 
-  else if (result.user.role === 'admin') {
+  else if (['admin', 'super_admin', 'sub_admin'].includes(result.user.role)) {
     formattedData = {
+      _id: result.user._id,
+      fullName: result.user.fullName,
       name: result.user.fullName,
+      email: result.user.email,
+      phoneNumber: result.user.phoneNumber || result.user.number,
+      countryCode: result.user.countryCode,
       image: result.user.image,
-      email: result.user.email
+      role: result.user.role,
+      roleTitle: result.user.roleTitle || 'Administrator',
+      bio: result.user.bio,
+      isSuperAdmin: result.user.isSuperAdmin || (result.user.role === 'admin' || result.user.role === 'super_admin'),
+      createdAt: result.user.createdAt,
+      updatedAt: result.user.updatedAt
     };
   }
 
@@ -913,6 +924,490 @@ const userDetailsByID = catchAsync(async (req, res) => {
 
 
 
+// ==========================================
+// ADMIN DASHBOARD AUTHENTICATION CONTROLLERS
+// ==========================================
+
+const adminSignIn = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "Email and password are required"
+    );
+  }
+
+  const user = await userModel
+    .findOne({ email: email.trim().toLowerCase() })
+    .select("+password");
+
+  if (!user || user.isDeleted) {
+    throw new ApiError(
+      status.UNAUTHORIZED,
+      "Invalid email or password"
+    );
+  }
+
+  if (user.isBan) {
+    throw new ApiError(
+      status.FORBIDDEN,
+      "This administrator account has been suspended"
+    );
+  }
+
+  // Security Gate: strictly ensure user has admin role
+  if (!['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(
+      status.FORBIDDEN,
+      "Access denied. You do not have administrator privileges to access the admin dashboard."
+    );
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new ApiError(
+      status.UNAUTHORIZED,
+      "Invalid email or password"
+    );
+  }
+
+  const adminData = {
+    isSupperAdmin: user.role === 'admin' || user.role === 'super_admin' || user.isSuperAdmin,
+    parent: null,
+  };
+
+  const token = await tokenGenerator(user, adminData);
+  const refreshToken = refreshTokenGenerator(user);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin login successful",
+      data: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phoneNumber: user.phoneNumber || user.number,
+        image: user.image,
+        role: user.role,
+        roleTitle: user.roleTitle || 'Administrator',
+        bio: user.bio,
+        isSuperAdmin: adminData.isSupperAdmin,
+      },
+      accessToken: token,
+      refreshToken
+    })
+  );
+});
+
+const adminForgetPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(status.BAD_REQUEST, "Administrator email is required");
+  }
+
+  const user = await userModel.findOne({ email: email.trim().toLowerCase() });
+  if (!user || user.isDeleted) {
+    throw new ApiError(status.NOT_FOUND, "No administrator account found with this email");
+  }
+
+  if (!['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Account is not an administrator");
+  }
+
+  await sendOTP(
+    user.fullName || "Admin",
+    user.email,
+    "email",
+    "forget-password"
+  );
+
+  const tempToken = jwt.sign(
+    {
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      purpose: "forget-password"
+    },
+    process.env.JWT_ACCESS_TOKEN,
+    { expiresIn: "15m" }
+  );
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Verification code sent to administrator email",
+      data: {
+        email: user.email,
+        purpose: "forget-password"
+      },
+      token: tempToken,
+      tempToken,
+      accessToken: tempToken
+    })
+  );
+});
+
+const adminVerifyOtp = catchAsync(async (req, res) => {
+  let userPayload = req.User;
+  if (!userPayload) {
+    const rawToken = req.body?.tempToken || req.body?.token || req.headers?.authorization?.replace("Bearer ", "");
+    if (rawToken && rawToken !== "null") {
+      try {
+        userPayload = jwt.verify(rawToken, process.env.JWT_ACCESS_TOKEN);
+        req.User = userPayload;
+      } catch (err) {}
+    }
+  }
+
+  // Extract email safely from token
+  const email = userPayload?.email;
+  const { otp } = req.body;
+
+  if (!email) {
+    throw new ApiError(
+      status.UNAUTHORIZED,
+      "Verification token is required. Email is extracted from the token, so please provide your Bearer token."
+    );
+  }
+
+  if (!otp) {
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "6-digit OTP code is required"
+    );
+  }
+
+  const user = await userModel.findOne({ email: email.trim().toLowerCase() });
+  if (!user || !['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Account is not an administrator");
+  }
+
+  await verifyOTP(email, "email", "forget-password", otp);
+
+  const resetToken = resetTokenGenerator(user);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin OTP verified successfully. You may now reset your password.",
+      resetToken,
+      accessToken: resetToken
+    })
+  );
+});
+
+const adminResendOtp = catchAsync(async (req, res) => {
+  let email = req.User?.email;
+  if (!email) {
+    const rawToken = req.body?.tempToken || req.body?.token || req.headers?.authorization?.replace("Bearer ", "");
+    if (rawToken && rawToken !== "null") {
+      try {
+        const decoded = jwt.verify(rawToken, process.env.JWT_ACCESS_TOKEN);
+        email = decoded?.email;
+      } catch (err) {}
+    }
+  }
+  if (!email) {
+    email = req.body.email;
+  }
+
+  if (!email) {
+    throw new ApiError(status.BAD_REQUEST, "Admin email is required to resend OTP");
+  }
+
+  const user = await userModel.findOne({ email: email.trim().toLowerCase() });
+  if (!user || !['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Account is not an administrator");
+  }
+
+  await sendOTP(user.fullName || "Admin", user.email, "email", "forget-password");
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "OTP resent to administrator email"
+    })
+  );
+});
+
+const adminResetPassword = catchAsync(async (req, res) => {
+  const userId = req.ResetUser?._id;
+  if (!userId) {
+    throw new ApiError(status.UNAUTHORIZED, "Unauthorized: Valid reset token is required");
+  }
+
+  const user = await userModel.findById(userId).select("+password");
+  if (!user || !['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Account is not an administrator");
+  }
+
+  const newPassword = req.body.newPassword || req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+
+  if (!newPassword) {
+    throw new ApiError(status.BAD_REQUEST, "New password is required");
+  }
+
+  if (confirmPassword && newPassword !== confirmPassword) {
+    throw new ApiError(status.BAD_REQUEST, "Passwords do not match");
+  }
+
+  if (newPassword.length < 8) {
+    throw new ApiError(status.BAD_REQUEST, "Admin password must be at least 8 characters long");
+  }
+
+  user.password = newPassword;
+  user.tokenVersion = (user.tokenVersion || 0) + 1;
+  await user.save();
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin password reset successfully. Please sign in with your new password."
+    })
+  );
+});
+
+const adminGetProfile = catchAsync(async (req, res) => {
+  const admin = await userModel.findById(req.User._id).select("-password");
+  if (!admin || !['admin', 'super_admin', 'sub_admin'].includes(admin.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Administrator privileges required");
+  }
+
+  const [totalAthletes, totalCoaches, totalParents] = await Promise.all([
+    userModel.countDocuments({ role: { $in: ['user', 'athlete'] }, isDeleted: { $ne: true } }),
+    userModel.countDocuments({ role: 'coach', isDeleted: { $ne: true } }),
+    userModel.countDocuments({ role: 'parent', isDeleted: { $ne: true } }),
+  ]);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin profile retrieved successfully",
+      data: {
+        _id: admin._id,
+        fullName: admin.fullName,
+        name: admin.fullName,
+        email: admin.email,
+        phoneNumber: admin.phoneNumber || admin.number,
+        countryCode: admin.countryCode,
+        image: admin.image,
+        role: admin.role,
+        roleTitle: admin.roleTitle || 'Administrator',
+        bio: admin.bio,
+        isSuperAdmin: admin.isSuperAdmin || (admin.role === 'admin' || admin.role === 'super_admin'),
+        stats: {
+          totalAthletes,
+          totalCoaches,
+          totalParents,
+        },
+        createdAt: admin.createdAt,
+        updatedAt: admin.updatedAt,
+      }
+    })
+  );
+});
+
+const adminUpdateProfile = catchAsync(async (req, res) => {
+  const user = await userModel.findById(req.User._id);
+  if (!user || !['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Administrator privileges required");
+  }
+
+  if (req.file) {
+    const { filename } = req.file;
+    if (filename && filename.length > 0) {
+      if (user.image && user.image !== 'user.png' && user.image !== 'user.jpg' && !user.image.includes('default')) {
+        unlinkImage(`uploads/users/${user.image}`);
+      }
+      req.body.image = filename;
+    }
+  }
+
+  const updated = await userModel.findByIdAndUpdate(
+    user._id,
+    {
+      ...(req.body.fullName && { fullName: req.body.fullName }),
+      ...(req.body.phoneNumber && { phoneNumber: req.body.phoneNumber }),
+      ...(req.body.countryCode && { countryCode: req.body.countryCode }),
+      ...(req.body.image && { image: req.body.image }),
+      ...(req.body.roleTitle && { roleTitle: req.body.roleTitle }),
+      ...(req.body.bio && { bio: req.body.bio }),
+    },
+    { new: true }
+  );
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin profile updated successfully",
+      data: {
+        _id: updated._id,
+        fullName: updated.fullName,
+        email: updated.email,
+        phoneNumber: updated.phoneNumber,
+        image: updated.image,
+        role: updated.role,
+        roleTitle: updated.roleTitle,
+        bio: updated.bio,
+      }
+    })
+  );
+});
+
+const adminChangePassword = catchAsync(async (req, res) => {
+  const { oldPassword, currentPassword, newPassword, confirmPassword } = req.body;
+  const effectiveOldPassword = oldPassword || currentPassword;
+
+  const user = await changePasswordService(
+    req.User._id,
+    effectiveOldPassword,
+    newPassword,
+    confirmPassword
+  );
+
+  const adminData = {
+    isSupperAdmin: user.role === 'admin' || user.role === 'super_admin' || user.isSuperAdmin,
+    parent: null,
+  };
+
+  const token = await tokenGenerator(user, adminData);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin password changed successfully",
+      accessToken: token
+    })
+  );
+});
+
+// Refresh Access Token using Refresh Token (For Athletes / Users)
+const refreshTokenController = catchAsync(async (req, res) => {
+  const refreshToken = req.body.refreshToken || req.headers['x-refresh-token'] || req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    throw new ApiError(status.BAD_REQUEST, "Refresh token is required");
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN);
+  } catch (err) {
+    throw new ApiError(status.UNAUTHORIZED, "Invalid or expired refresh token. Please log in again.");
+  }
+
+  const user = await userModel.findById(decoded._id);
+  if (!user || user.isDeleted) {
+    throw new ApiError(status.UNAUTHORIZED, "User account not found or deleted");
+  }
+
+  if (user.isBan) {
+    throw new ApiError(status.FORBIDDEN, "User account is suspended");
+  }
+
+  // Security check: If password was changed or sessions revoked, tokenVersion will not match!
+  if ((decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
+    throw new ApiError(status.UNAUTHORIZED, "Session expired or revoked. Please log in again.");
+  }
+
+  const newAccessToken = await tokenGenerator(user);
+  const newRefreshToken = refreshTokenGenerator(user);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "user",
+      message: "Access token refreshed successfully",
+      data: {
+        _id: user._id,
+        email: user.email,
+        role: user.role
+      },
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
+    })
+  );
+});
+
+// Admin Refresh Access Token (For Admin Dashboard)
+const adminRefreshTokenController = catchAsync(async (req, res) => {
+  const refreshToken = req.body.refreshToken || req.headers['x-refresh-token'] || req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    throw new ApiError(status.BAD_REQUEST, "Admin refresh token is required");
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN);
+  } catch (err) {
+    throw new ApiError(status.UNAUTHORIZED, "Invalid or expired admin refresh token. Please log in again.");
+  }
+
+  const user = await userModel.findById(decoded._id);
+  if (!user || user.isDeleted) {
+    throw new ApiError(status.UNAUTHORIZED, "Administrator account not found or deleted");
+  }
+
+  if (!['admin', 'super_admin', 'sub_admin'].includes(user.role)) {
+    throw new ApiError(status.FORBIDDEN, "Access denied: Account is not an administrator");
+  }
+
+  if (user.isBan) {
+    throw new ApiError(status.FORBIDDEN, "Administrator account is suspended");
+  }
+
+  if ((decoded.tokenVersion || 0) !== (user.tokenVersion || 0)) {
+    throw new ApiError(status.UNAUTHORIZED, "Admin session expired or revoked. Please log in again.");
+  }
+
+  const adminData = {
+    isSupperAdmin: user.role === 'admin' || user.role === 'super_admin' || user.isSuperAdmin,
+    parent: null,
+  };
+
+  const newAccessToken = await tokenGenerator(user, adminData);
+  const newRefreshToken = refreshTokenGenerator(user);
+
+  return res.status(status.OK).json(
+    response({
+      status: "OK",
+      statusCode: status.OK,
+      type: "admin",
+      message: "Admin access token refreshed successfully",
+      data: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        isSuperAdmin: adminData.isSupperAdmin
+      },
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken
+    })
+  );
+});
+
 module.exports = {
   localAuth,
   signUp,
@@ -924,6 +1419,7 @@ module.exports = {
   resetPassword,
   changePassword,
   resendOTP,
+  refreshTokenController,
   updateProfile,
   userDetailsByID,
   myDocumentsController,
@@ -931,5 +1427,14 @@ module.exports = {
   deleteAccountController,
   updateDocuments,
   socialLoginWithAppleController,
-  socialLoginWithGoogleController
+  socialLoginWithGoogleController,
+  adminSignIn,
+  adminForgetPassword,
+  adminVerifyOtp,
+  adminResendOtp,
+  adminResetPassword,
+  adminGetProfile,
+  adminUpdateProfile,
+  adminChangePassword,
+  adminRefreshTokenController,
 };
