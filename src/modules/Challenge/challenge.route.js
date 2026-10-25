@@ -13,6 +13,16 @@ const {
   removeParticipantController,
   awardXpController,
 } = require('./challenge.controller');
+const { auth } = require('../../middlewares/auth');
+const {
+  getUserCompetePageController,
+  joinCompeteChallengeController,
+} = require('../User/user.controller');
+
+// Compete Screen & Leaderboard (Figma node 32817:6437)
+router.get('/compete', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getUserCompetePageController);
+router.post('/:id/join', auth(['user', 'athlete', 'admin', 'coach', 'parent']), joinCompeteChallengeController);
+router.post('/challenges/:id/join', auth(['user', 'athlete', 'admin', 'coach', 'parent']), joinCompeteChallengeController);
 
 // Overview Dashboard Page (Figma node 33299-22507: Community Challenges)
 router.get('/overview', getCommunityChallengesOverviewController);

@@ -35,6 +35,10 @@ const trainingAssignmentSchema = new mongoose.Schema(
       type: Number,
       default: 1, // e.g. 1, 2, 3
     },
+    xpReward: {
+      type: Number,
+      default: 70, // XP earned upon drill completion
+    },
     status: {
       type: String,
       enum: ['assigned', 'in-progress', 'completed'],

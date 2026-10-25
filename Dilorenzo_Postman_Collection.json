@@ -604,7 +604,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Goals and habits data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipGoalsHabits\",\n    \"attributes\": {\n      \"activeGoals\": [\n        {\n          \"_id\": \"goal_1\",\n          \"title\": \"Ball Mastery Session\",\n          \"description\": \"Complete your 5-step pre-game routine before every match.\",\n          \"progress\": 65\n        },\n        {\n          \"_id\": \"goal_2\",\n          \"title\": \"Consistent Ball Mastery Habit\",\n          \"description\": \"Complete ball mastery 5× per week for 8 weeks straight.\",\n          \"progress\": 40\n        },\n        {\n          \"_id\": \"goal_3\",\n          \"title\": \"Submit All Practice Feedbacks\",\n          \"description\": \"Submit action steps for every session assigned by coach.\",\n          \"progress\": 80\n        }\n      ],\n      \"dailyGoals\": [\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb1\",\n          \"title\": \"Resilience Journal Entry\",\n          \"category\": \"resilience\",\n          \"xp\": 75,\n          \"isCompleted\": false\n        },\n        {\n          \"_id\": \"6ad48765b94069bb6d53afb0\",\n          \"title\": \"Pre-Match Breathing Log\",\n          \"category\": \"mindset\",\n          \"xp\": 50,\n          \"isCompleted\": true\n        }\n      ],\n      \"weeklyHabits\": [\n        {\n          \"_id\": \"6acda079ff946c3c9b7745cb\",\n          \"title\": \"Watch Assigned Training Video\",\n          \"frequency\": \"Weekly · By Sunday\",\n          \"xp\": 40,\n          \"isCompleted\": false\n        }\n      ],\n      \"tracker\": {\n        \"streak\": 5,\n        \"weeklyDays\": [\n          {\n            \"day\": \"M\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"W\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"F\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          }\n        ]\n      }\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\"status\":\"success\",\"statusCode\":200,\"message\":\"Goals and habits data retrieved successfully\",\"data\":{\"type\":\"MentorshipGoalsHabits\",\"attributes\":{\"activeGoals\":[],\"dailyGoals\":[{\"_id\":\"6ad48765b94069bb6d53afb1\",\"title\":\"Resilience Journal Entry\",\"category\":\"resilience\",\"xp\":100,\"isCompleted\":false},{\"_id\":\"6ad48765b94069bb6d53afb0\",\"title\":\"Pre-Match Breathing Log\",\"category\":\"mindset\",\"xp\":80,\"isCompleted\":true}],\"weeklyHabits\":[{\"_id\":\"6acda079ff946c3c9b7745cb\",\"title\":\"Morning Mindset Journal\",\"frequency\":\"Daily\",\"xp\":15,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745cc\",\"title\":\"Submit Practice Feedback\",\"frequency\":\"3× / week\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745ca\",\"title\":\"Ball Mastery (20 min)\",\"frequency\":\"5× / week\",\"xp\":20,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745d0\",\"title\":\"Skill Review\",\"frequency\":\"Bi-weekly\",\"xp\":20,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745cf\",\"title\":\"Team Strategy Session\",\"frequency\":\"Weekly\",\"xp\":25,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745d1\",\"title\":\"Cool Down Routine\",\"frequency\":\"Daily\",\"xp\":15,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745ce\",\"title\":\"Nutrition Tracking\",\"frequency\":\"Daily\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6acda079ff946c3c9b7745cd\",\"title\":\"Breathing Reset\",\"frequency\":\"Daily\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6acda16cfdbdea4482895e3d\",\"title\":\"Daily Visualization\",\"frequency\":\"daily\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6ad3191bb8855f19186b1502\",\"title\":\"Reflection Log\",\"frequency\":\"Daily\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6ad3191bb8855f19186b1504\",\"title\":\"Morning Journal\",\"frequency\":\"Daily\",\"xp\":10,\"isCompleted\":false},{\"_id\":\"6ad3191bb8855f19186b1506\",\"title\":\"Visualization\",\"frequency\":\"Daily\",\"xp\":10,\"isCompleted\":false}],\"tracker\":{\"streak\":0,\"weeklyDays\":[{\"day\":\"M\",\"completed\":false},{\"day\":\"T\",\"completed\":false},{\"day\":\"W\",\"completed\":false},{\"day\":\"T\",\"completed\":false},{\"day\":\"F\",\"completed\":false},{\"day\":\"S\",\"completed\":false},{\"day\":\"S\",\"completed\":false}]}}},\"errors\":[]}"
                 }
               ]
             },
@@ -650,7 +650,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Training program data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipTrainingProgram\",\n    \"attributes\": {\n      \"coachName\": \"Coach Rivera\",\n      \"summary\": {\n        \"completedCount\": 3,\n        \"totalCount\": 5,\n        \"percent\": 60,\n        \"text\": \"3 of 5 completed\"\n      },\n      \"weeks\": [\n        {\n          \"weekNumber\": 1,\n          \"weekLabel\": \"Week 1\",\n          \"drills\": [\n            {\n              \"_id\": \"6acda8d4587717ac62d6052d\",\n              \"title\": \"Elite Pre-Game Mental Activation\",\n              \"category\": \"Mental Prep\",\n              \"duration\": \"14 min\",\n              \"xp\": 60,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            },\n            {\n              \"_id\": \"6acda8d4587717ac62d6052e\",\n              \"title\": \"Ball Mastery Phase 1 — Foundation\",\n              \"category\": \"Technical\",\n              \"duration\": \"18 min\",\n              \"xp\": 70,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            }\n          ]\n        },\n        {\n          \"weekNumber\": 2,\n          \"weekLabel\": \"Week 2\",\n          \"drills\": [\n            {\n              \"_id\": \"6acda8d4587717ac62d6052f\",\n              \"title\": \"Ball Mastery Phase 1 — Foundation\",\n              \"category\": \"Technical\",\n              \"duration\": \"18 min\",\n              \"xp\": 70,\n              \"isCompleted\": true,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            },\n            {\n              \"_id\": \"6acda8d4587717ac62d60533\",\n              \"title\": \"Pressure Inoculation Drills\",\n              \"category\": \"Mental Training\",\n              \"duration\": \"22 min\",\n              \"xp\": 80,\n              \"isCompleted\": false,\n              \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n            }\n          ]\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\"status\":\"success\",\"statusCode\":200,\"message\":\"Training program data retrieved successfully\",\"data\":{\"type\":\"MentorshipTrainingProgram\",\"attributes\":{\"coachName\":\"Coach Rivera\",\"summary\":{\"completedCount\":0,\"totalCount\":0,\"percent\":0,\"text\":\"0 of 0 completed\"},\"weeks\":[]}},\"errors\":[]}"
                 }
               ]
             },
@@ -726,11 +726,11 @@
                     "90days-progress"
                   ]
                 },
-                "description": "90-Day Progress Overview screen (Figma Node 32975:8114). Opened when clicking 90-Day Progress on the 90-Day Mentorship overview. Returns date range, program metrics (current day, total days, days remaining, percent complete, current phase), 3 stat cards (sessions, submissions, habits done), program phases with progress bar, and 5 program milestones."
+                "description": "90-Day Progress Overview screen (Figma Node 32975:8114). Opened when clicking 90-Day Progress on the 90-Day Mentorship overview. Returns dateRange, program metrics (currentDay, totalDays, daysRemaining, percentComplete, currentPhase), 3 stat cards (sessions, submissions, habitsDone), program phases with progress percentages, and milestones dynamically sourced from MongoDB challenges (title, day, dayNumber, isCompleted, xpGoal, earnedXp, icon, category, difficulty)."
               },
               "response": [
                 {
-                  "name": "200 OK - 90-Day Progress Screen",
+                  "name": "200 OK - 90-Day Progress Screen (Milestones as Challenges)",
                   "status": "OK",
                   "code": 200,
                   "_postman_previewlanguage": "json",
@@ -740,7 +740,67 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"90-Day progress data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipProgress\",\n    \"attributes\": {\n      \"dateRange\": \"Jul 8, 2026 → Oct 5, 2026\",\n      \"program\": {\n        \"currentDay\": 23,\n        \"totalDays\": 90,\n        \"daysRemaining\": 67,\n        \"percentComplete\": 26,\n        \"currentPhase\": \"Phase 1: Foundation\"\n      },\n      \"stats\": {\n        \"sessions\": 4,\n        \"submissions\": 12,\n        \"habitsDone\": 23\n      },\n      \"phases\": [\n        {\n          \"phaseNumber\": 1,\n          \"title\": \"Phase 1: Foundation\",\n          \"days\": \"Days 1–30\",\n          \"status\": \"CURRENT\",\n          \"progress\": 77\n        },\n        {\n          \"phaseNumber\": 2,\n          \"title\": \"Phase 2: Development\",\n          \"days\": \"Days 31–60\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        },\n        {\n          \"phaseNumber\": 3,\n          \"title\": \"Phase 3: Performance\",\n          \"days\": \"Days 61–90\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        }\n      ],\n      \"milestones\": [\n        {\n          \"title\": \"First coaching session completed\",\n          \"day\": \"Day 7\",\n          \"isCompleted\": true\n        },\n        {\n          \"title\": \"Foundation habits established\",\n          \"day\": \"Day 14\",\n          \"isCompleted\": true\n        },\n        {\n          \"title\": \"Pre-game routine locked in\",\n          \"day\": \"Day 30\",\n          \"isCompleted\": false\n        },\n        {\n          \"title\": \"Development phase review\",\n          \"day\": \"Day 60\",\n          \"isCompleted\": false\n        },\n        {\n          \"title\": \"Final 90-day review\",\n          \"day\": \"Day 90\",\n          \"isCompleted\": false\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"90-Day progress data retrieved successfully\",\n  \"data\": {\n    \"type\": \"MentorshipProgress\",\n    \"attributes\": {\n      \"dateRange\": \"Oct 11, 2026 → Jan 9, 2027\",\n      \"program\": {\n        \"currentDay\": 14,\n        \"totalDays\": 90,\n        \"daysRemaining\": 76,\n        \"percentComplete\": 16,\n        \"currentPhase\": \"Phase 1: Foundation\"\n      },\n      \"stats\": {\n        \"sessions\": 0,\n        \"submissions\": 0,\n        \"habitsDone\": 0\n      },\n      \"phases\": [\n        {\n          \"phaseNumber\": 1,\n          \"title\": \"Phase 1: Foundation\",\n          \"days\": \"Days 1–30\",\n          \"status\": \"CURRENT\",\n          \"progress\": 47\n        },\n        {\n          \"phaseNumber\": 2,\n          \"title\": \"Phase 2: Development\",\n          \"days\": \"Days 31–60\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        },\n        {\n          \"phaseNumber\": 3,\n          \"title\": \"Phase 3: Performance\",\n          \"days\": \"Days 61–90\",\n          \"status\": \"UPCOMING\",\n          \"progress\": 0\n        }\n      ],\n      \"milestones\": [\n        {\n          \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"title\": \"Mental Toughness Week\",\n          \"description\": \"Complete 7 consecutive daily mental drills and maintain 100% habit compliance under match conditions.\",\n          \"day\": \"Day 7\",\n          \"dayNumber\": 7,\n          \"isCompleted\": true,\n          \"status\": \"COMPLETED\",\n          \"xpGoal\": 500,\n          \"earnedXp\": 500,\n          \"icon\": \"🏆\",\n          \"category\": \"mental\",\n          \"difficulty\": \"elite\",\n          \"completedAt\": \"2026-10-24T09:53:51.502Z\",\n          \"startDate\": \"2026-09-01T00:00:00.000Z\",\n          \"endDate\": \"2026-09-30T00:00:00.000Z\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577be\",\n          \"title\": \"Focus Sprint\",\n          \"description\": \"15-minute high intensity visual scanning and situational awareness sprint.\",\n          \"day\": \"Day 14\",\n          \"dayNumber\": 14,\n          \"isCompleted\": false,\n          \"status\": \"UPCOMING\",\n          \"xpGoal\": 500,\n          \"earnedXp\": 0,\n          \"icon\": \"⚡\",\n          \"category\": \"mental\",\n          \"difficulty\": \"medium\",\n          \"completedAt\": null,\n          \"startDate\": \"2026-10-17T10:14:15.612Z\",\n          \"endDate\": \"2026-10-18T10:14:15.612Z\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577c9\",\n          \"title\": \"Resilience Cup\",\n          \"description\": \"Squad tournament for composure, mistake bounce-backs, and clutch decision making.\",\n          \"day\": \"Day 30\",\n          \"dayNumber\": 30,\n          \"isCompleted\": false,\n          \"status\": \"IN_PROGRESS\",\n          \"xpGoal\": 1000,\n          \"earnedXp\": 0,\n          \"icon\": \"🏆\",\n          \"category\": \"resilience\",\n          \"difficulty\": \"hard\",\n          \"completedAt\": null,\n          \"startDate\": \"2026-10-17T10:14:15.612Z\",\n          \"endDate\": \"2026-10-23T10:14:15.612Z\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "Mark Milestone Complete (Toggle Challenge)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/mentorship/90days-progress/:milestoneId/complete",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "mentorship",
+                    "90days-progress",
+                    ":milestoneId",
+                    "complete"
+                  ],
+                  "variable": [
+                    {
+                      "key": "milestoneId",
+                      "value": "6acb5d77ebb3f8bc900a1c4a",
+                      "description": "Challenge / Milestone ObjectId from DB"
+                    }
+                  ]
+                },
+                "description": "Toggle / complete a 90-day progress milestone (which maps directly to a Challenge in DB). Toggles isGoalReached on ChallengeParticipant and updates athlete XP."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Milestone Toggled",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Milestone \\\"Mental Toughness Week\\\" marked as completed!\",\n  \"data\": {\n    \"type\": \"MentorshipMilestone\",\n    \"attributes\": {\n      \"milestoneId\": \"6acb5d77ebb3f8bc900a1c4a\",\n      \"title\": \"Mental Toughness Week\",\n      \"isCompleted\": true,\n      \"completedAt\": \"2026-10-24T09:53:51.502Z\",\n      \"earnedXp\": 500,\n      \"message\": \"Milestone \\\"Mental Toughness Week\\\" marked as completed!\"\n    }\n  },\n  \"errors\": []\n}"
                 }
               ]
             }
@@ -867,8 +927,8 @@
               },
               "response": [
                 {
-                  "id": "resp-progress-review-200",
-                  "name": "200 OK - Athlete Progress Review (Clean Metrics)",
+                  "id": "resp-progress-review-week-200",
+                  "name": "200 OK - This Week (Clean Metrics + rawValue)",
                   "originalRequest": {
                     "method": "GET",
                     "header": [
@@ -912,7 +972,55 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"week\",\n      \"dateRange\": \"Mon – Sun\",\n      \"performanceScore\": {\n        \"average\": 0,\n        \"scores\": [\n          {\n            \"day\": \"M\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"W\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"F\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"key\": \"mentalScore\",\n          \"label\": \"Mental Score\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"🧠\",\n          \"description\": \"Overall mental toughness and training composite score\"\n        },\n        \"consistency\": {\n          \"key\": \"consistency\",\n          \"label\": \"Consistency\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"%\",\n          \"display\": \"0%\",\n          \"icon\": \"📅\",\n          \"description\": \"Habit adherence and active training day regularity\"\n        },\n        \"focusRating\": {\n          \"key\": \"focusRating\",\n          \"label\": \"Focus Rating\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"🎯\",\n          \"description\": \"Performance in visual scanning and pre-match rituals\"\n        },\n        \"resilience\": {\n          \"key\": \"resilience\",\n          \"label\": \"Resilience\",\n          \"value\": 0,\n          \"max\": 100,\n          \"unit\": \"/100\",\n          \"display\": \"0/100\",\n          \"icon\": \"💪\",\n          \"description\": \"Composure check-ins, breathwork, and reset protocols\"\n        }\n      },\n      \"coachEvaluation\": null\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"week\",\n      \"dateRange\": \"Mon – Sun\",\n      \"performanceScore\": {\n        \"average\": 50,\n        \"scores\": [\n          {\n            \"day\": \"M\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 50\n          },\n          {\n            \"day\": \"W\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 50\n          },\n          {\n            \"day\": \"F\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 0\n          }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"icon\": \"🧠\",\n          \"value\": \"29/100\",\n          \"rawValue\": 29,\n          \"label\": \"Mental Score\"\n        },\n        \"consistency\": {\n          \"icon\": \"📅\",\n          \"value\": \"29%\",\n          \"rawValue\": 29,\n          \"label\": \"Consistency\"\n        },\n        \"focusRating\": {\n          \"icon\": \"🎯\",\n          \"value\": \"0/100\",\n          \"rawValue\": 0,\n          \"label\": \"Focus Rating\"\n        },\n        \"resilience\": {\n          \"icon\": \"💪\",\n          \"value\": \"0/100\",\n          \"rawValue\": 0,\n          \"label\": \"Resilience\"\n        }\n      },\n      \"coachEvaluation\": {\n        \"_id\": \"6acc837978fded8588b3ed8b\",\n        \"coachName\": \"Coach Rivera\",\n        \"rating\": 4,\n        \"message\": \"Exceptional visual scan frequency in transition.\"\n      }\n    }\n  },\n  \"errors\": []\n}"
+                },
+                {
+                  "id": "resp-progress-review-month-200",
+                  "name": "200 OK - This Month (Clean Metrics + rawValue)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "value": "Bearer {{token}}",
+                        "key": "Authorization"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/user/progress-review?athleteId={{athleteId}}&timeframe=week",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "user",
+                        "progress-review"
+                      ],
+                      "query": [
+                        {
+                          "value": "{{athleteId}}",
+                          "description": "Athlete user ID",
+                          "key": "athleteId"
+                        },
+                        {
+                          "value": "week",
+                          "description": "Filter timeframe: week (default) or month",
+                          "key": "timeframe"
+                        }
+                      ]
+                    },
+                    "description": "Athlete Progress Review screen (Figma nodes 32905:2100 & 32906:2338) - Single unified endpoint with timeframe filter (week or month)."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Athlete progress review retrieved successfully\",\n  \"data\": {\n    \"type\": \"ProgressReview\",\n    \"attributes\": {\n      \"timeframe\": \"month\",\n      \"dateRange\": \"Oct 1 – Oct 31\",\n      \"performanceScore\": {\n        \"average\": 100,\n        \"scores\": [\n          {\n            \"day\": \"M\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"W\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"T\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"F\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 100\n          },\n          {\n            \"day\": \"S\",\n            \"score\": 100\n          }\n        ]\n      },\n      \"keyMetrics\": {\n        \"mentalScore\": {\n          \"icon\": \"🧠\",\n          \"value\": \"92/100\",\n          \"rawValue\": 92,\n          \"label\": \"Mental Score\"\n        },\n        \"consistency\": {\n          \"icon\": \"📅\",\n          \"value\": \"76%\",\n          \"rawValue\": 76,\n          \"label\": \"Consistency\"\n        },\n        \"focusRating\": {\n          \"icon\": \"🎯\",\n          \"value\": \"100/100\",\n          \"rawValue\": 100,\n          \"label\": \"Focus Rating\"\n        },\n        \"resilience\": {\n          \"icon\": \"💪\",\n          \"value\": \"100/100\",\n          \"rawValue\": 100,\n          \"label\": \"Resilience\"\n        }\n      },\n      \"coachEvaluation\": {\n        \"_id\": \"6acc837978fded8588b3ed8b\",\n        \"coachName\": \"Coach Rivera\",\n        \"rating\": 4,\n        \"message\": \"Exceptional visual scan frequency in transition.\"\n      }\n    }\n  },\n  \"errors\": []\n}"
                 }
               ],
               "createdAt": "2026-10-15T08:46:02.000Z",
@@ -1221,7 +1329,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"leagueDivision\": \"Regional Stars U18\",\n  \"parentFullName\": \"Jane Doe\",\n  \"parentEmail\": \"jane.doe@example.com\",\n  \"intakeNotes\": \"Strengthen weak left foot and build tactical composure under high-pressure matches.\",\n  \"focusGoals\": \"Develop speed, ball retention, and elite decision-making in the final third.\"\n}",
+                  "raw": "{\n  \"region\": \"Europe\",\n  \"nation\": \"Spain\",\n  \"leagueDivision\": \"Regional Stars U18\",\n  \"parentFullName\": \"Jane Doe\",\n  \"parentEmail\": \"jane.doe@example.com\",\n  \"intakeNotes\": \"Athlete struggled with pre-game anxiety in state finals. Goal: build 5-step composure habit.\",\n  \"focusGoals\": \"Build 5-step composure habit.\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1240,9 +1348,23 @@
                     "complete-profile"
                   ]
                 },
-                "description": "Step 2 of Onboarding (Figma Node 33768:2056). Tell us about your soccer journey to tailor your plan. Submits League/Division, Parent Full Name, Parent Email, and Intake Notes / Focus Goals. Confirms 7-day free trial full access."
+                "description": "Complete Profile screen (Figma Node 33768:2056). Updated with new Region and Nation dropdown selections, League / Division, Intake Notes & Focus Goals, and optional image file upload. Activates 7-day free trial on completion."
               },
-              "response": []
+              "response": [
+                {
+                  "name": "200 OK - Complete Profile with Region & Nation (Figma Node 33768:2056)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"OK\",\n  \"statusCode\": 200,\n  \"message\": \"Profile completed successfully. Your 7-day free trial is active!\",\n  \"data\": {\n    \"type\": \"User\",\n    \"attributes\": {\n      \"_id\": \"6acc80dca1df2a2ed315c20e\",\n      \"fullName\": \"Alex Thompson\",\n      \"email\": \"alex.thompson@example.com\",\n      \"image\": \"user.jpg\",\n      \"role\": \"athlete\",\n      \"region\": \"Europe\",\n      \"nation\": \"Spain\",\n      \"nationality\": \"Spain\",\n      \"leagueDivision\": \"Regional Stars U18\",\n      \"currentClub\": \"Regional Stars U18\",\n      \"parentFullName\": \"Jane Doe\",\n      \"parentEmail\": \"jane.doe@example.com\",\n      \"intakeNotes\": \"Athlete struggled with pre-game anxiety in state finals. Goal: build 5-step composure habit.\",\n      \"focusGoals\": \"Build 5-step composure habit.\",\n      \"isEmailVerified\": true,\n      \"isProfileCompleted\": true,\n      \"tier\": \"90-day-mentorship\",\n      \"isTrialActive\": true,\n      \"trialStartDate\": \"2026-10-24T10:15:25.417Z\",\n      \"trialEndDate\": \"2026-10-31T10:15:25.417Z\",\n      \"mentorshipDay\": 1,\n      \"mentorshipPhase\": \"foundation\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             },
             {
               "name": "4. Sign In - Welcome Back (Figma Node 33768:2213)",
@@ -2239,12 +2361,12 @@
                     "challenges"
                   ]
                 },
-                "description": "Get Community Challenges (Figma node 32823:9296) including Active Now Hero challenge, days left, and rewards. Inferred from Bearer token (req.user)."
+                "description": "Get Community Challenges (Figma node 32823:9296) strictly formatted with zero unnecessary fields or dummy values.\n- heroChallenge: Top active card with badge (\"🔥 ACTIVE NOW\"), title (\"MENTAL TOUGHNESS WEEK\"), subtitle (athletes count, days left, daily challenges count), reward (+2,000 XP · Exclusive Badge), and isJoined status.\n- challenges: List cards with icon (\"🏅\"), title, subtitle (XP + Badge/Trophy · days left), and isJoined status."
               },
               "response": [
                 {
                   "id": "resp-comm-chal-200",
-                  "name": "200 OK - Community Challenges",
+                  "name": "200 OK - Community Challenges (Figma Node 32823:9296)",
                   "status": "OK",
                   "code": 200,
                   "_postman_previewlanguage": "json",
@@ -2254,7 +2376,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community challenges retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityChallenges\",\n    \"attributes\": {\n      \"heroChallenge\": {\n        \"id\": \"6ad34a77383ba0798a2577c9\",\n        \"_id\": \"6ad34a77383ba0798a2577c9\",\n        \"badgeLabel\": \"🔥 Active Now\",\n        \"title\": \"RESILIENCE CUP\",\n        \"statsDisplay\": \"1 athletes · 6 days left · Complete 7 daily challenges\",\n        \"participantsCount\": 1,\n        \"daysLeft\": 6,\n        \"duration\": \"Complete 7 daily challenges\",\n        \"xpReward\": 1000,\n        \"rewardDisplay\": \"+1,000 XP · Resilience Cup Badge\",\n        \"rewardBadge\": \"Resilience Cup Badge\",\n        \"rewardTrophy\": \"Resilience Trophy\",\n        \"isJoined\": false,\n        \"isHero\": true,\n        \"status\": \"active\"\n      },\n      \"challenges\": [\n        {\n          \"id\": \"6ad34a77383ba0798a2577c9\",\n          \"_id\": \"6ad34a77383ba0798a2577c9\",\n          \"title\": \"Resilience Cup\",\n          \"description\": \"Squad tournament for composure, mistake bounce-backs, and clutch decision making.\",\n          \"category\": \"resilience\",\n          \"difficulty\": \"hard\",\n          \"xpReward\": 1000,\n          \"rewardDisplay\": \"1,000 XP + Trophy · 6d left\",\n          \"rewardBadge\": \"Resilience Cup Badge\",\n          \"rewardTrophy\": \"Resilience Trophy\",\n          \"daysLeft\": 6,\n          \"participantsCount\": 1,\n          \"isJoined\": false,\n          \"isHero\": true,\n          \"status\": \"active\"\n        },\n        {\n          \"id\": \"6ad34a77383ba0798a2577be\",\n          \"_id\": \"6ad34a77383ba0798a2577be\",\n          \"title\": \"Focus Sprint\",\n          \"description\": \"15-minute high intensity visual scanning and situational awareness sprint.\",\n          \"category\": \"mental\",\n          \"difficulty\": \"medium\",\n          \"xpReward\": 500,\n          \"rewardDisplay\": \"500 XP · 1d left\",\n          \"rewardBadge\": \"\",\n          \"rewardTrophy\": \"\",\n          \"daysLeft\": 1,\n          \"participantsCount\": 0,\n          \"isJoined\": false,\n          \"isHero\": false,\n          \"status\": \"active\"\n        },\n        {\n          \"id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"title\": \"Mental Toughness Week\",\n          \"description\": \"Complete 7 consecutive daily mental drills and maintain 100% habit compliance under match conditions.\",\n          \"category\": \"mental\",\n          \"difficulty\": \"elite\",\n          \"xpReward\": 500,\n          \"rewardDisplay\": \"500 XP · 0d left\",\n          \"rewardBadge\": \"\",\n          \"rewardTrophy\": \"\",\n          \"daysLeft\": 0,\n          \"participantsCount\": 2,\n          \"isJoined\": false,\n          \"isHero\": false,\n          \"status\": \"active\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community challenges retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityChallenges\",\n    \"attributes\": {\n      \"heroChallenge\": {\n        \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n        \"badge\": \"🔥 ACTIVE NOW\",\n        \"title\": \"MENTAL TOUGHNESS WEEK\",\n        \"subtitle\": \"2 athletes · 3 days left · Complete 7 daily challenges\",\n        \"reward\": \"+2,000 XP · Exclusive Badge\",\n        \"isJoined\": false\n      },\n      \"challenges\": [\n        {\n          \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"icon\": \"🏅\",\n          \"title\": \"Mental Toughness Week\",\n          \"subtitle\": \"2,000 XP + Badge · 3d left\",\n          \"isJoined\": false\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577be\",\n          \"icon\": \"🏅\",\n          \"title\": \"Focus Sprint\",\n          \"subtitle\": \"500 XP · 1d left\",\n          \"isJoined\": false\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577c9\",\n          \"icon\": \"🏅\",\n          \"title\": \"Resilience Cup\",\n          \"subtitle\": \"1,000 XP + Trophy · 6d left\",\n          \"isJoined\": false\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
                 }
               ]
             },
@@ -2331,12 +2453,12 @@
                     "teams"
                   ]
                 },
-                "description": "Get Community Team Leaderboard (Figma node 32827:9607) ranked by XP. User membership is inferred from Bearer token (req.user)."
+                "description": "Get Community Team Leaderboard (Figma node 32827:9607) filtered strictly to teams created by the logged-in user or teams where the logged-in user is a member.\n- Sourced dynamically from req.user._id (Bearer {{token}}) matching createdBy or athletes.\n- Ranked by total XP descending.\n- Zero dummy or unjoined teams."
               },
               "response": [
                 {
                   "id": "resp-comm-teams-200",
-                  "name": "200 OK - Team Leaderboard",
+                  "name": "200 OK - Community Team Leaderboard (User Groups Only)",
                   "status": "OK",
                   "code": 200,
                   "_postman_previewlanguage": "json",
@@ -2346,7 +2468,7 @@
                       "value": "application/json"
                     }
                   ],
-                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community team leaderboard retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityTeams\",\n    \"attributes\": {\n      \"title\": \"Team Leaderboard\",\n      \"actionButtonText\": \"+ Create or Join a Team\",\n      \"leaderboard\": [\n        {\n          \"rank\": 1,\n          \"id\": \"6ad34a77383ba0798a2577c4\",\n          \"_id\": \"6ad34a77383ba0798a2577c4\",\n          \"name\": \"Thunder FC\",\n          \"membersCount\": 6,\n          \"membersDisplay\": \"6 members\",\n          \"totalXp\": 48200,\n          \"xpDisplay\": \"48,200\",\n          \"isMyTeam\": false\n        },\n        {\n          \"rank\": 2,\n          \"id\": \"6ad34a77383ba0798a2577cd\",\n          \"_id\": \"6ad34a77383ba0798a2577cd\",\n          \"name\": \"Elite Minds\",\n          \"membersCount\": 5,\n          \"membersDisplay\": \"5 members\",\n          \"totalXp\": 41600,\n          \"xpDisplay\": \"41,600\",\n          \"isMyTeam\": false\n        },\n        {\n          \"rank\": 3,\n          \"id\": \"6ad34a78383ba0798a2577d4\",\n          \"_id\": \"6ad34a78383ba0798a2577d4\",\n          \"name\": \"Focus Squad\",\n          \"membersCount\": 4,\n          \"membersDisplay\": \"4 members\",\n          \"totalXp\": 38900,\n          \"xpDisplay\": \"38,900\",\n          \"isMyTeam\": false\n        },\n        {\n          \"rank\": 4,\n          \"id\": \"6ad34a78383ba0798a2577d7\",\n          \"_id\": \"6ad34a78383ba0798a2577d7\",\n          \"name\": \"Iron Will\",\n          \"membersCount\": 4,\n          \"membersDisplay\": \"4 members\",\n          \"totalXp\": 29400,\n          \"xpDisplay\": \"29,400\",\n          \"isMyTeam\": false\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Community team leaderboard retrieved successfully\",\n  \"data\": {\n    \"type\": \"CommunityTeams\",\n    \"attributes\": {\n      \"title\": \"Team Leaderboard\",\n      \"actionButtonText\": \"+ Create or Join a Team\",\n      \"leaderboard\": [\n        {\n          \"rank\": 1,\n          \"_id\": \"6ad45bddb6422d74654ecda9\",\n          \"name\": \"Gangs\",\n          \"membersCount\": 1,\n          \"totalXp\": 120,\n          \"isMyTeam\": true\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
                 }
               ]
             },
@@ -2479,7 +2601,22 @@
                   ]
                 },
                 "description": "Returns featured drill, weekly streak tracker, and mental drills."
-              }
+              },
+              "response": [
+                {
+                  "name": "200 OK - Train Screen Overview (All Drills)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Train screen data retrieved successfully\",\n  \"data\": {\n    \"type\": \"TrainOverview\",\n    \"attributes\": {\n      \"featured\": {\n        \"_id\": \"6ad48763b94069bb6d53afa5\",\n        \"title\": \"AI COACH SESSION\",\n        \"description\": \"Personalized 15-min mental conditioning with your coach\",\n        \"duration\": \"15 min\",\n        \"xp\": \"+280 XP\"\n      },\n      \"streak\": {\n        \"streak\": \"5🔥\",\n        \"weeklyDays\": [\n          {\n            \"day\": \"M\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"W\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"F\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          }\n        ]\n      },\n      \"category\": \"all\",\n      \"drills\": [\n        {\n          \"_id\": \"6ad48763b94069bb6d53afa6\",\n          \"title\": \"Pre-Match Focus Ritual\",\n          \"category\": \"focus\",\n          \"difficulty\": \"Beginner\",\n          \"duration\": \"8 min\",\n          \"xp\": \"+120 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afa7\",\n          \"title\": \"Pressure Breathing\",\n          \"category\": \"pressure\",\n          \"difficulty\": \"Beginner\",\n          \"duration\": \"5 min\",\n          \"xp\": \"+80 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afa8\",\n          \"title\": \"Resilience Reset\",\n          \"category\": \"resilience\",\n          \"difficulty\": \"Intermediate\",\n          \"duration\": \"12 min\",\n          \"xp\": \"+180 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afa9\",\n          \"title\": \"Confidence Power-Up\",\n          \"category\": \"confidence\",\n          \"difficulty\": \"Beginner\",\n          \"duration\": \"6 min\",\n          \"xp\": \"+100 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afaa\",\n          \"title\": \"Elite Focus Flow\",\n          \"category\": \"focus\",\n          \"difficulty\": \"Advanced\",\n          \"duration\": \"15 min\",\n          \"xp\": \"+220 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afab\",\n          \"title\": \"Match Mindset Builder\",\n          \"category\": \"confidence\",\n          \"difficulty\": \"Intermediate\",\n          \"duration\": \"10 min\",\n          \"xp\": \"+150 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afac\",\n          \"title\": \"Calm Under Fire\",\n          \"category\": \"pressure\",\n          \"difficulty\": \"Intermediate\",\n          \"duration\": \"9 min\",\n          \"xp\": \"+140 XP\"\n        },\n        {\n          \"_id\": \"6ad48764b94069bb6d53afad\",\n          \"title\": \"Bounce Back Protocol\",\n          \"category\": \"resilience\",\n          \"difficulty\": \"Beginner\",\n          \"duration\": \"7 min\",\n          \"xp\": \"+110 XP\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             },
             {
               "name": "Get Filtered Mental Drills (Category filter)",
@@ -2510,7 +2647,22 @@
                     }
                   ]
                 }
-              }
+              },
+              "response": [
+                {
+                  "name": "200 OK - Filtered Drills (category=focus)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Train screen data retrieved successfully\",\n  \"data\": {\n    \"type\": \"TrainOverview\",\n    \"attributes\": {\n      \"featured\": {\n        \"_id\": \"6ad48763b94069bb6d53afa5\",\n        \"title\": \"AI COACH SESSION\",\n        \"description\": \"Personalized 15-min mental conditioning with your coach\",\n        \"duration\": \"15 min\",\n        \"xp\": \"+280 XP\"\n      },\n      \"streak\": {\n        \"streak\": \"5🔥\",\n        \"weeklyDays\": [\n          {\n            \"day\": \"M\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"W\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"T\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"F\",\n            \"completed\": true\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          },\n          {\n            \"day\": \"S\",\n            \"completed\": false\n          }\n        ]\n      },\n      \"category\": \"focus\",\n      \"drills\": [\n        {\n          \"_id\": \"6ad48763b94069bb6d53afa6\",\n          \"title\": \"Pre-Match Focus Ritual\",\n          \"category\": \"focus\",\n          \"difficulty\": \"Beginner\",\n          \"duration\": \"8 min\",\n          \"xp\": \"+120 XP\"\n        },\n        {\n          \"_id\": \"6ad48763b94069bb6d53afaa\",\n          \"title\": \"Elite Focus Flow\",\n          \"category\": \"focus\",\n          \"difficulty\": \"Advanced\",\n          \"duration\": \"15 min\",\n          \"xp\": \"+220 XP\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             },
             {
               "name": "Get Coach Assignments (Figma Node 33000:12481)",
@@ -2654,6 +2806,173 @@
                   ]
                 }
               }
+            },
+            {
+              "name": "1. Compete Screen - Regional Leaderboard (Figma Node 32817:6437)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/compete?scope=regional",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "compete"
+                  ],
+                  "query": [
+                    {
+                      "key": "scope",
+                      "value": "regional",
+                      "description": "Leaderboard scope: regional or national"
+                    }
+                  ]
+                },
+                "description": "Compete Screen & Leaderboard (Figma Node 32817:6437). Returns your rank card (Rank 5, ALEX, 2,340 XP, 🔥 5 day streak), scope toggle tabs (🌍 Regional & 🏆 National), ranked leaderboard (🥇 Jordan K., 🥈 Amara D., 🥉 Felix M., 🎖 Priya S., ⭐ Alex (You), 6 Diego R., 7 Zoe T.), and active Challenges section (Mental Toughness Week, Focus Sprint, Resilience Cup) with time left and Join action buttons."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Regional Compete Screen & Leaderboard (Figma Node 32817:6437)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Compete leaderboard and challenges retrieved successfully\",\n  \"data\": {\n    \"type\": \"CompetePage\",\n    \"attributes\": {\n      \"yourRank\": {\n        \"_id\": \"6acc80dca1df2a2ed315c20e\",\n        \"rank\": 5,\n        \"name\": \"ALEX\",\n        \"xp\": \"2,340 XP\",\n        \"streak\": \"🔥 5 day streak\"\n      },\n      \"scope\": \"regional\",\n      \"leaderboard\": [\n        {\n          \"_id\": \"6accb7b508f24b708382a8d8\",\n          \"rank\": 1,\n          \"badge\": \"🥇\",\n          \"name\": \"Jordan K.\",\n          \"streak\": \"🔥 21 day streak\",\n          \"xp\": \"8,420\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accb7b608f24b708382a905\",\n          \"rank\": 2,\n          \"badge\": \"🥈\",\n          \"name\": \"Amara D.\",\n          \"streak\": \"🔥 18 day streak\",\n          \"xp\": \"7,960\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc656297716db26fb706e\",\n          \"rank\": 3,\n          \"badge\": \"🥉\",\n          \"name\": \"Felix M.\",\n          \"streak\": \"🔥 15 day streak\",\n          \"xp\": \"7,340\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc656297716db26fb706a\",\n          \"rank\": 4,\n          \"badge\": \"🎖\",\n          \"name\": \"Priya S.\",\n          \"streak\": \"🔥 12 day streak\",\n          \"xp\": \"6,890\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6acc80dca1df2a2ed315c20e\",\n          \"rank\": 5,\n          \"badge\": \"⭐\",\n          \"name\": \"Alex (You)\",\n          \"streak\": \"🔥 5 day streak\",\n          \"xp\": \"2,340\",\n          \"isCurrentUser\": true\n        },\n        {\n          \"_id\": \"6accb7b408f24b708382a8b3\",\n          \"rank\": 6,\n          \"badge\": \"6\",\n          \"name\": \"Diego R.\",\n          \"streak\": \"🔥 4 day streak\",\n          \"xp\": \"2,100\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc655297716db26fb7054\",\n          \"rank\": 7,\n          \"badge\": \"7\",\n          \"name\": \"Zoe T.\",\n          \"streak\": \"🔥 3 day streak\",\n          \"xp\": \"1,870\",\n          \"isCurrentUser\": false\n        }\n      ],\n      \"challenges\": [\n        {\n          \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"icon\": \"🏆\",\n          \"title\": \"Mental Toughness Week\",\n          \"subtitle\": \"2,000 XP + Badge · 3d left\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577c9\",\n          \"icon\": \"🏆\",\n          \"title\": \"Resilience Cup\",\n          \"subtitle\": \"1,000 XP + Trophy · 6d left\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577be\",\n          \"icon\": \"⚡\",\n          \"title\": \"Focus Sprint\",\n          \"subtitle\": \"500 XP · 1d left\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "2. Compete Screen - National Leaderboard (Figma Node 32817:6437)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/compete?scope=national",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "compete"
+                  ],
+                  "query": [
+                    {
+                      "key": "scope",
+                      "value": "national",
+                      "description": "Leaderboard scope: national"
+                    }
+                  ]
+                },
+                "description": "Compete Screen filtered by National scope (e.g. Spain)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - National Compete Screen & Leaderboard (Figma Node 32817:6437)",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Compete leaderboard and challenges retrieved successfully\",\n  \"data\": {\n    \"type\": \"CompetePage\",\n    \"attributes\": {\n      \"yourRank\": {\n        \"_id\": \"6acc80dca1df2a2ed315c20e\",\n        \"rank\": 5,\n        \"name\": \"ALEX\",\n        \"xp\": \"2,340 XP\",\n        \"streak\": \"🔥 5 day streak\"\n      },\n      \"scope\": \"national\",\n      \"leaderboard\": [\n        {\n          \"_id\": \"6accb7b508f24b708382a8d8\",\n          \"rank\": 1,\n          \"badge\": \"🥇\",\n          \"name\": \"Jordan K.\",\n          \"streak\": \"🔥 21 day streak\",\n          \"xp\": \"8,420\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accb7b608f24b708382a905\",\n          \"rank\": 2,\n          \"badge\": \"🥈\",\n          \"name\": \"Amara D.\",\n          \"streak\": \"🔥 18 day streak\",\n          \"xp\": \"7,960\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc656297716db26fb706e\",\n          \"rank\": 3,\n          \"badge\": \"🥉\",\n          \"name\": \"Felix M.\",\n          \"streak\": \"🔥 15 day streak\",\n          \"xp\": \"7,340\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc656297716db26fb706a\",\n          \"rank\": 4,\n          \"badge\": \"🎖\",\n          \"name\": \"Priya S.\",\n          \"streak\": \"🔥 12 day streak\",\n          \"xp\": \"6,890\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6acc80dca1df2a2ed315c20e\",\n          \"rank\": 5,\n          \"badge\": \"⭐\",\n          \"name\": \"Alex (You)\",\n          \"streak\": \"🔥 5 day streak\",\n          \"xp\": \"2,340\",\n          \"isCurrentUser\": true\n        },\n        {\n          \"_id\": \"6accb7b408f24b708382a8b3\",\n          \"rank\": 6,\n          \"badge\": \"6\",\n          \"name\": \"Diego R.\",\n          \"streak\": \"🔥 4 day streak\",\n          \"xp\": \"2,100\",\n          \"isCurrentUser\": false\n        },\n        {\n          \"_id\": \"6accc655297716db26fb7054\",\n          \"rank\": 7,\n          \"badge\": \"7\",\n          \"name\": \"Zoe T.\",\n          \"streak\": \"🔥 3 day streak\",\n          \"xp\": \"1,870\",\n          \"isCurrentUser\": false\n        }\n      ],\n      \"challenges\": [\n        {\n          \"_id\": \"6acb5d77ebb3f8bc900a1c4a\",\n          \"icon\": \"🏆\",\n          \"title\": \"Mental Toughness Week\",\n          \"subtitle\": \"2,000 XP + Badge · 3d left\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577c9\",\n          \"icon\": \"🏆\",\n          \"title\": \"Resilience Cup\",\n          \"subtitle\": \"1,000 XP + Trophy · 6d left\"\n        },\n        {\n          \"_id\": \"6ad34a77383ba0798a2577be\",\n          \"icon\": \"⚡\",\n          \"title\": \"Focus Sprint\",\n          \"subtitle\": \"500 XP · 1d left\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
+            },
+            {
+              "name": "3. Join Challenge from Compete Screen (Figma Node 32817:6437)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/compete/challenges/6ad34a77383ba0798a2577be/join",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "compete",
+                    "challenges",
+                    "6ad34a77383ba0798a2577be",
+                    "join"
+                  ]
+                },
+                "description": "Join a challenge by clicking \"Join\" button on the Compete Screen (Figma Node 32817:6437)."
+              },
+              "response": [
+                {
+                  "name": "200 OK - Joined Challenge from Compete Screen",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Challenge joined successfully\",\n  \"data\": {\n    \"type\": \"ChallengeParticipation\",\n    \"attributes\": {\n      \"challengeId\": \"6acb5d77ebb3f8bc900a1c4a\",\n      \"title\": \"Mental Toughness Week\",\n      \"message\": \"Successfully joined \\\"Mental Toughness Week\\\" challenge!\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             }
           ]
         }
@@ -3384,6 +3703,86 @@
               "createdAt": "2026-10-11T10:44:58.000Z",
               "updatedAt": "2026-10-11T11:00:11.000Z",
               "uid": "48870830-d784763e-5e88-6ab2-9b49-569dff0aa275"
+            },
+            {
+              "name": "Assign Training Drill to Athlete",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"title\": \"Ball Mastery Phase 1 – Foundation\",\n  \"category\": \"Technical\",\n  \"duration\": \"18 min\",\n  \"week\": 1,\n  \"xpReward\": 70,\n  \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n}"
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/user/assign-drill",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "assign-drill"
+                  ]
+                },
+                "description": "Assign a video training drill for Week 1, Week 2, etc. to an athlete. Sourced into MongoDB TrainingAssignment collection."
+              },
+              "response": [
+                {
+                  "name": "201 Created - Drill Assigned",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"title\": \"Ball Mastery Phase 1 – Foundation\",\n  \"category\": \"Technical\",\n  \"duration\": \"18 min\",\n  \"week\": 1,\n  \"xpReward\": 70,\n  \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"\n}"
+                    },
+                    "url": {
+                      "raw": "{{url}}/api/v1/user/assign-drill",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "user",
+                        "assign-drill"
+                      ]
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 201,\n  \"message\": \"Training assigned successfully\",\n  \"data\": {\n    \"type\": \"TrainingAssignment\",\n    \"attributes\": {\n      \"athlete\": \"6acc80dca1df2a2ed315c20e\",\n      \"coach\": \"6acb088d1585cdc26ae1d8b9\",\n      \"title\": \"Ball Mastery Phase 1 – Foundation\",\n      \"videoUrl\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\n      \"category\": \"Technical\",\n      \"duration\": \"18 min\",\n      \"week\": 1,\n      \"xpReward\": 70,\n      \"status\": \"assigned\",\n      \"completedAt\": null,\n      \"_id\": \"6adc50d88aa10a592ad977fd\"\n    }\n  },\n  \"errors\": []\n}"
+                }
+              ]
             }
           ],
           "id": "e499a6d5-2cdd-4985-97fa-5589a7f58ee4",

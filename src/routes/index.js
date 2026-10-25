@@ -26,6 +26,14 @@ const moduleRoutes = [
     route: trainRoutes,
   },
   {
+    path: '/compete',
+    route: userRoutes,
+  },
+  {
+    path: '/leaderboard',
+    route: userRoutes,
+  },
+  {
     path: '/community',
     route: communityRoutes,
   },

@@ -1662,19 +1662,29 @@ const assignTrainingService = async (athleteId, data, coachId = null) => {
     throw new Error('Invalid Athlete ID');
   }
 
-  const { title, videoUrl = '', category = 'Technical', duration = '15 min', week = 1 } = data;
+  const { title, videoUrl = '', category = 'Technical', duration = '15 min', week = 1, xpReward = 70 } = data;
   if (!title) {
     throw new Error('Video/Drill Title is required');
   }
 
+  // If coachId is not provided or is admin, fallback to athlete's assignedCoach in DB
+  let resolvedCoachId = coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null;
+  if (!resolvedCoachId) {
+    const athleteDoc = await User.findById(athleteId).select('assignedCoach');
+    if (athleteDoc?.assignedCoach) {
+      resolvedCoachId = athleteDoc.assignedCoach;
+    }
+  }
+
   const assignment = await TrainingAssignment.create({
     athlete: athleteId,
-    coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null,
+    coach: resolvedCoachId,
     title,
     videoUrl,
     category,
     duration,
     week: Number(week) || 1,
+    xpReward: Number(xpReward) || 70,
     status: 'assigned',
   });
 

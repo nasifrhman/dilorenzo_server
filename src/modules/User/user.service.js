@@ -462,6 +462,9 @@ const createAthleteService = async (athleteData) => {
     phoneNumber,
     role: 'athlete',
     tier,
+    region: athleteData.region || '',
+    nation: athleteData.nation || athleteData.nationality || '',
+    nationality: athleteData.nation || athleteData.nationality || '',
     currentClub,
     leagueDivision,
     assignedCoach: assignedCoachId,
@@ -770,6 +773,8 @@ const getUserProfileService = async (userId, query = {}) => {
       jerseyNumber: userDoc.jerseyNumber || null,
       rating: typeof userDoc.rating === 'number' ? userDoc.rating : null,
       position: formatPosition(userDoc.position),
+      region: userDoc.region || null,
+      nation: userDoc.nation || userDoc.nationality || null,
       tier: userDoc.tier || 'free',
       tierBadge,
       level,
@@ -992,49 +997,29 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
   const metricList = [consistency, focusRating, resilience].filter((v) => typeof v === 'number' && v > 0);
   const mentalScore = metricList.length > 0 ? Math.round(metricList.reduce((a, b) => a + b, 0) / metricList.length) : 0;
 
-  // Key Metrics Card Objects (matching Figma Node 32905:2100 & 32906:2338)
+  // Key Metrics Card Objects (strictly matching Figma Node 32905:2100 & 32906:2338)
   const mentalScoreCard = {
-    key: 'mentalScore',
-    label: 'Mental Score',
-    value: mentalScore,
-    max: 100,
-    unit: '/100',
-    display: `${mentalScore}/100`,
     icon: '🧠',
-    description: 'Overall mental toughness and training composite score',
+    value: `${mentalScore}/100`,
+    label: 'Mental Score',
   };
 
   const consistencyCard = {
-    key: 'consistency',
-    label: 'Consistency',
-    value: consistency,
-    max: 100,
-    unit: '%',
-    display: `${consistency}%`,
     icon: '📅',
-    description: 'Habit adherence and active training day regularity',
+    value: `${consistency}%`,
+    label: 'Consistency',
   };
 
   const focusRatingCard = {
-    key: 'focusRating',
-    label: 'Focus Rating',
-    value: focusRating,
-    max: 100,
-    unit: '/100',
-    display: `${focusRating}/100`,
     icon: '🎯',
-    description: 'Performance in visual scanning and pre-match rituals',
+    value: `${focusRating}/100`,
+    label: 'Focus Rating',
   };
 
   const resilienceCard = {
-    key: 'resilience',
-    label: 'Resilience',
-    value: resilience,
-    max: 100,
-    unit: '/100',
-    display: `${resilience}/100`,
     icon: '💪',
-    description: 'Composure check-ins, breathwork, and reset protocols',
+    value: `${resilience}/100`,
+    label: 'Resilience',
   };
 
   // 4. Coach Evaluation (real database record only, NO hardcoded dummy feedback)
@@ -1046,12 +1031,10 @@ const getAthleteProgressReviewService = async (userId, query = {}) => {
   let coachEvaluation = null;
   if (latestFeedback) {
     coachEvaluation = {
-      id: latestFeedback._id,
-      coachId: latestFeedback.coach?._id || userDoc.assignedCoach?._id || null,
-      coachName: latestFeedback.coach?.fullName || userDoc.assignedCoach?.fullName || null,
-      rating: typeof latestFeedback.rating === 'number' ? latestFeedback.rating : null,
-      message: latestFeedback.message || null,
-      date: latestFeedback.date || latestFeedback.createdAt || null,
+      _id: latestFeedback._id.toString(),
+      coachName: latestFeedback.coach?.fullName || userDoc.assignedCoach?.fullName || 'Coach',
+      rating: typeof latestFeedback.rating === 'number' ? latestFeedback.rating : 4,
+      message: latestFeedback.message || '',
     };
   }
 
@@ -1136,10 +1119,10 @@ const getAthleteDevPlanService = async (athleteId, currentUserId = null) => {
   let objectives = [];
   if (userDoc.devPlan?.objectives && userDoc.devPlan.objectives.length > 0) {
     objectives = userDoc.devPlan.objectives.map((obj, idx) => ({
-      objectiveId: obj.objectiveId || `obj_${idx + 1}`,
+      objectiveId: obj.objectiveId,
       title: obj.title,
       category: obj.category,
-      icon: obj.icon || '🎯',
+      icon: obj.icon,
       progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
     }));
   } else {
@@ -1850,7 +1833,7 @@ const getMyProgramService = async (userId) => {
     coach = {
       _id: athlete.assignedCoach._id.toString(),
       name: athlete.assignedCoach.fullName || '',
-      role: athlete.assignedCoach.roleTitle || athlete.assignedCoach.role || 'Coach',
+      role: athlete.assignedCoach.roleTitle || athlete.assignedCoach.role || '',
     };
   }
 
@@ -1860,9 +1843,9 @@ const getMyProgramService = async (userId) => {
 
   const formattedTasks = tasks.map(t => ({
     _id: t._id.toString(),
-    title: t.title,
-    category: (t.category || 'TRAINING').toUpperCase(),
-    xp: t.xpReward || 0,
+    title: t.title || '',
+    category: t.category ? t.category.toUpperCase() : '',
+    xp: typeof t.xpReward === 'number' ? t.xpReward : 0,
     isCompleted: t.status === 'completed',
   }));
 
@@ -1933,8 +1916,8 @@ const toggleProgramTaskService = async (userId, taskId) => {
   task.completedAt = willComplete ? new Date() : null;
   await task.save();
 
-  const xpDelta = willComplete ? (task.xpReward || 50) : -(task.xpReward || 50);
-  if (athlete) {
+  const xpDelta = willComplete ? (task.xpReward || 0) : -(task.xpReward || 0);
+  if (athlete && xpDelta !== 0) {
     athlete.xp = Math.max(0, (athlete.xp || 0) + xpDelta);
     await athlete.save();
   }
@@ -1945,7 +1928,7 @@ const toggleProgramTaskService = async (userId, taskId) => {
     isCompleted: willComplete,
     xpDelta,
     currentXp: athlete ? athlete.xp : 0,
-    message: willComplete ? `Task completed! +${task.xpReward || 50} XP awarded` : 'Task marked pending',
+    message: willComplete ? `Task completed! +${task.xpReward || 0} XP awarded` : 'Task marked pending',
   };
 };
 
@@ -2057,7 +2040,7 @@ const getMyCoachService = async (userId, coachId, tab) => {
         month: 'short',
         day: 'numeric',
       }) : '',
-      rating: typeof f.rating === 'number' ? f.rating : 5,
+      rating: typeof f.rating === 'number' ? f.rating : null,
       message: f.message || '',
       tags: Array.isArray(f.tags) ? f.tags : [],
     }));
@@ -2116,7 +2099,7 @@ const getMyCoachService = async (userId, coachId, tab) => {
       month: 'short',
       day: 'numeric',
     }) : '',
-    rating: typeof f.rating === 'number' ? f.rating : 5,
+    rating: typeof f.rating === 'number' ? f.rating : null,
     message: f.message || '',
     tags: Array.isArray(f.tags) ? f.tags : [],
   }));
@@ -2153,83 +2136,45 @@ const getMentorshipGoalsHabitsService = async (userId) => {
   const Habit = require('../Habit/habit.model');
   const HabitLog = require('../Habit/habitLog.model');
 
-  // 1. Active Goals (devPlan.objectives or calculated from real task/habit completions)
-  let activeGoals = [];
-  if (athlete.devPlan?.objectives && athlete.devPlan.objectives.length > 0) {
-    activeGoals = athlete.devPlan.objectives.map((obj, idx) => ({
-      _id: obj.objectiveId || `goal_${idx + 1}`,
-      title: obj.title,
-      description: obj.description || `Complete your ${obj.category || 'focus'} goals.`,
-      progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
-    }));
-  } else {
-    const [allTasks, allHabitLogs] = await Promise.all([
-      Task.find({ athlete: athlete._id }).lean(),
-      HabitLog.find({ athlete: athlete._id }).lean(),
-    ]);
+  // 1. Active Goals: strictly from athlete.devPlan.objectives in DB (zero dummy/mock goals)
+  const activeGoals = (athlete.devPlan?.objectives || []).map((obj, idx) => ({
+    _id: obj.objectiveId || obj._id?.toString() || `goal_${idx + 1}`,
+    title: obj.title || '',
+    description: obj.description || '',
+    progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
+  }));
 
-    const compTasks = allTasks.filter(t => t.status === 'completed');
-    const compHabits = allHabitLogs.filter(h => h.status === 'completed');
-
-    const ballMasteryTasks = allTasks.filter(t => (t.title || '').toLowerCase().includes('ball') || (t.category || '').toLowerCase().includes('technical'));
-    const ballMasteryCompleted = ballMasteryTasks.filter(t => t.status === 'completed').length;
-    const ballMasteryPct = ballMasteryTasks.length > 0 ? Math.round((ballMasteryCompleted / ballMasteryTasks.length) * 100) : (compTasks.length > 0 ? 65 : 0);
-
-    const habitPct = allHabitLogs.length > 0 ? Math.round((compHabits.length / allHabitLogs.length) * 100) : 40;
-
-    activeGoals = [
-      {
-        _id: 'goal_1',
-        title: 'Ball Mastery Session',
-        description: 'Complete your 5-step pre-game routine before every match.',
-        progress: ballMasteryPct,
-      },
-      {
-        _id: 'goal_2',
-        title: 'Consistent Ball Mastery Habit',
-        description: 'Complete ball mastery 5× per week for 8 weeks straight.',
-        progress: habitPct,
-      },
-      {
-        _id: 'goal_3',
-        title: 'Submit All Practice Feedbacks',
-        description: 'Submit action steps for every session assigned by coach.',
-        progress: allTasks.length > 0 ? Math.min(100, Math.round((compTasks.length / allTasks.length) * 100)) : 80,
-      },
-    ];
-  }
-
-  // 2. Daily Goals (today's tasks)
+  // 2. Daily Goals: strictly from Task collection for this athlete
   const tasks = await Task.find({
     athlete: athlete._id,
-  }).sort({ createdAt: -1 }).limit(10).lean();
+  }).sort({ createdAt: -1 }).lean();
 
-  const dailyGoals = tasks.slice(0, 5).map(t => ({
+  const dailyGoals = tasks.map(t => ({
     _id: t._id.toString(),
-    title: t.title,
-    category: (t.category || 'training').toLowerCase(),
-    xp: t.xpReward || 50,
+    title: t.title || '',
+    category: t.category ? t.category.toLowerCase() : '',
+    xp: typeof t.xpReward === 'number' ? t.xpReward : 0,
     isCompleted: t.status === 'completed',
   }));
 
-  // 3. Weekly Habits
+  // 3. Weekly Habits: strictly from Habit collection for this athlete
   const habits = await Habit.find({
     $or: [
       { assignedAthletes: athlete._id },
       { isActive: true },
     ],
-  }).limit(5).lean();
+  }).lean();
 
   const weeklyHabits = habits.map(h => ({
     _id: h._id.toString(),
-    title: h.title,
-    frequency: h.frequency || 'Weekly · By Sunday',
-    xp: h.xpReward || 40,
+    title: h.title || '',
+    frequency: h.frequency || '',
+    xp: typeof h.xpReward === 'number' ? h.xpReward : 0,
     isCompleted: Boolean(h.completionRate >= 100),
   }));
 
-  // 4. Weekly Streak & Tracker Days
-  const streak = athlete.streak || 0;
+  // 4. Weekly Streak & Tracker Days: strictly from HabitLog
+  const streak = typeof athlete.streak === 'number' ? athlete.streak : 0;
   const now = new Date();
   const dayOfWeek = now.getDay();
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -2257,7 +2202,7 @@ const getMentorshipGoalsHabitsService = async (userId) => {
 
     return {
       day: d,
-      completed: hasLog || (streak > idx && idx <= (dayOfWeek === 0 ? 6 : dayOfWeek - 1)),
+      completed: Boolean(hasLog),
     };
   });
 
@@ -2290,14 +2235,12 @@ const getMentorshipTrainingProgramService = async (userId) => {
     throw error;
   }
 
-  const coachName = athlete.assignedCoach?.fullName || 'Coach Rivera';
+  // Coach name strictly from DB (no dummy fallback)
+  const coachName = athlete.assignedCoach?.fullName || '';
 
+  // Assignments strictly for this athlete (no fallback to other users' assignments)
   const TrainingAssignment = require('../Coach/trainingAssignment.model');
-  let assignments = await TrainingAssignment.find({ athlete: athlete._id }).sort({ week: 1, createdAt: 1 }).lean();
-
-  if (assignments.length === 0) {
-    assignments = await TrainingAssignment.find({}).sort({ week: 1, createdAt: 1 }).limit(10).lean();
-  }
+  const assignments = await TrainingAssignment.find({ athlete: athlete._id }).sort({ week: 1, createdAt: 1 }).lean();
 
   const totalCount = assignments.length;
   const completedCount = assignments.filter(a => a.status === 'completed').length;
@@ -2315,10 +2258,10 @@ const getMentorshipTrainingProgramService = async (userId) => {
     }
     weeksMap[wNum].drills.push({
       _id: a._id.toString(),
-      title: a.title,
-      category: a.category || 'Technical',
-      duration: a.duration || '15 min',
-      xp: a.xpReward || 70,
+      title: a.title || '',
+      category: a.category || '',
+      duration: a.duration || '',
+      xp: typeof a.xpReward === 'number' ? a.xpReward : 0,
       isCompleted: a.status === 'completed',
       videoUrl: a.videoUrl || '',
     });
@@ -2366,8 +2309,8 @@ const completeMentorshipTrainingDrillService = async (userId, drillId) => {
   assignment.completedAt = willComplete ? new Date() : null;
   await assignment.save();
 
-  const xpReward = 70;
-  if (athlete) {
+  const xpReward = typeof assignment.xpReward === 'number' ? assignment.xpReward : 0;
+  if (athlete && xpReward > 0) {
     const xpDelta = willComplete ? xpReward : -xpReward;
     athlete.xp = Math.max(0, (athlete.xp || 0) + xpDelta);
     await athlete.save();
@@ -2375,7 +2318,7 @@ const completeMentorshipTrainingDrillService = async (userId, drillId) => {
 
   return {
     drillId: assignment._id.toString(),
-    title: assignment.title,
+    title: assignment.title || '',
     isCompleted: willComplete,
     xpDelta: willComplete ? xpReward : -xpReward,
     currentXp: athlete ? athlete.xp : 0,
@@ -2401,32 +2344,34 @@ const getMentorshipProgressService = async (userId) => {
     throw error;
   }
 
-  const startDate = athlete.mentorshipStartDate ? new Date(athlete.mentorshipStartDate) : new Date();
-  const endDate = athlete.mentorshipEndDate ? new Date(athlete.mentorshipEndDate) : new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000);
+  // Date range strictly from athlete document in DB (no default new Date() fallback)
+  let dateRange = '';
+  const startDate = athlete.mentorshipStartDate ? new Date(athlete.mentorshipStartDate) : null;
+  const endDate = athlete.mentorshipEndDate
+    ? new Date(athlete.mentorshipEndDate)
+    : (startDate ? new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000) : null);
 
-  const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  const dateRange = `${formatDate(startDate)} → ${formatDate(endDate)}`;
+  if (startDate && endDate) {
+    const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    dateRange = `${formatDate(startDate)} → ${formatDate(endDate)}`;
+  }
 
   const totalDays = 90;
-  let currentDay = Number(athlete.mentorshipDay) || 1;
+  let currentDay = typeof athlete.mentorshipDay === 'number' ? athlete.mentorshipDay : 0;
   if (athlete.mentorshipStartDate) {
-    const diffTime = Math.max(0, Date.now() - startDate.getTime());
+    const diffTime = Math.max(0, Date.now() - new Date(athlete.mentorshipStartDate).getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     currentDay = Math.min(totalDays, Math.max(1, diffDays));
   }
-  const daysRemaining = Math.max(0, totalDays - currentDay);
-  const percentComplete = Math.min(100, Math.round((currentDay / totalDays) * 100));
+  const daysRemaining = currentDay > 0 ? Math.max(0, totalDays - currentDay) : totalDays;
+  const percentComplete = totalDays > 0 && currentDay > 0 ? Math.min(100, Math.round((currentDay / totalDays) * 100)) : 0;
 
-  let currentPhase = 'Phase 1: Foundation';
-  if (currentDay > 60 || athlete.mentorshipPhase === 'mastery') {
-    currentPhase = 'Phase 3: Performance';
-  } else if (currentDay > 30 || athlete.mentorshipPhase === 'acceleration') {
-    currentPhase = 'Phase 2: Development';
-  }
-
+  // Real counts strictly from DB
   const Session = require('../Session/session.model');
   const ActionStep = require('../ActionStep/actionStep.model');
   const HabitLog = require('../Habit/habitLog.model');
+  const Challenge = require('../Challenge/challenge.model');
+  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
 
   const [sessionsCount, submissionsCount, habitsDoneCount] = await Promise.all([
     Session.countDocuments({ athlete: athlete._id }),
@@ -2447,44 +2392,85 @@ const getMentorshipProgressService = async (userId) => {
       title: 'Phase 2: Development',
       days: 'Days 31–60',
       status: currentDay > 30 && currentDay <= 60 ? 'CURRENT' : (currentDay > 60 ? 'COMPLETED' : 'UPCOMING'),
-      progress: currentDay <= 30 ? 0 : Math.min(100, Math.round((Math.min(30, currentDay - 30) / 30) * 100)),
+      progress: currentDay <= 30 ? 0 : Math.min(100, Math.round((Math.min(30, Math.max(0, currentDay - 30)) / 30) * 100)),
     },
     {
       phaseNumber: 3,
       title: 'Phase 3: Performance',
       days: 'Days 61–90',
       status: currentDay > 60 ? 'CURRENT' : 'UPCOMING',
-      progress: currentDay <= 60 ? 0 : Math.min(100, Math.round(((currentDay - 60) / 30) * 100)),
+      progress: currentDay <= 60 ? 0 : Math.min(100, Math.round((Math.max(0, currentDay - 60) / 30) * 100)),
     },
   ];
 
-  const milestones = [
-    {
-      title: 'First coaching session completed',
-      day: 'Day 7',
-      isCompleted: sessionsCount > 0 || currentDay >= 7,
-    },
-    {
-      title: 'Foundation habits established',
-      day: 'Day 14',
-      isCompleted: habitsDoneCount >= 7 || currentDay >= 14,
-    },
-    {
-      title: 'Pre-game routine locked in',
-      day: 'Day 30',
-      isCompleted: currentDay >= 30,
-    },
-    {
-      title: 'Development phase review',
-      day: 'Day 60',
-      isCompleted: currentDay >= 60,
-    },
-    {
-      title: 'Final 90-day review',
-      day: 'Day 90',
-      isCompleted: currentDay >= 90,
-    },
-  ];
+  // Milestones sourced dynamically from Challenge & ChallengeParticipant models ("milestone is the challenge")
+  const participations = await ChallengeParticipant.find({ athlete: athlete._id }).lean();
+  const participatedChallengeIds = participations.map((p) => p.challenge);
+  const partMap = new Map(participations.map((p) => [p.challenge.toString(), p]));
+
+  const challenges = await Challenge.find({
+    $or: [
+      { _id: { $in: participatedChallengeIds } },
+      { assignedAthletes: athlete._id },
+      {
+        status: { $in: ['active', 'completed', 'upcoming'] },
+        $or: [
+          { assignedAthletes: { $exists: false } },
+          { assignedAthletes: { $size: 0 } },
+          { assignedAthletes: athlete._id },
+        ],
+      },
+    ],
+  })
+    .sort({ startDate: 1, createdAt: 1 })
+    .lean();
+
+  const defaultCheckpoints = [7, 14, 30, 60, 90];
+  const usedDays = new Set();
+
+  const milestones = challenges.map((c, idx) => {
+    const p = partMap.get(c._id.toString());
+    const isCompleted = Boolean(
+      p && (p.isGoalReached || p.completedAt || (p.earnedXp && c.xpGoal && p.earnedXp >= c.xpGoal))
+    );
+
+    let dayNumber = null;
+    if (athlete.mentorshipStartDate && c.startDate) {
+      const diffDays = Math.ceil(
+        (new Date(c.startDate).getTime() - new Date(athlete.mentorshipStartDate).getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (diffDays > 0 && diffDays <= 90 && !usedDays.has(diffDays)) {
+        dayNumber = diffDays;
+      }
+    }
+
+    if (!dayNumber) {
+      dayNumber = defaultCheckpoints.find((d) => !usedDays.has(d)) || Math.min(90, (idx + 1) * 15);
+    }
+    usedDays.add(dayNumber);
+
+    const dayLabel = `Day ${dayNumber}`;
+
+    return {
+      _id: c._id.toString(),
+      title: c.title,
+      description: c.description || '',
+      day: dayLabel,
+      dayNumber,
+      isCompleted,
+      status: isCompleted ? 'COMPLETED' : (p ? 'IN_PROGRESS' : 'UPCOMING'),
+      xpGoal: c.xpGoal || 0,
+      earnedXp: p?.earnedXp || 0,
+      icon: c.icon || '🏆',
+      category: c.category || 'mental',
+      difficulty: c.difficulty || 'medium',
+      completedAt: p?.completedAt || null,
+      startDate: c.startDate || null,
+      endDate: c.endDate || null,
+    };
+  });
+
+  const currentPhase = phases.find((p) => p.status === 'CURRENT') || phases[0];
 
   return {
     dateRange,
@@ -2493,7 +2479,7 @@ const getMentorshipProgressService = async (userId) => {
       totalDays,
       daysRemaining,
       percentComplete,
-      currentPhase,
+      currentPhase: currentPhase?.title || '',
     },
     stats: {
       sessions: sessionsCount,
@@ -2502,6 +2488,286 @@ const getMentorshipProgressService = async (userId) => {
     },
     phases,
     milestones,
+  };
+};
+
+/**
+ * Complete / Toggle a Mentorship Milestone (Challenge)
+ */
+const completeMentorshipMilestoneService = async (challengeId, userId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId);
+  }
+  if (!athlete) {
+    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+  }
+  if (!athlete) {
+    const error = new Error('Athlete not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const Challenge = require('../Challenge/challenge.model');
+  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+
+  const challenge = await Challenge.findById(challengeId);
+  if (!challenge) {
+    const error = new Error('Challenge/Milestone not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let participant = await ChallengeParticipant.findOne({
+    challenge: challenge._id,
+    athlete: athlete._id,
+  });
+
+  if (!participant) {
+    participant = new ChallengeParticipant({
+      challenge: challenge._id,
+      athlete: athlete._id,
+      earnedXp: challenge.xpGoal || 50,
+      isGoalReached: true,
+      completedAt: new Date(),
+    });
+  } else {
+    participant.isGoalReached = !participant.isGoalReached;
+    participant.completedAt = participant.isGoalReached ? new Date() : null;
+    if (participant.isGoalReached && (!participant.earnedXp || participant.earnedXp < (challenge.xpGoal || 50))) {
+      participant.earnedXp = challenge.xpGoal || 50;
+    }
+  }
+
+  await participant.save();
+
+  // If newly completed, increment user total XP
+  if (participant.isGoalReached) {
+    await userModel.findByIdAndUpdate(athlete._id, {
+      $inc: { xp: challenge.xpGoal || 50 },
+    });
+  }
+
+  return {
+    milestoneId: challenge._id.toString(),
+    title: challenge.title,
+    isCompleted: participant.isGoalReached,
+    completedAt: participant.completedAt,
+    earnedXp: participant.earnedXp,
+    message: participant.isGoalReached
+      ? `Milestone "${challenge.title}" marked as completed!`
+      : `Milestone "${challenge.title}" marked as incomplete.`,
+  };
+};
+
+/**
+ * Compete Screen (Figma Node 32817:6437)
+ * Header: COMPETE · Rise through the ranks · prove your mentality
+ * Top Banner: Your Rank card (Rank #, ALEX, XP, streak)
+ * Scope Tabs: 🌍 Regional / 🏆 National
+ * Leaderboard: Ranked list of athletes with medals, streaks, XP, (You) highlight
+ * Challenges: Dynamic cards with XP, Badges/Trophies, time left, and Join action
+ */
+const getUserCompetePageService = async (userId, query = {}) => {
+  let currentUser = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    currentUser = await userModel.findById(userId).lean();
+  }
+  if (!currentUser) {
+    const error = new Error('Authentication required. Please login with a valid token to view compete and leaderboard.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const scope = (query.scope || query.tab || 'regional').toLowerCase();
+  const userRegion = currentUser.region;
+  const userNation = currentUser.nation || currentUser.nationality;
+
+  const filter = {
+    role: 'athlete',
+    isDeleted: false,
+    isBan: { $ne: true },
+  };
+
+  if (scope === 'national') {
+    const targetNation = query.nation || userNation;
+    if (targetNation) {
+      filter.$or = [
+        { nation: new RegExp(`^${targetNation}$`, 'i') },
+        { nationality: new RegExp(`^${targetNation}$`, 'i') },
+      ];
+    }
+  } else {
+    // Default: regional
+    const targetRegion = query.region || userRegion;
+    if (targetRegion) {
+      filter.region = new RegExp(`^${targetRegion}$`, 'i');
+    }
+  }
+
+  const athletes = await userModel
+    .find(filter)
+    .select('fullName xp streak region nation nationality createdAt')
+    .sort({ xp: -1, streak: -1, createdAt: 1 })
+    .lean();
+
+  // Calculate user real rank in this scope
+  const userRankIdx = athletes.findIndex((a) => a._id.toString() === currentUser._id.toString());
+  let userRankNumber = userRankIdx >= 0 ? userRankIdx + 1 : 0;
+  if (userRankNumber === 0) {
+    const higherCount = await userModel.countDocuments({
+      ...filter,
+      xp: { $gt: currentUser.xp || 0 },
+    });
+    userRankNumber = higherCount + 1;
+  }
+
+  // Limit leaderboard to top 7 matching Figma design
+  const limit = Math.max(1, parseInt(query.limit, 10) || 7);
+  const topAthletes = athletes.slice(0, limit);
+
+  const leaderboard = topAthletes.map((a, idx) => {
+    const rank = idx + 1;
+    const isCurrentUser = a._id.toString() === currentUser._id.toString();
+
+    let badge = '';
+    if (rank === 1) badge = '🥇';
+    else if (rank === 2) badge = '🥈';
+    else if (rank === 3) badge = '🥉';
+    else if (rank === 4) badge = '🎖';
+    else if (isCurrentUser) badge = '⭐';
+    else badge = String(rank);
+
+    let name = (a.fullName || '').trim();
+    const nameParts = name.split(/\s+/);
+    if (nameParts.length > 1) {
+      name = `${nameParts[0]} ${nameParts[1].charAt(0).toUpperCase()}.`;
+    }
+    if (isCurrentUser) {
+      name = `${nameParts[0]} (You)`;
+    }
+
+    return {
+      _id: a._id.toString(),
+      rank,
+      badge,
+      name,
+      streak: `🔥 ${a.streak || 0} day streak`,
+      xp: (a.xp || 0).toLocaleString(),
+      isCurrentUser,
+    };
+  });
+
+  // Top Banner Card: e.g. Rank 5, ALEX, 2,340 XP, 🔥 5 day streak
+  const firstName = (currentUser.fullName || '').trim().split(/\s+/)[0].toUpperCase();
+  const yourRank = {
+    _id: currentUser._id.toString(),
+    rank: userRankNumber,
+    name: firstName || currentUser.fullName || '',
+    xp: `${(currentUser.xp || 0).toLocaleString()} XP`,
+    streak: `🔥 ${currentUser.streak || 0} day streak`,
+  };
+
+  // Challenges section (Figma Node 32817:6878)
+  const Challenge = require('../Challenge/challenge.model');
+
+  const challenges = await Challenge.find({ status: { $in: ['active', 'upcoming'] } })
+    .sort({ startDate: 1, createdAt: 1 })
+    .lean();
+
+  const challengesList = challenges.map((c) => {
+    // Calculate real time left from DB endDate
+    let timeLeft = '';
+    if (c.endDate) {
+      const now = Date.now();
+      const endDateMs = new Date(c.endDate).getTime();
+      const diffDays = Math.ceil((endDateMs - now) / (1000 * 60 * 60 * 24));
+      if (diffDays > 0) {
+        timeLeft = `${diffDays}d left`;
+      } else if (diffDays === 0) {
+        timeLeft = 'Ends today';
+      }
+    }
+
+    const rewards = [];
+    if (c.xpGoal) rewards.push(`${c.xpGoal.toLocaleString()} XP`);
+    if (c.rewardBadge) rewards.push(c.rewardBadge.includes('Badge') ? c.rewardBadge : `${c.rewardBadge} Badge`);
+    if (c.rewardTrophy) rewards.push(c.rewardTrophy.includes('Trophy') ? c.rewardTrophy : `${c.rewardTrophy} Trophy`);
+
+    const subtitleParts = [];
+    if (rewards.length > 0) subtitleParts.push(rewards.join(' + '));
+    if (timeLeft) subtitleParts.push(timeLeft);
+    const subtitle = subtitleParts.join(' · ');
+
+    return {
+      _id: c._id.toString(),
+      icon: c.icon || '🏆',
+      title: c.title,
+      subtitle,
+    };
+  });
+
+  return {
+    yourRank,
+    scope,
+    leaderboard,
+    challenges: challengesList,
+  };
+};
+
+/**
+ * Join a Challenge from the Compete Screen (Figma Node 32817:6437)
+ */
+const joinCompeteChallengeService = async (challengeId, userId) => {
+  let athlete = null;
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    athlete = await userModel.findById(userId);
+  }
+  if (!athlete) {
+    const error = new Error('Authentication required. Please login with a valid token to join challenges.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const Challenge = require('../Challenge/challenge.model');
+  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+
+  const challenge = await Challenge.findById(challengeId);
+  if (!challenge) {
+    const error = new Error('Challenge not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  let participant = await ChallengeParticipant.findOne({
+    challenge: challenge._id,
+    athlete: athlete._id,
+  });
+
+  let isNew = false;
+  if (!participant) {
+    participant = await ChallengeParticipant.create({
+      challenge: challenge._id,
+      athlete: athlete._id,
+      earnedXp: 0,
+      completedActivities: [],
+      isGoalReached: false,
+    });
+    isNew = true;
+  }
+
+  const alreadyAssigned = challenge.assignedAthletes.some((id) => id.toString() === athlete._id.toString());
+  if (!alreadyAssigned) {
+    challenge.assignedAthletes.push(athlete._id);
+    await challenge.save();
+  }
+
+  return {
+    challengeId: challenge._id.toString(),
+    title: challenge.title,
+    message: isNew
+      ? `Successfully joined "${challenge.title}" challenge!`
+      : `You are already enrolled in "${challenge.title}" challenge.`,
   };
 };
 
@@ -2545,4 +2811,7 @@ module.exports = {
   getMentorshipTrainingProgramService,
   completeMentorshipTrainingDrillService,
   getMentorshipProgressService,
+  completeMentorshipMilestoneService,
+  getUserCompetePageService,
+  joinCompeteChallengeService,
 };

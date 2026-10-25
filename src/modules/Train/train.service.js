@@ -32,7 +32,11 @@ const resolveAthlete = async (userId) => {
  */
 const getTrainOverviewService = async (userId, query = {}) => {
   const athleteDoc = await resolveAthlete(userId);
-  const athleteId = athleteDoc?._id;
+  if (!athleteDoc) {
+    throw new ApiError(status.UNAUTHORIZED, 'Authentication required. Please login with a valid token to view train screen.');
+  }
+
+  const athleteId = athleteDoc._id;
 
   // 1. Calculate Real Streak & Weekly Tracker (Mon - Sun)
   const now = new Date();
@@ -47,32 +51,30 @@ const getTrainOverviewService = async (userId, query = {}) => {
   endOfWeek.setHours(23, 59, 59, 999);
 
   // Fetch real completed activities for this athlete during this week
-  let completedDateSet = new Set();
-  if (athleteId) {
-    const [completedTasks, completedHabits] = await Promise.all([
-      Task.find({
-        athlete: athleteId,
-        status: 'completed',
-        completedAt: { $gte: startOfWeek, $lte: endOfWeek },
-      }).select('completedAt').lean(),
-      HabitLog.find({
-        athlete: athleteId,
-        status: 'completed',
-        completedAt: { $gte: startOfWeek, $lte: endOfWeek },
-      }).select('completedAt').lean(),
-    ]);
+  const [completedTasks, completedHabits] = await Promise.all([
+    Task.find({
+      athlete: athleteId,
+      status: 'completed',
+      completedAt: { $gte: startOfWeek, $lte: endOfWeek },
+    }).select('completedAt').lean(),
+    HabitLog.find({
+      athlete: athleteId,
+      status: 'completed',
+      completedAt: { $gte: startOfWeek, $lte: endOfWeek },
+    }).select('completedAt').lean(),
+  ]);
 
-    completedTasks.forEach((t) => {
-      if (t.completedAt) {
-        completedDateSet.add(new Date(t.completedAt).toISOString().split('T')[0]);
-      }
-    });
-    completedHabits.forEach((h) => {
-      if (h.completedAt) {
-        completedDateSet.add(new Date(h.completedAt).toISOString().split('T')[0]);
-      }
-    });
-  }
+  const completedDateSet = new Set();
+  completedTasks.forEach((t) => {
+    if (t.completedAt) {
+      completedDateSet.add(new Date(t.completedAt).toISOString().split('T')[0]);
+    }
+  });
+  completedHabits.forEach((h) => {
+    if (h.completedAt) {
+      completedDateSet.add(new Date(h.completedAt).toISOString().split('T')[0]);
+    }
+  });
 
   const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const weeklyDays = [];
@@ -83,43 +85,35 @@ const getTrainOverviewService = async (userId, query = {}) => {
     const isCompleted = completedDateSet.has(dateStr);
     weeklyDays.push({
       day: dayLabels[i],
-      date: dateStr,
-      isCompleted,
+      completed: isCompleted,
     });
   }
 
-  const currentStreak = Number(athleteDoc?.streak) || 0;
+  const currentStreak = Number(athleteDoc.streak) || 0;
 
   // 2. Featured Session (Figma Node 32772:5327 "⚡ Today's Featured")
-  const featuredDrill = await Drill.findOne({ isFeatured: true, isActive: true }).lean() ||
-    await Drill.findOne({ isActive: true }).sort({ xpReward: -1 }).lean();
+  const featuredDrill =
+    (await Drill.findOne({ isFeatured: true, isActive: true }).lean()) ||
+    (await Drill.findOne({ isActive: true }).sort({ xpReward: -1 }).lean());
 
   const featured = featuredDrill
     ? {
         _id: featuredDrill._id.toString(),
-        tag: "⚡ Today's Featured",
         title: featuredDrill.title,
         description: featuredDrill.description || '',
-        icon: featuredDrill.icon || '',
-        duration: featuredDrill.duration || 0,
-        durationDisplay: `${featuredDrill.duration || 0} min`,
-        xpReward: featuredDrill.xpReward || 0,
-        xpRewardDisplay: `+${featuredDrill.xpReward || 0} XP`,
-        buttonText: 'Start Session',
-        videoUrl: featuredDrill.videoUrl || '',
+        duration: `${featuredDrill.duration || 15} min`,
+        xp: `+${featuredDrill.xpReward || 280} XP`,
       }
     : null;
 
-  // 3. Mental Performance Drills (Filtered by optional category query param)
+  // 3. Mental Performance Drills (Filtered by category, matching Figma cards strictly)
   const selectedCategory = (query.category || 'all').toLowerCase().trim();
   const drillFilter = { isActive: true, isFeatured: false };
   if (selectedCategory !== 'all') {
     drillFilter.category = selectedCategory;
   }
 
-  const drillDocs = await Drill.find(drillFilter)
-    .sort({ createdAt: 1 })
-    .lean();
+  const drillDocs = await Drill.find(drillFilter).sort({ createdAt: 1 }).lean();
 
   const drills = drillDocs.map((d) => {
     const diff = d.difficulty || 'beginner';
@@ -127,26 +121,20 @@ const getTrainOverviewService = async (userId, query = {}) => {
     return {
       _id: d._id.toString(),
       title: d.title,
-      icon: d.icon || '🧠',
       category: d.category,
       difficulty: formattedDifficulty,
-      duration: d.duration || 10,
-      durationDisplay: `${d.duration || 10} min`,
-      xpReward: d.xpReward || 0,
-      xpRewardDisplay: `+${d.xpReward || 0} XP`,
-      description: d.description || '',
-      videoUrl: d.videoUrl || '',
+      duration: `${d.duration || 10} min`,
+      xp: `+${d.xpReward || 0} XP`,
     };
   });
 
   return {
     featured,
     streak: {
-      currentStreak,
-      streakDisplay: `${currentStreak}🔥`,
-      label: 'Days streak',
+      streak: `${currentStreak}🔥`,
       weeklyDays,
     },
+    category: selectedCategory,
     drills,
   };
 };

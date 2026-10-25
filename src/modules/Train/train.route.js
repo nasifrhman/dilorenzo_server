@@ -21,8 +21,8 @@ const {
 } = require('./train.controller');
 
 // 1. Train Screen Overview & Drills (Figma Node 32772:5327)
-router.get('/', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getTrainOverviewController);
-router.get('/overview', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getTrainOverviewController);
+router.get('/', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getTrainOverviewController);
+router.get('/overview', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getTrainOverviewController);
 
 // 2. Training Planner (Calendar / Events) (Figma Nodes 32954:2212 & 32954:2000)
 router.get('/planner', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getTrainingPlannerController);
@@ -35,7 +35,7 @@ router.post('/exclusive-content/:id/progress', auth(['user', 'athlete', 'admin',
 router.post('/exclusive/:id/progress', auth(['user', 'athlete', 'admin', 'coach', 'parent']), updateExclusiveVideoProgressController);
 
 // Drills endpoints
-router.get('/drills', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getTrainOverviewController);
+router.get('/drills', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getTrainOverviewController);
 router.get('/drills/:id', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getDrillDetailController);
 router.post('/drills/:id/complete', auth(['user', 'athlete', 'admin', 'coach', 'parent']), completeDrillSessionController);
 

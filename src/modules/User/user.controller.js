@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService, getMyCoachService, getMentorshipGoalsHabitsService, getMentorshipTrainingProgramService, completeMentorshipTrainingDrillService, getMentorshipProgressService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService, getMyCoachService, getMentorshipGoalsHabitsService, getMentorshipTrainingProgramService, completeMentorshipTrainingDrillService, getMentorshipProgressService, completeMentorshipMilestoneService, getUserCompetePageService, joinCompeteChallengeService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -664,6 +664,59 @@ const getMentorshipProgressController = catchAsync(async (req, res) => {
   );
 });
 
+/**
+ * Complete / Toggle Mentorship Milestone (Challenge)
+ */
+const completeMentorshipMilestoneController = catchAsync(async (req, res) => {
+  const { milestoneId } = req.params;
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.body?.athleteId || req.query?.athleteId;
+  const result = await completeMentorshipMilestoneService(milestoneId, userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'MentorshipMilestone',
+      message: result.message || 'Milestone updated successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Compete Screen (Figma Node 32817:6437)
+ */
+const getUserCompetePageController = catchAsync(async (req, res) => {
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
+  const result = await getUserCompetePageService(userId, req.query);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CompetePage',
+      message: 'Compete leaderboard and challenges retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+/**
+ * Join Challenge from Compete Screen (Figma Node 32817:6437)
+ */
+const joinCompeteChallengeController = catchAsync(async (req, res) => {
+  const challengeId = req.params.challengeId || req.params.id;
+  const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.body?.athleteId;
+  const result = await joinCompeteChallengeService(challengeId, userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ChallengeParticipation',
+      message: result.message || 'Challenge joined successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   suspendUserController,
   fcmTokenController,
@@ -705,4 +758,7 @@ module.exports = {
   getMentorshipTrainingProgramController,
   completeMentorshipTrainingDrillController,
   getMentorshipProgressController,
+  completeMentorshipMilestoneController,
+  getUserCompetePageController,
+  joinCompeteChallengeController,
 };

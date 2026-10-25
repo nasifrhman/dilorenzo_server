@@ -72,11 +72,6 @@ const auth = (userRoles, { optional = false } = {}) => {
     try {
       decodedData = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
     } catch (err) {
-      if (optional) {
-        req.User = null;
-        req.user = null;
-        return next();
-      }
       throw new ApiError(status.UNAUTHORIZED, "Invalid or expired token");
     }
 

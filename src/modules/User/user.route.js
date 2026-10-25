@@ -37,6 +37,9 @@ const {
   getMentorshipTrainingProgramController,
   completeMentorshipTrainingDrillController,
   getMentorshipProgressController,
+  completeMentorshipMilestoneController,
+  getUserCompetePageController,
+  joinCompeteChallengeController,
 } = require("./user.controller");
 
 // Mentorship Dashboard / 90-Day Mentorship Overview Screen (Figma node 32960:4016)
@@ -69,6 +72,9 @@ router.post("/my-program/training-program/:drillId/complete", auth(['user', 'ath
 router.get("/mentorship/90days-progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
 router.get("/my-program/90days-progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
 router.get("/mentorship/progress", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipProgressController);
+router.post("/mentorship/90days-progress/:milestoneId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipMilestoneController);
+router.post("/my-program/90days-progress/:milestoneId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipMilestoneController);
+router.post("/mentorship/milestone/:milestoneId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipMilestoneController);
 
 // My Coach Screen (Figma nodes 32961:4430, 32963:4767, 32963:5063)
 // "when user click on coach view"
@@ -92,6 +98,12 @@ router.get("/dev-plan", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { 
 router.get("/dev-plan/:athleteId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteDevPlanController);
 router.post("/dev-plan/toggle-habit", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleAthleteHabitTodayController);
 
+// Compete Screen & Leaderboard (Figma node 32817:6437)
+router.get("/compete", auth(['user', 'athlete', 'admin', 'coach', 'parent']), getUserCompetePageController);
+router.get("/leaderboard", auth(['user', 'athlete', 'admin', 'coach', 'parent']), getUserCompetePageController);
+router.post("/compete/challenges/:id/join", auth(['user', 'athlete', 'admin', 'coach', 'parent']), joinCompeteChallengeController);
+router.post("/compete/join/:id", auth(['user', 'athlete', 'admin', 'coach', 'parent']), joinCompeteChallengeController);
+
 // User Profile Screen (Figma node 33253-3890 / 32827-10089)
 router.get("/profile", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getUserProfileController);
 router.post("/badge", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), awardBadgeController);
@@ -112,6 +124,12 @@ router.get("/athlete", getAthletesController);
 // Assign Dedicated Coach & Program endpoints (Figma node 33275-5077)
 router.post("/assign-coach", assignCoachController);
 router.get("/assign-coach/overview", getAssignedCoachesOverviewController);
+
+// Assign Training Drill (Admin & Coach)
+const { assignTrainingController } = require('../Coach/coach.controller');
+router.post("/assign-training", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
+router.post("/assign-drill", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
+router.post("/athlete/:athleteId/training", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
 
 module.exports = router;
 

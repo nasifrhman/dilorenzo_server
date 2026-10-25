@@ -35,6 +35,8 @@ const userSchema = new mongoose.Schema(
     age: { type: Number, required: false },
     dob: { type: Date, required: false },
     gender: { type: String, enum: ['male', 'female', 'other'], required: false },
+    region: { type: String, default: '' }, // e.g. "Europe" (Figma Node 33768:2056)
+    nation: { type: String, default: '' }, // e.g. "Spain" (Figma Node 33768:2056)
     nationality: { type: String, required: false },
     currentClub: { type: String, required: false }, // e.g. "Regional Stars U18"
     leagueDivision: { type: String, default: '' }, // e.g. "Regional Stars U18"

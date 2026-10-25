@@ -276,10 +276,17 @@
       // 3. Key Metrics
       const m = data.keyMetrics;
       if (m) {
-        const mental = m.mentalScore?.display || (typeof m.mentalScore === 'number' ? `${m.mentalScore}/100` : `${m.mentalScore?.value ?? 0}/100`);
-        const consistency = m.consistency?.display || (typeof m.consistency === 'number' ? `${m.consistency}%` : `${m.consistency?.value ?? 0}%`);
-        const focus = m.focusRating?.display || (typeof m.focusRating === 'number' ? `${m.focusRating}/100` : `${m.focusRating?.value ?? 0}/100`);
-        const resilience = m.resilience?.display || (typeof m.resilience === 'number' ? `${m.resilience}/100` : `${m.resilience?.value ?? 0}/100`);
+        const formatVal = (item, defaultSuffix = '') => {
+          if (!item) return '0' + defaultSuffix;
+          const v = item.value ?? item.display ?? item;
+          if (typeof v === 'string') return v;
+          return `${v}${defaultSuffix}`;
+        };
+
+        const mental = formatVal(m.mentalScore, '/100');
+        const consistency = formatVal(m.consistency, '%');
+        const focus = formatVal(m.focusRating, '/100');
+        const resilience = formatVal(m.resilience, '/100');
 
         document.getElementById('valMental').textContent = mental;
         document.getElementById('valConsistency').textContent = consistency;

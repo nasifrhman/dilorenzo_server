@@ -181,7 +181,8 @@ const toggleCommunityPostLikeService = async (postId, currentUserId = null, fall
  * Returns active challenges, featured hero challenge, and athlete join status
  */
 const getCommunityChallengesService = async (athleteId = null) => {
-  const challenges = await Challenge.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
+  // Sort challenges: active ones with isHero first, then by creation date
+  const challenges = await Challenge.find({ status: 'active' }).sort({ isHero: -1, createdAt: 1 }).lean();
 
   const targetAthleteId = athleteId && mongoose.isValidObjectId(athleteId) ? athleteId.toString() : null;
 
@@ -191,77 +192,66 @@ const getCommunityChallengesService = async (athleteId = null) => {
     : [];
   const joinedChallengeIds = new Set(userParticipations.map((p) => p.challenge.toString()));
 
-  const formattedChallenges = await Promise.all(
-    challenges.map(async (c) => {
-      const dbParticipantCount = await ChallengeParticipant.countDocuments({ challenge: c._id });
-      const participantsCount = dbParticipantCount || (Array.isArray(c.assignedAthletes) ? c.assignedAthletes.length : 0);
+  // Identify Hero Challenge
+  const heroDoc = challenges.find((c) => c.isHero) || (challenges.length > 0 ? challenges[0] : null);
 
-      const daysLeft = Math.max(0, Math.ceil((new Date(c.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-      const isJoined = targetAthleteId
-        ? (joinedChallengeIds.has(c._id.toString()) || (c.assignedAthletes || []).some((id) => (id?._id ? id._id.toString() : id?.toString()) === targetAthleteId))
-        : false;
+  let heroChallenge = null;
+  if (heroDoc) {
+    const dbParticipantCount = await ChallengeParticipant.countDocuments({ challenge: heroDoc._id });
+    const participantsCount = dbParticipantCount || (Array.isArray(heroDoc.assignedAthletes) ? heroDoc.assignedAthletes.length : 0);
+    const daysLeft = Math.max(0, Math.ceil((new Date(heroDoc.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    const isHeroJoined = targetAthleteId
+      ? (joinedChallengeIds.has(heroDoc._id.toString()) || (heroDoc.assignedAthletes || []).some((id) => (id?._id ? id._id.toString() : id?.toString()) === targetAthleteId))
+      : false;
 
-      let rewardDisplay = `${(c.xpGoal || 0).toLocaleString()} XP`;
-      if (c.rewardTrophy) {
-        rewardDisplay += ` + Trophy · ${daysLeft}d left`;
-      } else if (c.rewardBadge) {
-        rewardDisplay += ` + Badge · ${daysLeft}d left`;
-      } else {
-        rewardDisplay += ` · ${daysLeft}d left`;
-      }
+    let heroRewardExtra = '';
+    if (heroDoc.rewardBadge) {
+      heroRewardExtra = ` · ${heroDoc.rewardBadge}`;
+    } else if (heroDoc.rewardTrophy) {
+      heroRewardExtra = ` · ${heroDoc.rewardTrophy}`;
+    }
+    const heroReward = `+${(heroDoc.xpGoal || 0).toLocaleString()} XP${heroRewardExtra}`;
 
-      return {
-        id: c._id.toString(),
-        _id: c._id.toString(),
-        title: c.title,
-        description: c.description || '',
-        category: c.category || 'mental',
-        difficulty: c.difficulty || 'medium',
-        xpReward: typeof c.xpGoal === 'number' ? c.xpGoal : 0,
-        rewardDisplay,
-        rewardBadge: c.rewardBadge || '',
-        rewardTrophy: c.rewardTrophy || '',
-        daysLeft,
-        participantsCount,
-        isJoined,
-        isHero: Boolean(c.isHero),
-        status: c.status,
-      };
-    })
-  );
+    const activitiesCount = Array.isArray(heroDoc.activities) && heroDoc.activities.length > 0 ? heroDoc.activities.length : 7;
+    const heroSubtitle = `${participantsCount} athlete${participantsCount === 1 ? '' : 's'} · ${daysLeft} day${daysLeft === 1 ? '' : 's'} left · Complete ${activitiesCount} daily challenges`;
 
-  // Identify Hero Challenge: Strictly the most newly created active challenge (সর্বোচ্চ নতুন অ্যাক্টিভ চ্যালেঞ্জ)
-  const heroChallenge = formattedChallenges.length > 0 ? formattedChallenges[0] : null;
+    heroChallenge = {
+      _id: heroDoc._id.toString(),
+      badge: '🔥 ACTIVE NOW',
+      title: heroDoc.title.toUpperCase(),
+      subtitle: heroSubtitle,
+      reward: heroReward,
+      isJoined: isHeroJoined,
+    };
+  }
 
-  const heroData = heroChallenge
-    ? {
-        id: heroChallenge.id,
-        _id: heroChallenge.id,
-        badgeLabel: '🔥 Active Now',
-        title: heroChallenge.title.toUpperCase(),
-        statsDisplay: `${heroChallenge.participantsCount} athletes · ${heroChallenge.daysLeft} days left · Complete 7 daily challenges`,
-        participantsCount: heroChallenge.participantsCount,
-        daysLeft: heroChallenge.daysLeft,
-        duration: 'Complete 7 daily challenges',
-        rewardDisplay: heroChallenge.rewardBadge || heroChallenge.rewardTrophy
-          ? `+${heroChallenge.xpReward.toLocaleString()} XP · ${heroChallenge.rewardBadge || heroChallenge.rewardTrophy}`
-          : `+${heroChallenge.xpReward.toLocaleString()} XP`,
-        rewardBadge: heroChallenge.rewardBadge || '',
-        rewardTrophy: heroChallenge.rewardTrophy || '',
-        isJoined: heroChallenge.isJoined,
-        isHero: true,
-        status: heroChallenge.status,
-      }
-    : null;
+  // Format list items
+  const formattedChallenges = challenges.map((c) => {
+    const daysLeft = Math.max(0, Math.ceil((new Date(c.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+    const isJoined = targetAthleteId
+      ? (joinedChallengeIds.has(c._id.toString()) || (c.assignedAthletes || []).some((id) => (id?._id ? id._id.toString() : id?.toString()) === targetAthleteId))
+      : false;
 
-  const challengesWithHeroFlag = formattedChallenges.map((c, index) => ({
-    ...c,
-    isHero: index === 0,
-  }));
+    let rewardExtra = '';
+    if (c.rewardTrophy) {
+      rewardExtra = ' + Trophy';
+    } else if (c.rewardBadge) {
+      rewardExtra = ' + Badge';
+    }
+    const subtitle = `${(c.xpGoal || 0).toLocaleString()} XP${rewardExtra} · ${daysLeft}d left`;
+
+    return {
+      _id: c._id.toString(),
+      icon: c.icon || '🏅',
+      title: c.title,
+      subtitle,
+      isJoined,
+    };
+  });
 
   return {
-    heroChallenge: heroData,
-    challenges: challengesWithHeroFlag,
+    heroChallenge,
+    challenges: formattedChallenges,
   };
 };
 
@@ -313,35 +303,64 @@ const joinCommunityChallengeService = async (challengeId, currentUserId = null, 
 
 /**
  * 3. Community Teams API (Figma Node 32827:9607)
- * Team Leaderboard ranked by XP and team membership details
+ * Team Leaderboard filtered strictly to teams created by the login user or where the login user is an athlete
  */
 const getCommunityTeamsService = async (athleteId = null) => {
-  const teams = await Group.find({ type: 'team', isActive: true })
-    .populate('athletes', 'fullName xp')
-    .sort({ totalXp: -1 })
-    .lean();
-
   const targetAthleteId = athleteId && mongoose.isValidObjectId(athleteId) ? athleteId.toString() : null;
 
-  const leaderboard = teams.map((team, index) => {
-    const rank = index + 1;
-    const membersCount = Array.isArray(team.athletes) ? team.athletes.length : 0;
-    const totalXp = typeof team.totalXp === 'number' ? team.totalXp : 0;
+  if (!targetAthleteId) {
+    return {
+      title: 'Team Leaderboard',
+      actionButtonText: '+ Create or Join a Team',
+      leaderboard: [],
+    };
+  }
 
-    const isMyTeam = targetAthleteId
-      ? Array.isArray(team.athletes) && team.athletes.some((a) => (a?._id ? a._id.toString() : a?.toString()) === targetAthleteId)
-      : false;
+  const filter = {
+    type: 'team',
+    isActive: true,
+    $or: [
+      { createdBy: targetAthleteId },
+      { athletes: targetAthleteId },
+    ],
+  };
+
+  const teams = await Group.find(filter)
+    .populate('athletes', 'fullName xp')
+    .lean();
+
+  // Calculate dynamic total XP and members count for each team based on its members
+  const teamsWithScores = teams.map((team) => {
+    const athletes = Array.isArray(team.athletes) ? team.athletes : [];
+    const membersCount = athletes.length;
+    // Calculate total XP as sum of member athlete XPs
+    const membersXpSum = athletes.reduce((sum, a) => sum + (typeof a?.xp === 'number' ? a.xp : 0), 0);
+    const totalXp = Math.max(team.totalXp || 0, membersXpSum);
+
+    const isMyTeam = athletes.some((a) => (a?._id ? a._id.toString() : a?.toString()) === targetAthleteId);
 
     return {
-      rank,
-      id: team._id.toString(),
       _id: team._id.toString(),
       name: team.name,
+      description: team.description || '',
       membersCount,
       totalXp,
       isMyTeam,
     };
   });
+
+  // Sort descending by totalXp, then by membersCount
+  teamsWithScores.sort((a, b) => b.totalXp - a.totalXp || b.membersCount - a.membersCount);
+
+  // Assign ranks
+  const leaderboard = teamsWithScores.map((t, idx) => ({
+    rank: idx + 1,
+    _id: t._id,
+    name: t.name,
+    membersCount: t.membersCount,
+    totalXp: t.totalXp,
+    isMyTeam: t.isMyTeam,
+  }));
 
   return {
     title: 'Team Leaderboard',
@@ -389,7 +408,6 @@ const createCommunityTeamService = async (payload, currentUserId = null) => {
   });
 
   return {
-    id: newTeam._id.toString(),
     _id: newTeam._id.toString(),
     name: newTeam.name,
     membersCount: newTeam.athletes.length,
