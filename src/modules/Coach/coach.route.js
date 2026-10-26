@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../../middlewares/auth');
+const fileUploadMiddleware = require('../../middlewares/fileUpload');
+const ensureUploadFolderExists = require('../../helpers/fileExists');
+const parseData = require('../../middlewares/parseData');
 const coachController = require('./coach.controller');
+
+const UPLOADS_FOLDER_EVIDENCE = './public/uploads/evidence';
+ensureUploadFolderExists(UPLOADS_FOLDER_EVIDENCE);
+const uploadEvidence = fileUploadMiddleware(UPLOADS_FOLDER_EVIDENCE);
 
 // Authenticate user if Bearer token is provided (populates req.user & req.User)
 router.use(auth(['coach', 'admin', 'user', 'athlete', 'parent'], { optional: true }));
@@ -45,16 +52,25 @@ router.patch('/players/:athleteId/habits/:habitId', coachController.updateAthlet
 router.patch('/habits/:habitId/status', coachController.toggleHabitStatusController);
 router.patch('/habits/:habitId', coachController.updateAthleteHabitController);
 
-// 4. Action Steps
+// 4. Action Steps (Figma nodes 33078:3424 & 33097:12107)
 router.get('/players/action-steps', coachController.getAthleteActionStepsController);
 router.get('/players/actionSteps', coachController.getAthleteActionStepsController);
 router.get('/players/:athleteId/action-steps', coachController.getAthleteActionStepsController);
 router.get('/players/:athleteId/actionSteps', coachController.getAthleteActionStepsController);
+router.post('/players/action-steps', coachController.assignAthleteActionStepController);
+router.post('/players/:athleteId/action-steps', coachController.assignAthleteActionStepController);
+router.post('/action-steps/assign', coachController.assignAthleteActionStepController);
+router.post('/action-steps', coachController.assignAthleteActionStepController);
+router.post('/action-steps/:actionStepId/submit', uploadEvidence.any(), parseData(), coachController.submitAthleteActionStepController);
+router.post('/action-steps/:actionStepId/complete', uploadEvidence.any(), parseData(), coachController.submitAthleteActionStepController);
 router.post('/action-steps/:actionStepId/review', coachController.reviewActionStepController);
+router.post('/action-steps/:actionStepId/feedback', coachController.reviewActionStepController);
+router.get('/action-steps/:actionStepId', coachController.getActionStepDetailController);
 
 // 5. Coach Feedback
 router.get('/players/feedback', coachController.getAthleteFeedbackController);
 router.get('/players/:athleteId/feedback', coachController.getAthleteFeedbackController);
+router.get('/feedback/:feedbackId', coachController.getFeedbackDetailController);
 router.post('/players/feedback', coachController.createCoachFeedbackController);
 router.post('/players/:athleteId/feedback', coachController.createCoachFeedbackController);
 

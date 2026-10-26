@@ -58,8 +58,15 @@ const uploadAssignmentEvidenceController = catchAsync(async (req, res) => {
   const userId = getLoggedInUserId(req) || req.body.athleteId;
   const { assignmentId, id } = req.params;
   const targetId = assignmentId || id;
-  const file = req.file || (req.files && req.files.length > 0 ? req.files[0] : null);
-  const result = await uploadAssignmentEvidenceService(userId, targetId, file, req.body);
+  let files = [];
+  if (Array.isArray(req.files)) {
+    files = req.files;
+  } else if (req.files && typeof req.files === 'object') {
+    files = Object.values(req.files).flat();
+  } else if (req.file) {
+    files = [req.file];
+  }
+  const result = await uploadAssignmentEvidenceService(userId, targetId, files, req.body);
   return res.status(status.OK).json(
     response({
       status: 'success',

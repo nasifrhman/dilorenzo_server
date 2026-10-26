@@ -44,18 +44,25 @@ router.get('/assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent'])
 router.get('/coach-assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getCoachAssignmentsController);
 router.get('/assignments/:id', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getCoachAssignmentsController);
 
-// Upload Assignment Evidence (multipart or json) - Strictly Requires Token
+// Upload Assignment Evidence / Submit Assignment (multipart or json) - Strictly Requires Token
 router.post(
   '/assignments/:id/evidence',
   auth(['user', 'athlete', 'admin', 'coach', 'parent']),
-  uploadEvidence.single('evidence'),
+  uploadEvidence.any(),
+  parseData(),
+  uploadAssignmentEvidenceController
+);
+router.post(
+  '/assignments/:id/submit',
+  auth(['user', 'athlete', 'admin', 'coach', 'parent']),
+  uploadEvidence.any(),
   parseData(),
   uploadAssignmentEvidenceController
 );
 router.patch(
   '/assignments/:id/evidence',
   auth(['user', 'athlete', 'admin', 'coach', 'parent']),
-  uploadEvidence.single('evidence'),
+  uploadEvidence.any(),
   parseData(),
   uploadAssignmentEvidenceController
 );

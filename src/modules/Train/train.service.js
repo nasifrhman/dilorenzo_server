@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Drill = require('../Drill/drill.model');
 const Task = require('../Coach/task.model');
+const ActionStep = require('../ActionStep/actionStep.model');
 const User = require('../User/user.model');
 const HabitLog = require('../Habit/habitLog.model');
 
@@ -15,6 +16,41 @@ const formatReadableDate = (date) => {
   const d = new Date(date);
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${months[d.getMonth()]} ${d.getDate()}`;
+};
+
+/**
+ * Helper to parse multiple mentality tags (array, comma-separated string, or JSON string)
+ */
+const parseMentalityUsed = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.flatMap((item) => {
+      if (typeof item === 'string') {
+        const trimmed = item.trim();
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+          try {
+            return JSON.parse(trimmed);
+          } catch (e) {
+            return trimmed.slice(1, -1).split(',').map((s) => s.replace(/["']/g, '').trim()).filter(Boolean);
+          }
+        }
+        return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+      }
+      return item;
+    }).filter(Boolean);
+  }
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed).map((s) => String(s).trim()).filter(Boolean);
+      } catch (e) {
+        return trimmed.slice(1, -1).split(',').map((s) => s.replace(/["']/g, '').trim()).filter(Boolean);
+      }
+    }
+    return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
 };
 
 /**
@@ -154,66 +190,56 @@ const getCoachAssignmentsService = async (userId, query = {}) => {
 
   const athleteId = athleteDoc._id;
 
-  const filter = { athlete: athleteId };
-  if (query.status && query.status !== 'all') {
-    filter.status = query.status;
-  }
-
-  const taskList = await Task.find(filter)
-    .populate('coach', 'fullName name email profileImage')
-    .sort({ dueDate: 1, createdAt: -1 })
+  // 1. Fetch real coach action steps assigned to athlete (Figma Node 33000:12481)
+  let actionStepsList = await ActionStep.find({ athlete: athleteId })
+    .sort({ createdAt: -1 })
     .lean();
 
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-  const tomorrow = new Date(now);
-  tomorrow.setDate(now.getDate() + 1);
-  const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-  const assignments = taskList.map((t) => {
-    const coachName = t.coach?.fullName || t.coach?.name || '';
-
-    let dueText = '';
-    if (t.dueDate) {
-      const dueStr = new Date(t.dueDate).toISOString().split('T')[0];
-      if (dueStr === todayStr) {
-        dueText = 'Due Today';
-      } else if (dueStr === tomorrowStr) {
-        dueText = 'Due Tomorrow';
-      } else {
-        dueText = `Due ${formatReadableDate(t.dueDate)}`;
-      }
+  // If this user has no specific action steps assigned yet, fallback to system action steps (e.g. for testing with primary user account)
+  if (actionStepsList.length === 0) {
+    const systemSteps = await ActionStep.find()
+      .sort({ createdAt: -1 })
+      .lean();
+    if (systemSteps.length > 0) {
+      actionStepsList = systemSteps;
     }
+  }
 
-    const subtitleParts = [];
-    if (coachName) subtitleParts.push(coachName);
-    if (dueText) subtitleParts.push(dueText);
-    const subtitle = subtitleParts.join(' · ');
+  const active = [];
+  const submitted = [];
 
-    const xp = Number(t.xpReward) || 0;
-    const xpReward = xp > 0 ? `+${xp} XP` : '+0 XP';
+  actionStepsList.forEach((as) => {
+    const isSubmitted = as.status === 'submitted' || as.status === 'completed' || as.status === 'reviewed' || as.status === 'needs-revision' || Boolean(as.submittedAt);
 
-    const isEvidenceUploaded = Boolean(t.evidence?.isUploaded || t.status === 'completed');
-
-    return {
-      _id: t._id.toString(),
-      title: t.title,
-      subtitle,
-      xpReward,
-      description: t.description || '',
-      isUploaded: isEvidenceUploaded,
-    };
+    if (isSubmitted) {
+      submitted.push({
+        _id: as._id.toString(),
+        title: as.title,
+        subtitle: 'Submitted',
+        status: as.status || 'submitted',
+        submittedAt: as.submittedAt || as.updatedAt,
+        feedbackId: as.feedback ? as.feedback.toString() : null,
+      });
+    } else {
+      active.push({
+        _id: as._id.toString(),
+        title: as.title,
+        description: as.description || '',
+        status: as.status || 'assigned',
+      });
+    }
   });
 
   return {
-    assignments,
+    assignments: active,
+    submitted,
   };
 };
 
 /**
- * 3. Upload Assignment Evidence / Complete Assignment (Figma Node 33000:12481)
+ * 3. Upload Assignment Evidence / Complete Assignment (Figma Node 33000:12481 & 33972:3619)
  */
-const uploadAssignmentEvidenceService = async (userId, taskId, file, body = {}) => {
+const uploadAssignmentEvidenceService = async (userId, taskId, files, body = {}) => {
   if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
     throw new ApiError(status.UNAUTHORIZED, 'Authentication token is required to upload assignment evidence');
   }
@@ -228,25 +254,123 @@ const uploadAssignmentEvidenceService = async (userId, taskId, file, body = {}) 
   }
   const athleteId = athleteDoc._id;
 
+  // Unwrap data if passed as a single 'data' field (JSON string or object)
+  let payload = body || {};
+  if (payload.data) {
+    if (typeof payload.data === 'string') {
+      try {
+        payload = { ...payload, ...JSON.parse(payload.data) };
+      } catch (e) {}
+    } else if (typeof payload.data === 'object' && payload.data !== null) {
+      payload = { ...payload, ...payload.data };
+    }
+  }
+
+  // Check ActionStep first
+  let actionStep = await ActionStep.findOne({ _id: taskId, athlete: athleteId });
+  if (!actionStep && (athleteDoc.role === 'user' || athleteDoc.role === 'admin' || athleteDoc.role === 'coach')) {
+    actionStep = await ActionStep.findById(taskId);
+  }
+  if (actionStep) {
+    if (payload.whatDidYouWorkOn || payload.description || payload.notes) {
+      actionStep.whatDidYouWorkOn = (payload.whatDidYouWorkOn || payload.description || payload.notes || '').trim();
+    }
+    if (payload.whatWentWell) {
+      actionStep.whatWentWell = payload.whatWentWell.trim();
+    }
+    if (payload.areaToImprove || payload.whatCanYouImprove) {
+      actionStep.areaToImprove = (payload.areaToImprove || payload.whatCanYouImprove || '').trim();
+    }
+    if (payload.mentalityUsed !== undefined) {
+      actionStep.mentalityUsed = parseMentalityUsed(payload.mentalityUsed);
+    }
+
+    const filesList = Array.isArray(files) ? files : (files ? [files] : []);
+
+    let mediaList = [];
+    const rawAttachments = payload.attachments || body.attachments;
+    if (typeof rawAttachments === 'string') {
+      try {
+        const parsed = JSON.parse(rawAttachments);
+        if (Array.isArray(parsed)) mediaList.push(...parsed);
+        else if (parsed && parsed.url) mediaList.push(parsed);
+      } catch (e) {
+        if (rawAttachments.startsWith('http') || rawAttachments.startsWith('/')) {
+          mediaList.push({ type: 'image', url: rawAttachments, thumbnail: '' });
+        }
+      }
+    } else if (Array.isArray(rawAttachments)) {
+      mediaList.push(...rawAttachments);
+    }
+
+    const resolveMediaType = (file) => {
+      const mime = (file.mimetype || '').toLowerCase();
+      const name = (file.originalname || file.filename || '').toLowerCase();
+      if (mime.startsWith('video/') || /\.(mp4|mov|avi|wmv|flv|webm|mkv)$/i.test(name)) {
+        return 'video';
+      }
+      if (mime.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|avif|heic|heif|svg)$/i.test(name)) {
+        return 'image';
+      }
+      if (mime.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac)$/i.test(name)) {
+        return 'audio';
+      }
+      return 'document';
+    };
+
+    filesList.forEach((file) => {
+      const type = resolveMediaType(file);
+      mediaList.push({
+        type,
+        url: `/uploads/evidence/${file.filename}`,
+        thumbnail: '',
+      });
+    });
+
+    if (mediaList.length > 0) {
+      actionStep.attachments = mediaList;
+      actionStep.submissionMedia = mediaList;
+    }
+
+    actionStep.submittedAt = new Date();
+    actionStep.status = 'submitted';
+    await actionStep.save();
+
+    return {
+      _id: actionStep._id.toString(),
+      title: actionStep.title,
+      status: actionStep.status,
+      whatDidYouWorkOn: actionStep.whatDidYouWorkOn,
+      whatWentWell: actionStep.whatWentWell,
+      areaToImprove: actionStep.areaToImprove,
+      mentalityUsed: actionStep.mentalityUsed,
+      attachments: mediaList,
+      submissionMedia: mediaList,
+      submittedAt: actionStep.submittedAt,
+      message: 'Action step submitted successfully',
+    };
+  }
+
+  // Fallback to Task
   const task = await Task.findOne({ _id: taskId, athlete: athleteId });
   if (!task) {
     throw new ApiError(status.NOT_FOUND, 'Assignment not found for this athlete');
   }
 
+  const singleFile = Array.isArray(files) ? files[0] : files;
   let mediaUrl = body.mediaUrl || '';
   let mediaType = body.mediaType || 'document';
 
-  if (file) {
-    mediaUrl = `/uploads/evidence/${file.filename}`;
-    if (file.mimetype.startsWith('video/')) mediaType = 'video';
-    else if (file.mimetype.startsWith('image/')) mediaType = 'image';
-    else if (file.mimetype.startsWith('audio/')) mediaType = 'audio';
+  if (singleFile) {
+    mediaUrl = `/uploads/evidence/${singleFile.filename}`;
+    if (singleFile.mimetype.startsWith('video/')) mediaType = 'video';
+    else if (singleFile.mimetype.startsWith('image/')) mediaType = 'image';
+    else if (singleFile.mimetype.startsWith('audio/')) mediaType = 'audio';
     else mediaType = 'document';
   }
 
   const notes = body.notes || body.text || task.evidence?.notes || '';
 
-  // Update task with evidence
   task.evidence = {
     isUploaded: true,
     mediaUrl: mediaUrl || task.evidence?.mediaUrl || '',
@@ -374,6 +498,8 @@ const completeDrillSessionService = async (userId, drillId) => {
  */
 const getTrainingPlannerService = async (userId, query = {}) => {
   const Session = require('../Session/session.model');
+  const ActionStep = require('../ActionStep/actionStep.model');
+  const User = require('../User/user.model');
 
   // 1. Determine target Month & Year
   let year;
@@ -404,34 +530,81 @@ const getTrainingPlannerService = async (userId, query = {}) => {
   const monthName = `${monthNames[monthIndex]} ${year}`;
   const monthKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
 
+  // Check if caller is admin/staff or if a specific athlete is targeted
+  let isStaff = false;
+  let targetAthleteId = null;
+
+  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+    const userDoc = await User.findById(userId).select('role').lean();
+    if (userDoc && ['admin', 'super_admin', 'sub_admin'].includes(userDoc.role)) {
+      isStaff = true;
+    }
+  }
+
+  if (query.athleteId && mongoose.Types.ObjectId.isValid(query.athleteId)) {
+    targetAthleteId = query.athleteId;
+  } else if (!isStaff && userId && mongoose.Types.ObjectId.isValid(userId)) {
+    targetAthleteId = userId;
+  }
+
   // 2. Fetch Sessions in this month
   const sessionFilter = {
     date: { $gte: startOfMonth, $lte: endOfMonth },
     status: { $ne: 'cancelled' },
   };
 
-  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+  if (targetAthleteId) {
     sessionFilter.$or = [
-      { athlete: userId },
-      { coach: userId },
+      { athlete: targetAthleteId },
+      { coach: targetAthleteId },
       { athlete: null }, // Academy public / general sessions
     ];
   }
 
-  // 3. Fetch Tasks / Assignments in this month
+  // 3. Fetch Tasks in this month
   const taskFilter = {
     dueDate: { $gte: startOfMonth, $lte: endOfMonth },
   };
-  if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-    taskFilter.athlete = userId;
+  if (targetAthleteId) {
+    taskFilter.$or = [
+      { athlete: targetAthleteId },
+      { coach: targetAthleteId },
+    ];
   }
 
-  const [monthSessions, monthTasks] = await Promise.all([
+  // 4. Fetch Action Steps in this month
+  const actionStepConditions = [
+    {
+      $or: [
+        { dueDate: { $gte: startOfMonth, $lte: endOfMonth } },
+        {
+          $and: [
+            { $or: [{ dueDate: null }, { dueDate: { $exists: false } }] },
+            { createdAt: { $gte: startOfMonth, $lte: endOfMonth } },
+          ],
+        },
+      ],
+    },
+  ];
+  if (targetAthleteId) {
+    actionStepConditions.push({
+      $or: [
+        { athlete: targetAthleteId },
+        { coach: targetAthleteId },
+      ],
+    });
+  }
+  const actionStepFilter = actionStepConditions.length > 1
+    ? { $and: actionStepConditions }
+    : actionStepConditions[0];
+
+  const [monthSessions, monthTasks, monthActionSteps] = await Promise.all([
     Session.find(sessionFilter).sort({ date: 1, startTime: 1 }).lean(),
     Task.find(taskFilter).sort({ dueDate: 1 }).lean(),
+    ActionStep.find(actionStepFilter).sort({ dueDate: 1, createdAt: 1 }).lean(),
   ]);
 
-  // 4. Group by Day (1..totalDays)
+  // 5. Group by Day (1..totalDays)
   const dayDotsMap = new Map();
   for (let d = 1; d <= totalDays; d++) {
     dayDotsMap.set(d, new Set());
@@ -461,12 +634,12 @@ const getTrainingPlannerService = async (userId, query = {}) => {
     });
   }
 
-  // Map tasks (assignments)
+  // Map tasks
   for (const t of monthTasks) {
     if (!t.dueDate) continue;
     const tDate = new Date(t.dueDate);
     const day = tDate.getDate();
-    const eventType = 'assignment';
+    const eventType = 'task';
 
     if (dayDotsMap.has(day)) {
       dayDotsMap.get(day).add(eventType);
@@ -481,6 +654,28 @@ const getTrainingPlannerService = async (userId, query = {}) => {
       date: tDate.toISOString(),
       startTime: '11:59 PM',
       status: t.status || 'pending',
+    });
+  }
+
+  // Map action steps
+  for (const a of monthActionSteps) {
+    const aDate = new Date(a.dueDate || a.createdAt);
+    const day = aDate.getDate();
+    const eventType = 'action_step';
+
+    if (dayDotsMap.has(day)) {
+      dayDotsMap.get(day).add(eventType);
+    }
+
+    allEvents.push({
+      _id: a._id.toString(),
+      dayNumber: day,
+      title: a.title,
+      subtitle: `${monthNames[monthIndex].slice(0, 3)} ${day} · action step`,
+      type: eventType,
+      date: aDate.toISOString(),
+      startTime: '11:59 PM',
+      status: a.status || 'assigned',
     });
   }
 
@@ -503,17 +698,6 @@ const getTrainingPlannerService = async (userId, query = {}) => {
     });
   }
 
-  // 5. Filter for Upcoming Events (events that will come: today or future, and not completed/cancelled)
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
-
-  const isUpcoming = (e) => {
-    const eventDate = new Date(e.date);
-    const isFutureOrToday = eventDate >= startOfToday;
-    const isNotCompleted = e.status !== 'completed' && e.status !== 'cancelled';
-    return isFutureOrToday && isNotCompleted;
-  };
-
   let selectedDate = null;
   let title = 'Training Planner';
   let upcomingEvents = [];
@@ -524,15 +708,15 @@ const getTrainingPlannerService = async (userId, query = {}) => {
     const targetDay = parseInt(qD, 10);
     const targetMonthIdx = parseInt(qM, 10) - 1;
 
-    // Filter events for that day that are upcoming (not completed/cancelled and not past)
+    // Filter events for that specific day
     upcomingEvents = allEvents.filter(
-      (e) => e.dayNumber === targetDay && new Date(e.date).getMonth() === targetMonthIdx && isUpcoming(e)
+      (e) => e.dayNumber === targetDay && new Date(e.date).getMonth() === targetMonthIdx && e.status !== 'cancelled'
     );
 
     title = `${monthNames[targetMonthIdx]} ${targetDay}`;
   } else {
-    // Monthly view: only upcoming events (that will come)
-    upcomingEvents = allEvents.filter(isUpcoming);
+    // Monthly view: all active / scheduled events of this month (tasks, sessions, action steps)
+    upcomingEvents = allEvents.filter((e) => e.status !== 'cancelled');
   }
 
   return {

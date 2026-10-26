@@ -36,6 +36,41 @@ const formatReadableDate = (date) => {
 };
 
 /**
+ * Helper to parse multiple mentality tags (array, comma-separated string, or JSON string)
+ */
+const parseMentalityUsed = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) {
+    return val.flatMap((item) => {
+      if (typeof item === 'string') {
+        const trimmed = item.trim();
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+          try {
+            return JSON.parse(trimmed);
+          } catch (e) {
+            return trimmed.slice(1, -1).split(',').map((s) => s.replace(/["']/g, '').trim()).filter(Boolean);
+          }
+        }
+        return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+      }
+      return item;
+    }).filter(Boolean);
+  }
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed).map((s) => String(s).trim()).filter(Boolean);
+      } catch (e) {
+        return trimmed.slice(1, -1).split(',').map((s) => s.replace(/["']/g, '').trim()).filter(Boolean);
+      }
+    }
+    return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+};
+
+/**
  * 1. Get Coach Web Dashboard Overview Data (100% live data from MongoDB, zero dummy/default values)
  */
 const getCoachDashboardOverviewService = async (query = {}) => {
@@ -1021,49 +1056,251 @@ const getAthleteHabitsService = async (athleteId, query = {}) => {
 };
 
 /**
- * Get Athlete Action Steps (Dedicated API)
+ * Get Athlete Action Steps (Figma Node 33078:3424)
+ * Returns clean array of action steps without unnecessary wrapper or duplicate fields
  */
 const getAthleteActionStepsService = async (athleteId, query = {}) => {
   if (!mongoose.Types.ObjectId.isValid(athleteId)) {
     throw new Error('Invalid Athlete ID');
   }
 
-  const athlete = await User.findById(athleteId).select('mentorshipDay').lean();
-  const dayNumber = Number(athlete?.mentorshipDay) || 0;
-
   const filter = { athlete: athleteId };
   if (query.status) filter.status = query.status;
 
   const actionStepsList = await ActionStep.find(filter)
-    .sort({ createdAt: -1 })
+    .sort({ submittedAt: -1, createdAt: -1 })
     .lean();
 
   const actionSteps = actionStepsList.map((as) => {
-    const submittedDateStr = as.submittedAt ? formatReadableDate(as.submittedAt) : formatReadableDate(as.createdAt);
+    const submittedDate = as.submittedAt || as.createdAt;
+    const shortDate = submittedDate ? new Date(submittedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    const subtitle = shortDate ? `${shortDate} · Practice` : (as.description || '');
+
     return {
       _id: as._id.toString(),
       title: as.title || '',
-      typeLabel: as.description || submittedDateStr || '',
-      submittedDate: submittedDateStr || '',
-      dayNumber: as.dayNumber || dayNumber || 0,
-      status: as.status || '',
-      statusLabel: as.status ? as.status.toUpperCase() : '',
-      mentalityUsed: as.mentalityUsed || '',
+      subtitle,
+      status: as.status || 'assigned',
+      whatDidYouWorkOn: as.whatDidYouWorkOn || '',
       whatWentWell: as.whatWentWell || '',
       areaToImprove: as.areaToImprove || '',
-      submissionNotes: as.submissionNotes || '',
-      submissionMedia: as.submissionMedia || [],
-      coachFeedback: as.coachFeedback || null,
-      hasFeedback: Boolean(as.coachFeedback?.textNotes || as.coachFeedback?.videoUrl),
+      mentalityUsed: Array.isArray(as.mentalityUsed) ? as.mentalityUsed : (as.mentalityUsed ? [as.mentalityUsed] : []),
+      attachments: (Array.isArray(as.attachments) && as.attachments.length > 0 ? as.attachments : as.submissionMedia || []).map((m) => ({
+        type: m.type,
+        url: m.url,
+        ...(m.thumbnail ? { thumbnail: m.thumbnail } : {}),
+      })),
+      submissionMedia: (Array.isArray(as.submissionMedia) && as.submissionMedia.length > 0 ? as.submissionMedia : as.attachments || []).map((m) => ({
+        type: m.type,
+        url: m.url,
+        ...(m.thumbnail ? { thumbnail: m.thumbnail } : {}),
+      })),
+      feedbackId: as.feedback ? as.feedback.toString() : null,
     };
   });
 
+  if (query.format === 'overview' || query.actionStepId) {
+    const selectedActionStep = (query.actionStepId
+      ? actionSteps.find((s) => s._id === query.actionStepId)
+      : actionSteps[0]) || null;
+
+    return {
+      submissions: actionSteps,
+      selectedActionStep,
+    };
+  }
+
+  return actionSteps;
+};
+
+/**
+ * Get Action Step Detail by ID
+ */
+const getActionStepDetailService = async (actionStepId) => {
+  if (!mongoose.Types.ObjectId.isValid(actionStepId)) {
+    throw new Error('Invalid Action Step ID');
+  }
+
+  const as = await ActionStep.findById(actionStepId).lean();
+  if (!as) {
+    throw new Error('Action step not found');
+  }
+
+  const submittedDate = as.submittedAt || as.createdAt;
+  const shortDate = submittedDate ? new Date(submittedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+  const subtitle = shortDate ? `${shortDate} · Practice` : (as.description || '');
+
+  const mediaList = (Array.isArray(as.attachments) && as.attachments.length > 0 ? as.attachments : as.submissionMedia || []).map((m) => ({
+    type: m.type,
+    url: m.url,
+    ...(m.thumbnail ? { thumbnail: m.thumbnail } : {}),
+  }));
+
   return {
-    athleteId,
-    actionSteps,
-    totalCount: actionSteps.length,
-    pendingCount: actionSteps.filter((as) => as.status === 'pending').length,
-    reviewedCount: actionSteps.filter((as) => as.status === 'reviewed').length,
+    _id: as._id.toString(),
+    title: as.title || '',
+    subtitle,
+    status: as.status || 'assigned',
+    whatDidYouWorkOn: as.whatDidYouWorkOn || '',
+    whatWentWell: as.whatWentWell || '',
+    areaToImprove: as.areaToImprove || '',
+    mentalityUsed: Array.isArray(as.mentalityUsed) ? as.mentalityUsed : (as.mentalityUsed ? [as.mentalityUsed] : []),
+    attachments: mediaList,
+    submissionMedia: mediaList,
+    feedbackId: as.feedback ? as.feedback.toString() : null,
+  };
+};
+
+/**
+ * Assign New Assignment/Action Step (Figma Node 33097:12107 / 33972:3727)
+ */
+const assignAthleteActionStepService = async (targetAthleteId, data, coachId = null) => {
+  if (!mongoose.Types.ObjectId.isValid(targetAthleteId)) {
+    throw new Error('Invalid Athlete/User ID');
+  }
+
+  const athlete = await User.findById(targetAthleteId);
+  if (!athlete) {
+    throw new Error('Selected athlete/user not found');
+  }
+
+  const title = (data.assignmentTitle || data.title || '').trim();
+  if (!title) {
+    throw new Error('Assignment title is required');
+  }
+
+  const description = (data.reflectionPrompt || data.instructions || data.coachInstructions || data.description || '').trim();
+
+  let dueDate = null;
+  if (data.dueDate) {
+    if (typeof data.dueDate === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(data.dueDate)) {
+      const [d, m, y] = data.dueDate.split('-');
+      dueDate = new Date(`${y}-${m}-${d}`);
+    } else {
+      dueDate = new Date(data.dueDate);
+    }
+  }
+
+  const newActionStep = await ActionStep.create({
+    athlete: targetAthleteId,
+    coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : (athlete.assignedCoach || null),
+    title,
+    description,
+    dueDate,
+    status: 'assigned',
+    submittedAt: null,
+  });
+
+  return {
+    _id: newActionStep._id.toString(),
+    title: newActionStep.title,
+    description: newActionStep.description,
+    status: newActionStep.status,
+    message: `Assignment "${newActionStep.title}" assigned successfully to ${athlete.fullName}`,
+  };
+};
+
+/**
+ * Submit Action Step (Figma Node 33972:3619)
+ */
+const submitAthleteActionStepService = async (actionStepId, data = {}, files = null) => {
+  if (!mongoose.Types.ObjectId.isValid(actionStepId)) {
+    throw new Error('Invalid Action Step ID');
+  }
+
+  const actionStep = await ActionStep.findById(actionStepId);
+  if (!actionStep) {
+    throw new Error('Action Step not found');
+  }
+
+  let payload = data || {};
+  if (payload.data) {
+    if (typeof payload.data === 'string') {
+      try {
+        payload = { ...payload, ...JSON.parse(payload.data) };
+      } catch (e) {}
+    } else if (typeof payload.data === 'object' && payload.data !== null) {
+      payload = { ...payload, ...payload.data };
+    }
+  }
+
+  if (payload.whatDidYouWorkOn || payload.description || payload.submissionNotes) {
+    actionStep.whatDidYouWorkOn = (payload.whatDidYouWorkOn || payload.description || payload.submissionNotes || '').trim();
+  }
+  if (payload.whatWentWell) {
+    actionStep.whatWentWell = payload.whatWentWell.trim();
+  }
+  if (payload.areaToImprove || payload.whatCanYouImprove) {
+    actionStep.areaToImprove = (payload.areaToImprove || payload.whatCanYouImprove || '').trim();
+  }
+  if (payload.mentalityUsed !== undefined) {
+    actionStep.mentalityUsed = parseMentalityUsed(payload.mentalityUsed);
+  }
+
+  const filesList = Array.isArray(files) ? files : (files ? [files] : []);
+
+  let mediaList = [];
+  const rawAttachments = payload.attachments || payload.submissionMedia || data.attachments || data.submissionMedia;
+  if (typeof rawAttachments === 'string') {
+    try {
+      const parsed = JSON.parse(rawAttachments);
+      if (Array.isArray(parsed)) mediaList.push(...parsed);
+      else if (parsed && parsed.url) mediaList.push(parsed);
+    } catch (e) {
+      if (rawAttachments.startsWith('http') || rawAttachments.startsWith('/')) {
+        mediaList.push({ type: 'image', url: rawAttachments, thumbnail: '' });
+      }
+    }
+  } else if (Array.isArray(rawAttachments)) {
+    mediaList.push(...rawAttachments);
+  }
+
+  const resolveMediaType = (file) => {
+    const mime = (file.mimetype || '').toLowerCase();
+    const name = (file.originalname || file.filename || '').toLowerCase();
+    if (mime.startsWith('video/') || /\.(mp4|mov|avi|wmv|flv|webm|mkv)$/i.test(name)) {
+      return 'video';
+    }
+    if (mime.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|avif|heic|heif|svg)$/i.test(name)) {
+      return 'image';
+    }
+    if (mime.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac)$/i.test(name)) {
+      return 'audio';
+    }
+    return 'document';
+  };
+
+  filesList.forEach((file) => {
+    const type = resolveMediaType(file);
+    mediaList.push({
+      type,
+      url: `/uploads/evidence/${file.filename}`,
+      thumbnail: '',
+    });
+  });
+
+  if (mediaList.length > 0) {
+    actionStep.attachments = mediaList;
+    actionStep.submissionMedia = mediaList;
+  }
+
+  actionStep.submittedAt = new Date();
+  actionStep.status = 'submitted';
+
+  await actionStep.save();
+
+  return {
+    _id: actionStep._id.toString(),
+    title: actionStep.title,
+    status: actionStep.status,
+    whatDidYouWorkOn: actionStep.whatDidYouWorkOn,
+    whatWentWell: actionStep.whatWentWell,
+    areaToImprove: actionStep.areaToImprove,
+    mentalityUsed: actionStep.mentalityUsed,
+    attachments: mediaList,
+    submissionMedia: mediaList,
+    submittedAt: actionStep.submittedAt,
+    message: 'Action step submitted successfully',
   };
 };
 
@@ -1075,7 +1312,12 @@ const getAthleteFeedbackService = async (athleteId, query = {}) => {
     throw new Error('Invalid Athlete ID');
   }
 
-  const feedbackList = await CoachFeedback.find({ athlete: athleteId })
+  const filter = { athlete: athleteId };
+  if (query.feedbackId && mongoose.Types.ObjectId.isValid(query.feedbackId)) {
+    filter._id = query.feedbackId;
+  }
+
+  const feedbackList = await CoachFeedback.find(filter)
     .sort({ date: -1, createdAt: -1 })
     .lean();
 
@@ -1093,6 +1335,34 @@ const getAthleteFeedbackService = async (athleteId, query = {}) => {
     athleteId,
     feedback,
     totalCount: feedback.length,
+  };
+};
+
+/**
+ * Get Feedback Detail by ID
+ */
+const getFeedbackDetailService = async (feedbackId) => {
+  if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
+    throw new Error('Invalid Feedback ID');
+  }
+
+  const fb = await CoachFeedback.findById(feedbackId)
+    .populate('coach', 'fullName name email profileImage')
+    .lean();
+
+  if (!fb) {
+    throw new Error('Feedback not found');
+  }
+
+  return {
+    _id: fb._id.toString(),
+    date: formatReadableDate(fb.date || fb.createdAt),
+    rawDate: fb.date || fb.createdAt || null,
+    rating: fb.rating !== undefined && fb.rating !== null ? Number(fb.rating) : null,
+    message: fb.message || '',
+    tags: fb.tags || [],
+    timeframe: fb.timeframe || '',
+    coach: fb.coach ? { _id: fb.coach._id.toString(), fullName: fb.coach.fullName || fb.coach.name || '' } : null,
   };
 };
 
@@ -1733,19 +2003,31 @@ const reviewActionStepService = async (actionStepId, data, coachId = null) => {
     throw new Error('Action Step not found');
   }
 
-  const { textNotes = '', videoUrl = '', audioUrl = '', status = 'reviewed' } = data;
-
+  const { status = 'reviewed', message, textNotes, rating, tags } = data;
   actionStep.status = status;
-  actionStep.coachFeedback = {
-    textNotes,
-    videoUrl,
-    audioUrl,
-    reviewedAt: new Date(),
-    reviewedBy: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null,
-  };
+
+  // Feedback has separate model (CoachFeedback) & API
+  const feedbackMsg = message || textNotes;
+  let feedbackDoc = null;
+  if (feedbackMsg) {
+    feedbackDoc = await CoachFeedback.create({
+      athlete: actionStep.athlete,
+      coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : actionStep.coach,
+      message: feedbackMsg,
+      rating: typeof rating === 'number' ? rating : null,
+      tags: Array.isArray(tags) ? tags : [],
+      date: new Date(),
+    });
+    actionStep.feedback = feedbackDoc._id;
+  }
 
   await actionStep.save();
-  return actionStep;
+  return {
+    _id: actionStep._id.toString(),
+    status: actionStep.status,
+    feedbackId: actionStep.feedback ? actionStep.feedback.toString() : null,
+    message: 'Action step reviewed successfully',
+  };
 };
 
 /**
@@ -1887,7 +2169,11 @@ module.exports = {
   getAthleteTrainingService,
   getAthleteHabitsService,
   getAthleteActionStepsService,
+  getActionStepDetailService,
+  assignAthleteActionStepService,
+  submitAthleteActionStepService,
   getAthleteFeedbackService,
+  getFeedbackDetailService,
   getAthleteSessionsService,
   getAthleteProgressService,
   getAthleteGroupChatService,

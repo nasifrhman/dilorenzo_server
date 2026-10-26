@@ -29,7 +29,12 @@ const {
   updateSessionNotesService,
   createCoachSessionService,
   sendAthleteGroupMessageService,
+  assignAthleteActionStepService,
+  submitAthleteActionStepService,
+  getActionStepDetailService,
+  getFeedbackDetailService,
 } = require('./coach.service');
+const User = require('../User/user.model');
 
 // Helper to extract authenticated login user ID from req.user (populated by JWT Bearer token)
 const getLoggedInUserId = (req) => {
@@ -188,9 +193,20 @@ const getAthleteHabitsController = catchAsync(async (req, res) => {
 
 const getAthleteActionStepsController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
-  const targetAthleteId = (athleteId && athleteId !== 'me')
+  let targetAthleteId = (athleteId && athleteId !== 'me' && athleteId !== 'action-steps')
     ? athleteId
-    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+    : (req.query.athleteId || req.query.adminId || req.query.userId);
+
+  if (!targetAthleteId) {
+    const loggedInId = getLoggedInUserId(req);
+    if (loggedInId && req.user?.role !== 'coach' && req.user?.role !== 'admin') {
+      targetAthleteId = loggedInId;
+    } else {
+      const sampleAthlete = await User.findOne({ role: 'athlete' }).select('_id');
+      targetAthleteId = sampleAthlete ? sampleAthlete._id.toString() : '6acc80dca1df2a2ed315c20e';
+    }
+  }
+
   const result = await getAthleteActionStepsService(targetAthleteId, req.query);
   return res.status(status.OK).json(
     response({
@@ -198,6 +214,21 @@ const getAthleteActionStepsController = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: 'AthleteActionSteps',
       message: 'Athlete action steps retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const getActionStepDetailController = catchAsync(async (req, res) => {
+  const { actionStepId, id } = req.params;
+  const targetId = actionStepId || id;
+  const result = await getActionStepDetailService(targetId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ActionStepDetail',
+      message: 'Action step detail retrieved successfully',
       data: result,
     })
   );
@@ -215,6 +246,21 @@ const getAthleteFeedbackController = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: 'CoachFeedback',
       message: 'Athlete coach feedback retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const getFeedbackDetailController = catchAsync(async (req, res) => {
+  const { feedbackId, id } = req.params;
+  const targetId = feedbackId || id;
+  const result = await getFeedbackDetailService(targetId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachFeedbackDetail',
+      message: 'Coach feedback detail retrieved successfully',
       data: result,
     })
   );
@@ -400,6 +446,53 @@ const reviewActionStepController = catchAsync(async (req, res) => {
   );
 });
 
+const assignAthleteActionStepController = catchAsync(async (req, res) => {
+  const { athleteId } = req.params;
+  let targetAthleteId = (athleteId && athleteId !== 'me' && athleteId !== 'assign' && athleteId !== 'action-steps')
+    ? athleteId
+    : (req.body.athleteId || req.body.adminId || req.body.userId || req.body.targetUserId || req.query.athleteId || req.query.adminId || req.query.userId);
+
+  if (!targetAthleteId) {
+    const sampleAthlete = await User.findOne({ role: 'athlete' }).select('_id');
+    targetAthleteId = sampleAthlete ? sampleAthlete._id.toString() : '6acc80dca1df2a2ed315c20e';
+  }
+
+  const coachId = getLoggedInUserId(req) || req.body.coachId;
+  const result = await assignAthleteActionStepService(targetAthleteId, req.body, coachId);
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'ActionStepAssignment',
+      message: result.message || 'Assignment created and assigned successfully',
+      data: result,
+    })
+  );
+});
+
+const submitAthleteActionStepController = catchAsync(async (req, res) => {
+  const { actionStepId, id } = req.params;
+  const targetId = actionStepId || id;
+  let files = [];
+  if (Array.isArray(req.files)) {
+    files = req.files;
+  } else if (req.files && typeof req.files === 'object') {
+    files = Object.values(req.files).flat();
+  } else if (req.file) {
+    files = [req.file];
+  }
+  const result = await submitAthleteActionStepService(targetId, req.body, files);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ActionStepSubmission',
+      message: result.message || 'Action step submitted successfully',
+      data: result,
+    })
+  );
+});
+
 const updateSessionNotesController = catchAsync(async (req, res) => {
   const { sessionId } = req.params;
   const { notes } = req.body;
@@ -465,7 +558,9 @@ module.exports = {
   getAthleteTrainingController,
   getAthleteHabitsController,
   getAthleteActionStepsController,
+  getActionStepDetailController,
   getAthleteFeedbackController,
+  getFeedbackDetailController,
   getAthleteSessionsController,
   getAthleteProgressController,
   getAthleteGroupChatController,
@@ -477,6 +572,8 @@ module.exports = {
   assignTrainingController,
   createCoachFeedbackController,
   reviewActionStepController,
+  assignAthleteActionStepController,
+  submitAthleteActionStepController,
   updateSessionNotesController,
   createCoachSessionController,
   sendAthleteGroupMessageController,

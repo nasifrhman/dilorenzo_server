@@ -15,42 +15,44 @@ const actionStepSchema = new mongoose.Schema(
     },
     title: { type: String, required: true, trim: true },
     description: { type: String, default: '' },
-    dayNumber: { type: Number, default: 1 }, // E.g. Day 12 of 90
-    phase: {
+    dueDate: { type: Date, default: null },
+    status: {
       type: String,
-      enum: ['foundation', 'acceleration', 'mastery'],
-      default: 'foundation',
+      enum: ['assigned', 'pending', 'submitted', 'in-review', 'reviewed', 'needs-revision', 'completed'],
+      default: 'assigned',
     },
-    submissionMedia: [
+    whatDidYouWorkOn: { type: String, default: '' },
+    whatWentWell: { type: String, default: '' },
+    areaToImprove: { type: String, default: '' },
+    mentalityUsed: [{ type: String, trim: true }],
+    attachments: [
       {
         type: {
           type: String,
           enum: ['video', 'audio', 'image', 'document'],
-          default: 'video',
+          default: 'image',
         },
         url: { type: String, required: true },
         thumbnail: { type: String, default: '' },
       },
     ],
-    submissionNotes: { type: String, default: '' },
-    mentalityUsed: { type: String, default: '' },
-    whatWentWell: { type: String, default: '' },
-    areaToImprove: { type: String, default: '' },
-    submittedAt: { type: Date, default: Date.now },
-    status: {
-      type: String,
-      enum: ['pending', 'in-review', 'reviewed', 'needs-revision', 'approved', 'follow-up'],
-      default: 'pending',
+    submissionMedia: [
+      {
+        type: {
+          type: String,
+          enum: ['video', 'audio', 'image', 'document'],
+          default: 'image',
+        },
+        url: { type: String, required: true },
+        thumbnail: { type: String, default: '' },
+      },
+    ],
+    submittedAt: { type: Date, default: null },
+    feedback: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CoachFeedback',
+      default: null,
     },
-    coachFeedback: {
-      videoUrl: { type: String, default: '' },
-      audioUrl: { type: String, default: '' },
-      textNotes: { type: String, default: '' },
-      rating: { type: Number, min: 1, max: 5, default: null },
-      reviewedAt: { type: Date, default: null },
-      reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    },
-    xpAwarded: { type: Number, default: 0 },
   },
   {
     timestamps: true,

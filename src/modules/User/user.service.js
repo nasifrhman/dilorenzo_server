@@ -361,11 +361,57 @@ const createCoachService = async (coachData) => {
   });
 
   await newCoach.save();
-  return newCoach;
+  const coachObj = newCoach.toObject();
+  delete coachObj.password;
+  delete coachObj.tokenVersion;
+  delete coachObj.fcmToken;
+  delete coachObj.digitalWallet;
+  delete coachObj.flagCount;
+  delete coachObj.devPlan;
+  delete coachObj.intakeNotes;
+  delete coachObj.focusGoals;
+  delete coachObj.parentFullName;
+  delete coachObj.parentEmail;
+  delete coachObj.parents;
+  delete coachObj.assignedCoach;
+  delete coachObj.assignedHabits;
+  delete coachObj.adminWelcomeMessage;
+  return coachObj;
 };
 
 const getCoachesService = async () => {
-  return await userModel.find({ role: 'coach', isDeleted: false }).sort({ createdAt: -1 });
+  const coaches = await userModel
+    .find({ role: 'coach', isDeleted: false })
+    .select(
+      'fullName email phoneNumber image role username roleTitle bio coachingPhilosophy experienceYears maxAthleteCapacity operationalTimezone specialties certifications avatarColor avatarInitials athletes createdAt'
+    )
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return coaches.map((coach) => ({
+    _id: coach._id.toString(),
+    fullName: coach.fullName || '',
+    email: coach.email || '',
+    phoneNumber: coach.phoneNumber || '',
+    image: coach.image || 'user.jpg',
+    role: coach.role || 'coach',
+    username: coach.username || '',
+    roleTitle: coach.roleTitle || 'High-Performance Mindset Coach',
+    bio: coach.bio || '',
+    coachingPhilosophy: coach.coachingPhilosophy || '',
+    experienceYears: coach.experienceYears || 0,
+    maxAthleteCapacity: coach.maxAthleteCapacity || 15,
+    operationalTimezone: coach.operationalTimezone || 'EST (UTC -5)',
+    specialties: Array.isArray(coach.specialties) ? coach.specialties : [],
+    certifications: Array.isArray(coach.certifications) ? coach.certifications : [],
+    avatarColor: coach.avatarColor || '#C27AFF',
+    avatarInitials:
+      coach.avatarInitials ||
+      (coach.fullName ? coach.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : 'CR'),
+    assignedAthletesCount: Array.isArray(coach.athletes) ? coach.athletes.length : 0,
+    status: 'Active',
+    createdAt: coach.createdAt,
+  }));
 };
 
 const createAthleteService = async (athleteData) => {
