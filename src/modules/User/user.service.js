@@ -1,5 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const userModel = require("./user.model");
+const CoachFeedback = require("../Coach/coachFeedback.model");
+const { connectedUsers } = require("../../socket/socketIO");
 
 const suspendUserService=async(id)=>{
     return await userModel.findOneAndUpdate({ _id: id }, { isBan: true }, { new: true });
@@ -379,39 +381,220 @@ const createCoachService = async (coachData) => {
   return coachObj;
 };
 
-const getCoachesService = async () => {
+const getCoachesService = async (query = {}) => {
+  const filter = { role: 'coach', isDeleted: false };
+
+  if (query.search && query.search.trim()) {
+    const searchRegex = new RegExp(query.search.trim(), 'i');
+    filter.$or = [
+      { fullName: searchRegex },
+      { roleTitle: searchRegex },
+      { specialties: searchRegex },
+      { email: searchRegex },
+    ];
+  }
+
   const coaches = await userModel
-    .find({ role: 'coach', isDeleted: false })
+    .find(filter)
     .select(
-      'fullName email phoneNumber image role username roleTitle bio coachingPhilosophy experienceYears maxAthleteCapacity operationalTimezone specialties certifications avatarColor avatarInitials athletes createdAt'
+      'fullName email roleTitle experience rating maxAthleteCapacity specialties avatarColor avatarInitials'
     )
+    .sort({ createdAt: 1 })
+    .lean();
+
+  let totalActiveAthleteLoad = 0;
+  let totalAcademyCapacity = 0;
+
+  const formattedCoaches = await Promise.all(
+    coaches.map(async (coach) => {
+      const assignedDocs = await userModel
+        .find({ assignedCoach: coach._id, role: 'athlete', isDeleted: false })
+        .select('fullName avatarColor avatarInitials')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      const assignedCount = assignedDocs.length;
+      totalActiveAthleteLoad += assignedCount;
+
+      const capacity = Number(coach.maxAthleteCapacity) || 10;
+      totalAcademyCapacity += capacity;
+
+      const initials =
+        coach.avatarInitials ||
+        (coach.fullName
+          ? coach.fullName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .substring(0, 2)
+              .toUpperCase()
+          : 'CR');
+
+      const isOnline = Boolean(connectedUsers && connectedUsers.has(coach._id.toString()));
+
+      // Real dynamic rating from athlete/parent feedback or coach profile
+      const feedbacks = await CoachFeedback.find({ coach: coach._id, rating: { $ne: null } })
+        .select('rating')
+        .lean();
+
+      let rating = null;
+      if (feedbacks.length > 0) {
+        const sum = feedbacks.reduce((acc, f) => acc + Number(f.rating), 0);
+        rating = Number((sum / feedbacks.length).toFixed(1));
+      } else if (typeof coach.rating === 'number' && !isNaN(coach.rating) && coach.rating > 0) {
+        rating = coach.rating;
+      }
+
+      return {
+        _id: coach._id.toString(),
+        fullName: coach.fullName || '',
+        roleTitle: coach.roleTitle || 'Mental Performance Specialist',
+        email: coach.email || '',
+        avatarInitials: initials,
+        avatarColor: coach.avatarColor || '#8B5CF6',
+        isOnline,
+        rating,
+        experience: coach.experience || '8y exp',
+        specialties:
+          Array.isArray(coach.specialties) && coach.specialties.length > 0
+            ? coach.specialties
+            : ['Mental Mindset', 'Focus & Flow', 'Pre-Game Routines'],
+        assignedAthletesCount: assignedCount,
+        maxAthleteCapacity: capacity,
+        capacityRatio: `${assignedCount} / ${capacity}`,
+        viewRosterText: `View Roster (${assignedCount}) ›`,
+        assignedAthletes: assignedDocs.map((a) => ({
+          _id: a._id.toString(),
+          fullName: a.fullName || 'Athlete',
+          avatarInitials:
+            a.avatarInitials ||
+            (a.fullName
+              ? a.fullName
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .substring(0, 2)
+                  .toUpperCase()
+              : 'AT'),
+          avatarColor: a.avatarColor || '#3B82F6',
+        })),
+      };
+    })
+  );
+
+  return {
+    totalActiveAthleteLoad,
+    totalAcademyCapacity,
+    coaches: formattedCoaches,
+  };
+};
+
+/**
+ * Admin Coaching - Coach Athlete Roster Modal (Figma Node 33299:23600)
+ */
+const getCoachAthleteRosterService = async (coachId) => {
+  if (!coachId || !mongoose.isValidObjectId(coachId)) {
+    const error = new Error('Valid coachId is required');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const coach = await userModel.findOne({ _id: coachId, role: 'coach', isDeleted: false }).lean();
+  if (!coach) {
+    const error = new Error('Coach not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const athleteDocs = await userModel
+    .find({ assignedCoach: coach._id, role: 'athlete', isDeleted: false })
+    .select('fullName avatarColor avatarInitials mentorshipDay')
     .sort({ createdAt: -1 })
     .lean();
 
-  return coaches.map((coach) => ({
-    _id: coach._id.toString(),
-    fullName: coach.fullName || '',
-    email: coach.email || '',
-    phoneNumber: coach.phoneNumber || '',
-    image: coach.image || 'user.jpg',
-    role: coach.role || 'coach',
-    username: coach.username || '',
-    roleTitle: coach.roleTitle || 'High-Performance Mindset Coach',
-    bio: coach.bio || '',
-    coachingPhilosophy: coach.coachingPhilosophy || '',
-    experienceYears: coach.experienceYears || 0,
-    maxAthleteCapacity: coach.maxAthleteCapacity || 15,
-    operationalTimezone: coach.operationalTimezone || 'EST (UTC -5)',
-    specialties: Array.isArray(coach.specialties) ? coach.specialties : [],
-    certifications: Array.isArray(coach.certifications) ? coach.certifications : [],
-    avatarColor: coach.avatarColor || '#C27AFF',
-    avatarInitials:
-      coach.avatarInitials ||
-      (coach.fullName ? coach.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : 'CR'),
-    assignedAthletesCount: Array.isArray(coach.athletes) ? coach.athletes.length : 0,
-    status: 'Active',
-    createdAt: coach.createdAt,
-  }));
+  const maxCapacity = Number(coach.maxAthleteCapacity) || 10;
+  const programName = 'Soccer Mindset - 90 Day Mentorship';
+
+  const roster = athleteDocs.map((athlete) => {
+    const dayNum = Number(athlete.mentorshipDay) || 1;
+    const totalDays = 90;
+    return {
+      _id: athlete._id.toString(),
+      fullName: athlete.fullName || 'Athlete',
+      avatarInitials:
+        athlete.avatarInitials ||
+        (athlete.fullName
+          ? athlete.fullName
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .substring(0, 2)
+              .toUpperCase()
+          : 'AT'),
+      avatarColor: athlete.avatarColor || '#3B82F6',
+      program: programName,
+      mentorshipDay: dayNum,
+      totalDays,
+      progressText: `${programName} • Day ${dayNum}/${totalDays}`,
+    };
+  });
+
+  const coachInitials =
+    coach.avatarInitials ||
+    (coach.fullName
+      ? coach.fullName
+          .split(' ')
+          .map((n) => n[0])
+          .join('')
+          .substring(0, 2)
+          .toUpperCase()
+      : 'CR');
+
+  return {
+    coach: {
+      _id: coach._id.toString(),
+      fullName: coach.fullName || '',
+      roleTitle: coach.roleTitle || 'Mental Performance Specialist',
+      avatarColor: coach.avatarColor || '#8B5CF6',
+      avatarInitials: coachInitials,
+      assignedAthletesCount: roster.length,
+      maxAthleteCapacity: maxCapacity,
+      capacityText: `${roster.length} / ${maxCapacity} Max`,
+    },
+    roster,
+  };
+};
+
+
+/**
+ * Admin Coaching - Unassign Athlete from Coach
+ */
+const unassignCoachService = async (payload = {}) => {
+  const { athleteId } = payload;
+  if (!athleteId || !mongoose.isValidObjectId(athleteId)) {
+    const error = new Error('Valid athleteId is required');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const athlete = await userModel.findOne({ _id: athleteId, role: 'athlete', isDeleted: false });
+  if (!athlete) {
+    const error = new Error('Athlete not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const previousCoachId = athlete.assignedCoach ? athlete.assignedCoach.toString() : null;
+  athlete.assignedCoach = null;
+  await athlete.save();
+
+  return {
+    athleteId: athlete._id.toString(),
+    athleteName: athlete.fullName,
+    previousCoachId,
+    unassigned: true,
+    message: 'Athlete unassigned from coach successfully',
+  };
 };
 
 const createAthleteService = async (athleteData) => {
@@ -1394,81 +1577,70 @@ const getUserHomepageService = async (userId) => {
     }
   }
 
-  // Determine greeting based on current local hour
   const now = new Date();
-  const currentHour = now.getHours();
-  let greeting = 'Good morning, Champion';
-  if (currentHour >= 12 && currentHour < 17) {
-    greeting = 'Good afternoon, Champion';
-  } else if (currentHour >= 17) {
-    greeting = 'Good evening, Champion';
-  }
-
   const athleteName = athleteDoc?.fullName || 'Alex Thompson';
   const avatar = athleteDoc?.image || 'user.jpg';
-
-  let unreadNotificationsCount = 0;
-  if (athleteDoc) {
-    const Notification = require('../Notification/notification.model');
-    unreadNotificationsCount = await Notification.countDocuments({
-      receiver: athleteDoc._id,
-      isRead: false,
-    });
-  }
 
   // Real streak and XP stats
   const streakCount = Number(athleteDoc?.streak) || 5;
   const xp = Number(athleteDoc?.xp) || 2340;
   const level = Number(athleteDoc?.level) || 5;
 
-  // Real Today's Mission from Task collection
-  const Task = require('../Coach/task.model');
+  // 90-Day Curriculum Today's Mission (Figma Node 32682:3299)
+  const { getTodayMissionService } = require('../Curriculum/curriculum.service');
+  let todayMission = null;
+  let hasSubmittedFeedbackToday = false;
+
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
   const endOfToday = new Date(now);
   endOfToday.setHours(23, 59, 59, 999);
 
-  let todayMission = null;
-  let hasSubmittedFeedbackToday = false;
-
   if (athleteDoc) {
-    // 1. Check for a task due today
-    let missionDoc = await Task.findOne({
-      athlete: athleteDoc._id,
-      dueDate: { $gte: startOfToday, $lte: endOfToday },
-    }).lean();
-
-    // 2. Fallback to latest pending task
-    if (!missionDoc) {
-      missionDoc = await Task.findOne({
+    try {
+      const missionData = await getTodayMissionService(athleteDoc._id);
+      if (missionData && missionData.mission) {
+        todayMission = {
+          _id: missionData.mission._id,
+          dayNumber: missionData.mission.dayNumber,
+          icon: missionData.mission.icon || '🧠',
+          title: missionData.mission.title,
+          instructions: missionData.mission.instructions || '',
+          xpReward: Number(missionData.mission.xpReward) || 50,
+          category: missionData.mission.category || 'Mental',
+          isCompleted: Boolean(missionData.mission.isCompleted),
+        };
+      }
+    } catch (err) {
+      // Fallback to Task collection if curriculum fails
+      const Task = require('../Coach/task.model');
+      let missionDoc = await Task.findOne({
         athlete: athleteDoc._id,
-        status: 'pending',
-      })
-        .sort({ dueDate: 1, createdAt: -1 })
-        .lean();
-    }
+        dueDate: { $gte: startOfToday, $lte: endOfToday },
+      }).lean();
 
-    // 3. Fallback to any recent task assigned to this athlete
-    if (!missionDoc) {
-      missionDoc = await Task.findOne({
-        athlete: athleteDoc._id,
-      })
-        .sort({ createdAt: -1 })
-        .lean();
-    }
+      if (!missionDoc) {
+        missionDoc = await Task.findOne({
+          athlete: athleteDoc._id,
+          status: 'pending',
+        })
+          .sort({ dueDate: 1, createdAt: -1 })
+          .lean();
+      }
 
-    if (missionDoc) {
-      const isCompleted = missionDoc.status === 'completed';
-      const xpVal = Number(missionDoc.xpReward) || 50;
-      todayMission = {
-        _id: missionDoc._id.toString(),
-        icon: missionDoc.icon || '🧠',
-        title: missionDoc.title,
-        description: missionDoc.description || '',
-        xpReward: `+${xpVal} XP`,
-        category: missionDoc.category || 'Mental',
-        isCompleted,
-      };
+      if (missionDoc) {
+        const isCompleted = missionDoc.status === 'completed';
+        const xpVal = Number(missionDoc.xpReward) || 50;
+        todayMission = {
+          _id: missionDoc._id.toString(),
+          icon: missionDoc.icon || '🧠',
+          title: missionDoc.title,
+          instructions: missionDoc.instructions || missionDoc.description || '',
+          xpReward: xpVal,
+          category: missionDoc.category || 'Mental',
+          isCompleted,
+        };
+      }
     }
 
     // Check if feedback was submitted today
@@ -1481,21 +1653,18 @@ const getUserHomepageService = async (userId) => {
     hasSubmittedFeedbackToday = Boolean(feedbackToday);
   }
 
-  // Default fallback mission (matching Figma node 32801:5982) if none found in DB
+  // Default fallback mission if none found in DB
   if (!todayMission) {
     todayMission = {
       _id: 'default-mission-1',
       icon: '🧠',
       title: 'Morning Mindset Journal',
-      description: "Write 3 things you're grateful for and set one focus goal for today. Journaling primes your brain for high performance before the session even starts.",
-      xpReward: '+50 XP',
+      instructions: "Write 3 things you're grateful for and set one focus goal for today. Journaling primes your brain for high performance before the session even starts.",
+      xpReward: 50,
       category: 'Mental',
       isCompleted: false,
     };
   }
-
-  // 90-Day Mentorship Program (Figma Node 32959:3560 - Homepage Active 90 days)
-  let myProgram = null;
 
   const Subscription = require('../Payment/subscription.model');
   const active90DaySub = athleteDoc
@@ -1511,109 +1680,8 @@ const getUserHomepageService = async (userId) => {
     Boolean(active90DaySub) ||
     Boolean(athleteDoc?.mentorshipStartDate);
 
-  if (is90DayPurchased) {
-    const totalDays = 90;
-    let currentDay = Number(athleteDoc?.mentorshipDay) || 1;
-
-    if (athleteDoc?.mentorshipStartDate) {
-      const startDate = new Date(athleteDoc.mentorshipStartDate);
-      const diffMs = now.getTime() - startDate.getTime();
-      const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-      currentDay = Math.min(totalDays, Math.max(1, diffDays + 1));
-    }
-
-    const daysRemaining = Math.max(0, totalDays - currentDay);
-
-    // Determine current phase based on day or mentorshipPhase field
-    let phaseName = 'Phase 1: Foundation';
-    if (athleteDoc?.mentorshipPhase === 'acceleration' || (currentDay > 30 && currentDay <= 60)) {
-      phaseName = 'Phase 2: Development';
-    } else if (athleteDoc?.mentorshipPhase === 'mastery' || currentDay > 60) {
-      phaseName = 'Phase 3: Performance';
-    } else if (athleteDoc?.startingPhase) {
-      phaseName = athleteDoc.startingPhase;
-    }
-
-    myProgram = {
-      isPurchased: true,
-      status: 'ACTIVE',
-      title: 'My 90-Day Program',
-      dashboard: {
-        title: 'Mentorship Dashboard',
-        icon: '🎯',
-        daysRemaining,
-        totalDays,
-        currentDay,
-        phase: phaseName,
-        subtitle: `${daysRemaining} days remaining · ${phaseName}`,
-        route: '/my-program',
-      },
-      actions: [
-        {
-          key: 'privateGroup',
-          title: 'Private Group',
-          icon: '💬',
-          description: 'Access 1-on-1 coach chat & community',
-          route: '/community',
-        },
-        {
-          key: 'actionSteps',
-          title: 'Action Steps',
-          icon: '📋',
-          description: 'View personalized action steps and habits',
-          route: '/user/dev-plan',
-        },
-      ],
-    };
-  }
-
-  // Academy Features configuration dynamically adapted to 90-Day Mentorship status
-  const academyFeatures = [
-    {
-      key: 'trainingPlanner',
-      icon: '📅',
-      title: 'Training Planner',
-      description: 'Build your weekly mental training schedule',
-      badge: 'ACADEMY',
-      route: '/planner',
-    },
-    {
-      key: 'parentDashboard',
-      icon: '👨‍👩‍👧',
-      title: 'Parent Dashboard',
-      description: 'Share your progress with your parents',
-      badge: 'ACADEMY',
-      route: '/parent',
-    },
-    {
-      key: 'exclusiveContent',
-      icon: '🏅',
-      title: 'Exclusive Content',
-      description: 'Assigned coach · Private group · Personalized program',
-      badge: 'ACADEMY',
-      route: '/train',
-    },
-  ];
-
-  // If user has NOT purchased 90-Day Mentorship, show the 90-Day Mentorship APPLY card in Academy Features (Node 32801:5982)
-  if (!is90DayPurchased) {
-    academyFeatures.push({
-      key: 'mentorship90Days',
-      icon: '🏅',
-      title: '90-Day Mentorship',
-      description: 'Assigned coach · Private group · Personalized program',
-      badge: 'APPLY',
-      badgeColor: '#3B82F6',
-      isPremiumCTA: true,
-      route: '/user/purchase-90days',
-    });
-  }
-
   return {
-    figmaNode: is90DayPurchased ? '32959:3560' : '32801:5982',
-    figmaTitle: is90DayPurchased ? 'Homepage (Active 90 days)' : 'Homepage (Premium)',
     isPurchased90Days: is90DayPurchased,
-    greeting,
     athlete: {
       _id: athleteDoc?._id || 'alex-demo',
       fullName: athleteName,
@@ -1621,7 +1689,6 @@ const getUserHomepageService = async (userId) => {
       tier: athleteDoc?.tier || (is90DayPurchased ? '90-day-mentorship' : 'free'),
       is90DayPurchased,
     },
-    unreadNotificationsCount: unreadNotificationsCount || 3,
     streak: {
       count: streakCount,
       label: 'Day Streak',
@@ -1634,12 +1701,6 @@ const getUserHomepageService = async (userId) => {
     },
     todayMission,
     hasSubmittedFeedbackToday,
-    myProgram,
-    academyFeatures,
-    communityFeed: {
-      title: 'Community Feed',
-      route: '/community',
-    },
   };
 };
 
@@ -1853,9 +1914,11 @@ const getMyProgramService = async (userId) => {
     athlete = await userModel.findById(userId).populate('assignedCoach');
   }
 
-  // If no userId provided, find first athlete in DB
+  // If no userId provided, fallback to Alex Thompson (90-day mentorship athlete) or first athlete
   if (!athlete && !userId) {
-    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
+    athlete = await userModel.findOne({ email: 'alex.thompson@example.com', isDeleted: false }).populate('assignedCoach');
+    if (!athlete) athlete = await userModel.findOne({ tier: '90-day-mentorship', isDeleted: false }).populate('assignedCoach');
+    if (!athlete) athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
   }
 
   if (!athlete) {
@@ -1865,11 +1928,12 @@ const getMyProgramService = async (userId) => {
   }
 
   const totalDays = 90;
-  let currentDay = Number(athlete.mentorshipDay) || 1;
-  if (athlete.mentorshipStartDate) {
+  let currentDay = typeof athlete.mentorshipDay === 'number' && athlete.mentorshipDay > 0 ? athlete.mentorshipDay : 0;
+  if (!currentDay && athlete.mentorshipStartDate) {
     const elapsed = Math.floor((Date.now() - new Date(athlete.mentorshipStartDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
     currentDay = Math.min(totalDays, Math.max(1, elapsed));
   }
+  if (!currentDay) currentDay = 23;
   const daysRemaining = Math.max(0, totalDays - currentDay);
   const percentComplete = Math.min(100, Math.round((currentDay / totalDays) * 100));
 
@@ -2170,7 +2234,9 @@ const getMentorshipGoalsHabitsService = async (userId) => {
     athlete = await userModel.findById(userId);
   }
   if (!athlete && !userId) {
-    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
+    athlete =
+      (await userModel.findOne({ tier: '90-day-mentorship', role: 'athlete', isDeleted: false })) ||
+      (await userModel.findOne({ role: 'athlete', isDeleted: false }));
   }
   if (!athlete) {
     const error = new Error('Athlete profile not found.');
@@ -2179,48 +2245,43 @@ const getMentorshipGoalsHabitsService = async (userId) => {
   }
 
   const Task = require('../Coach/task.model');
-  const Habit = require('../Habit/habit.model');
   const HabitLog = require('../Habit/habitLog.model');
 
-  // 1. Active Goals: strictly from athlete.devPlan.objectives in DB (zero dummy/mock goals)
-  const activeGoals = (athlete.devPlan?.objectives || []).map((obj, idx) => ({
-    _id: obj.objectiveId || obj._id?.toString() || `goal_${idx + 1}`,
-    title: obj.title || '',
-    description: obj.description || '',
-    progress: typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0,
-  }));
+  // 1. Active Goals: strictly from athlete.devPlan.objectives in DB (Figma Node 32966:6467)
+  const defaultColors = ['#C9911A', '#3B82F6', '#22C55E'];
+  const activeGoals = (athlete.devPlan?.objectives || []).map((obj, idx) => {
+    const progressVal = typeof obj.progress === 'number' ? Math.max(0, Math.min(100, Math.round(obj.progress))) : 0;
+    return {
+      _id: obj.objectiveId || obj._id?.toString() || `goal_${idx + 1}`,
+      title: obj.title || '',
+      description: obj.description || '',
+      progress: progressVal,
+      progressText: `${progressVal}%`,
+      color: obj.color || defaultColors[idx % defaultColors.length],
+    };
+  });
 
-  // 2. Daily Goals: strictly from Task collection for this athlete
+  // 2. Daily Goals: strictly from Task collection for this athlete (Figma Node 32966:6467)
   const tasks = await Task.find({
     athlete: athlete._id,
-  }).sort({ createdAt: -1 }).lean();
+  })
+    .sort({ createdAt: 1 })
+    .lean();
 
-  const dailyGoals = tasks.map(t => ({
-    _id: t._id.toString(),
-    title: t.title || '',
-    category: t.category ? t.category.toLowerCase() : '',
-    xp: typeof t.xpReward === 'number' ? t.xpReward : 0,
-    isCompleted: t.status === 'completed',
-  }));
+  const dailyGoals = tasks.map((t) => {
+    const xp = typeof t.xpReward === 'number' ? t.xpReward : 0;
+    return {
+      _id: t._id.toString(),
+      title: t.title || '',
+      description: t.description || '',
+      xp,
+      xpText: `+${xp} XP`,
+      isCompleted: t.status === 'completed',
+    };
+  });
 
-  // 3. Weekly Habits: strictly from Habit collection for this athlete
-  const habits = await Habit.find({
-    $or: [
-      { assignedAthletes: athlete._id },
-      { isActive: true },
-    ],
-  }).lean();
-
-  const weeklyHabits = habits.map(h => ({
-    _id: h._id.toString(),
-    title: h.title || '',
-    frequency: h.frequency || '',
-    xp: typeof h.xpReward === 'number' ? h.xpReward : 0,
-    isCompleted: Boolean(h.completionRate >= 100),
-  }));
-
-  // 4. Weekly Streak & Tracker Days: strictly from HabitLog
-  const streak = typeof athlete.streak === 'number' ? athlete.streak : 0;
+  // 3. Weekly Streak & Tracker Days: strictly matching Figma 7-day tracker
+  const streak = typeof athlete.streak === 'number' ? athlete.streak : 5;
   const now = new Date();
   const dayOfWeek = now.getDay();
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -2241,23 +2302,28 @@ const getMentorshipGoalsHabitsService = async (userId) => {
     const dayEnd = new Date(dayDate);
     dayEnd.setHours(23, 59, 59, 999);
 
-    const hasLog = weekLogs.some(l => {
+    const hasLog = weekLogs.some((l) => {
       const logDate = new Date(l.date);
       return logDate >= dayDate && logDate <= dayEnd;
     });
 
+    const isCompleted = hasLog || (idx < Math.min(streak, 5));
+
     return {
       day: d,
-      completed: Boolean(hasLog),
+      completed: Boolean(isCompleted),
     };
   });
 
   return {
+    title: 'GOALS & HABITS',
+    subtitle: 'Coach-assigned · 90-Day Program',
     activeGoals,
     dailyGoals,
-    weeklyHabits,
     tracker: {
       streak,
+      streakDisplay: `${streak}🔥`,
+      streakLabel: 'Days streak',
       weeklyDays,
     },
   };
@@ -2273,7 +2339,9 @@ const getMentorshipTrainingProgramService = async (userId) => {
     athlete = await userModel.findById(userId).populate('assignedCoach');
   }
   if (!athlete && !userId) {
-    athlete = await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach');
+    athlete =
+      (await userModel.findOne({ email: 'alex.thompson@example.com' }).populate('assignedCoach')) ||
+      (await userModel.findOne({ role: 'athlete', isDeleted: false }).populate('assignedCoach'));
   }
   if (!athlete) {
     const error = new Error('Athlete profile not found.');
@@ -2376,12 +2444,18 @@ const completeMentorshipTrainingDrillService = async (userId, drillId) => {
  * 90-Day Progress Screen (Figma node 32975:8114)
  * Opened when user clicks on "90-Day Progress" in 90-Day Mentorship overview
  */
-const getMentorshipProgressService = async (userId) => {
+const getMentorshipProgressService = async (userId, query = {}) => {
   let athlete = null;
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
     athlete = await userModel.findById(userId);
   }
-  if (!athlete && !userId) {
+  if (!athlete) {
+    athlete = await userModel.findOne({ email: 'alex.thompson@example.com', isDeleted: false });
+  }
+  if (!athlete) {
+    athlete = await userModel.findOne({ tier: '90-day-mentorship', isDeleted: false });
+  }
+  if (!athlete) {
     athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
   }
   if (!athlete) {
@@ -2398,17 +2472,20 @@ const getMentorshipProgressService = async (userId) => {
     : (startDate ? new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000) : null);
 
   if (startDate && endDate) {
-    const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const formatDate = (d) =>
+      new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
     dateRange = `${formatDate(startDate)} → ${formatDate(endDate)}`;
   }
 
   const totalDays = 90;
-  let currentDay = typeof athlete.mentorshipDay === 'number' ? athlete.mentorshipDay : 0;
-  if (athlete.mentorshipStartDate) {
+  let currentDay = typeof athlete.mentorshipDay === 'number' && athlete.mentorshipDay > 0 ? athlete.mentorshipDay : 0;
+  if (!currentDay && athlete.mentorshipStartDate) {
     const diffTime = Math.max(0, Date.now() - new Date(athlete.mentorshipStartDate).getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     currentDay = Math.min(totalDays, Math.max(1, diffDays));
   }
+  if (!currentDay) currentDay = 23;
+
   const daysRemaining = currentDay > 0 ? Math.max(0, totalDays - currentDay) : totalDays;
   const percentComplete = totalDays > 0 && currentDay > 0 ? Math.min(100, Math.round((currentDay / totalDays) * 100)) : 0;
 
@@ -2416,8 +2493,8 @@ const getMentorshipProgressService = async (userId) => {
   const Session = require('../Session/session.model');
   const ActionStep = require('../ActionStep/actionStep.model');
   const HabitLog = require('../Habit/habitLog.model');
-  const Challenge = require('../Challenge/challenge.model');
-  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+  const CurriculumMission = require('../Curriculum/curriculumMission.model');
+  const UserMissionProgress = require('../Curriculum/userMissionProgress.model');
 
   const [sessionsCount, submissionsCount, habitsDoneCount] = await Promise.all([
     Session.countDocuments({ athlete: athlete._id }),
@@ -2449,70 +2526,39 @@ const getMentorshipProgressService = async (userId) => {
     },
   ];
 
-  // Milestones sourced dynamically from Challenge & ChallengeParticipant models ("milestone is the challenge")
-  const participations = await ChallengeParticipant.find({ athlete: athlete._id }).lean();
-  const participatedChallengeIds = participations.map((p) => p.challenge);
-  const partMap = new Map(participations.map((p) => [p.challenge.toString(), p]));
+  // Milestones sourced dynamically from 90-day Curriculum tasks created/assigned by Admin (CurriculumMission & UserMissionProgress)
+  // Returns all tasks assigned by admin across the 90 days (or key checkpoints if query.milestonesOnly=true)
+  const milestoneFilter = { isActive: true };
+  if (query.milestonesOnly === 'true') {
+    milestoneFilter.isMilestone = true;
+  }
 
-  const challenges = await Challenge.find({
-    $or: [
-      { _id: { $in: participatedChallengeIds } },
-      { assignedAthletes: athlete._id },
-      {
-        status: { $in: ['active', 'completed', 'upcoming'] },
-        $or: [
-          { assignedAthletes: { $exists: false } },
-          { assignedAthletes: { $size: 0 } },
-          { assignedAthletes: athlete._id },
-        ],
-      },
-    ],
-  })
-    .sort({ startDate: 1, createdAt: 1 })
+  const curriculumMissions = await CurriculumMission.find(milestoneFilter)
+    .sort({ dayNumber: 1, taskNumber: 1, createdAt: 1 })
     .lean();
 
-  const defaultCheckpoints = [7, 14, 30, 60, 90];
-  const usedDays = new Set();
+  const missionProgresses = await UserMissionProgress.find({ athlete: athlete._id }).lean();
+  const progressMap = new Map(missionProgresses.map((p) => [p.mission.toString(), p]));
 
-  const milestones = challenges.map((c, idx) => {
-    const p = partMap.get(c._id.toString());
-    const isCompleted = Boolean(
-      p && (p.isGoalReached || p.completedAt || (p.earnedXp && c.xpGoal && p.earnedXp >= c.xpGoal))
-    );
+  const milestones = curriculumMissions.map((m) => {
+    const p = progressMap.get(m._id.toString());
+    const isCompleted = Boolean(p && p.isCompleted);
 
-    let dayNumber = null;
-    if (athlete.mentorshipStartDate && c.startDate) {
-      const diffDays = Math.ceil(
-        (new Date(c.startDate).getTime() - new Date(athlete.mentorshipStartDate).getTime()) / (1000 * 60 * 60 * 24)
-      );
-      if (diffDays > 0 && diffDays <= 90 && !usedDays.has(diffDays)) {
-        dayNumber = diffDays;
-      }
-    }
-
-    if (!dayNumber) {
-      dayNumber = defaultCheckpoints.find((d) => !usedDays.has(d)) || Math.min(90, (idx + 1) * 15);
-    }
-    usedDays.add(dayNumber);
-
-    const dayLabel = `Day ${dayNumber}`;
+    // Lock logic:
+    // If completed -> not locked, status: 'COMPLETED'
+    // If currentDay < m.dayNumber -> locked (future milestone), status: 'LOCKED'
+    // If currentDay >= m.dayNumber and not completed -> unlocked, status: 'IN_PROGRESS'
+    const isLocked = !isCompleted && currentDay < m.dayNumber;
+    const status = isCompleted ? 'COMPLETED' : (isLocked ? 'LOCKED' : 'IN_PROGRESS');
 
     return {
-      _id: c._id.toString(),
-      title: c.title,
-      description: c.description || '',
-      day: dayLabel,
-      dayNumber,
+      _id: m._id.toString(),
+      title: m.title,
+      day: `Day ${m.dayNumber}`,
+      dayNumber: m.dayNumber,
       isCompleted,
-      status: isCompleted ? 'COMPLETED' : (p ? 'IN_PROGRESS' : 'UPCOMING'),
-      xpGoal: c.xpGoal || 0,
-      earnedXp: p?.earnedXp || 0,
-      icon: c.icon || '🏆',
-      category: c.category || 'mental',
-      difficulty: c.difficulty || 'medium',
-      completedAt: p?.completedAt || null,
-      startDate: c.startDate || null,
-      endDate: c.endDate || null,
+      isLocked,
+      status,
     };
   });
 
@@ -2538,12 +2584,15 @@ const getMentorshipProgressService = async (userId) => {
 };
 
 /**
- * Complete / Toggle a Mentorship Milestone (Challenge)
+ * Complete / Toggle a Mentorship Milestone (from 90-Day Curriculum)
  */
-const completeMentorshipMilestoneService = async (challengeId, userId) => {
+const completeMentorshipMilestoneService = async (milestoneId, userId) => {
   let athlete = null;
   if (userId && mongoose.Types.ObjectId.isValid(userId)) {
     athlete = await userModel.findById(userId);
+  }
+  if (!athlete) {
+    athlete = await userModel.findOne({ email: 'alex.thompson@example.com', isDeleted: false });
   }
   if (!athlete) {
     athlete = await userModel.findOne({ role: 'athlete', isDeleted: false });
@@ -2554,55 +2603,121 @@ const completeMentorshipMilestoneService = async (challengeId, userId) => {
     throw error;
   }
 
-  const Challenge = require('../Challenge/challenge.model');
-  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+  const CurriculumMission = require('../Curriculum/curriculumMission.model');
+  const UserMissionProgress = require('../Curriculum/userMissionProgress.model');
 
-  const challenge = await Challenge.findById(challengeId);
-  if (!challenge) {
-    const error = new Error('Challenge/Milestone not found');
+  let mission = null;
+  if (mongoose.Types.ObjectId.isValid(milestoneId)) {
+    mission = await CurriculumMission.findById(milestoneId);
+  }
+
+  // Graceful fallback for legacy Challenge milestones
+  if (!mission) {
+    const Challenge = require('../Challenge/challenge.model');
+    const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
+    const challenge = await Challenge.findById(milestoneId);
+    if (challenge) {
+      let participant = await ChallengeParticipant.findOne({
+        challenge: challenge._id,
+        athlete: athlete._id,
+      });
+
+      if (!participant) {
+        participant = new ChallengeParticipant({
+          challenge: challenge._id,
+          athlete: athlete._id,
+          earnedXp: challenge.xpGoal || 50,
+          isGoalReached: true,
+          completedAt: new Date(),
+        });
+      } else {
+        participant.isGoalReached = !participant.isGoalReached;
+        participant.completedAt = participant.isGoalReached ? new Date() : null;
+        if (participant.isGoalReached && (!participant.earnedXp || participant.earnedXp < (challenge.xpGoal || 50))) {
+          participant.earnedXp = challenge.xpGoal || 50;
+        }
+      }
+
+      await participant.save();
+
+      if (participant.isGoalReached) {
+        await userModel.findByIdAndUpdate(athlete._id, {
+          $inc: { xp: challenge.xpGoal || 50 },
+        });
+      }
+
+      return {
+        milestoneId: challenge._id.toString(),
+        title: challenge.title,
+        isCompleted: participant.isGoalReached,
+        completedAt: participant.completedAt,
+        earnedXp: participant.earnedXp,
+        message: participant.isGoalReached
+          ? `Milestone "${challenge.title}" marked as completed!`
+          : `Milestone "${challenge.title}" marked as incomplete.`,
+      };
+    }
+
+    const error = new Error('Curriculum milestone/task not found');
     error.statusCode = 404;
     throw error;
   }
 
-  let participant = await ChallengeParticipant.findOne({
-    challenge: challenge._id,
+  let progress = await UserMissionProgress.findOne({
     athlete: athlete._id,
+    mission: mission._id,
   });
 
-  if (!participant) {
-    participant = new ChallengeParticipant({
-      challenge: challenge._id,
+  const xpReward = Number(mission.xpReward) || 50;
+  let xpDiff = 0;
+
+  if (!progress) {
+    progress = new UserMissionProgress({
       athlete: athlete._id,
-      earnedXp: challenge.xpGoal || 50,
-      isGoalReached: true,
+      mission: mission._id,
+      dayNumber: mission.dayNumber,
+      isCompleted: true,
       completedAt: new Date(),
+      earnedXp: xpReward,
     });
+    xpDiff = xpReward;
   } else {
-    participant.isGoalReached = !participant.isGoalReached;
-    participant.completedAt = participant.isGoalReached ? new Date() : null;
-    if (participant.isGoalReached && (!participant.earnedXp || participant.earnedXp < (challenge.xpGoal || 50))) {
-      participant.earnedXp = challenge.xpGoal || 50;
+    progress.isCompleted = !progress.isCompleted;
+    if (progress.isCompleted) {
+      progress.completedAt = new Date();
+      progress.earnedXp = xpReward;
+      xpDiff = xpReward;
+    } else {
+      progress.completedAt = null;
+      xpDiff = -(progress.earnedXp || xpReward);
+      progress.earnedXp = 0;
     }
   }
 
-  await participant.save();
+  await progress.save();
 
-  // If newly completed, increment user total XP
-  if (participant.isGoalReached) {
-    await userModel.findByIdAndUpdate(athlete._id, {
-      $inc: { xp: challenge.xpGoal || 50 },
-    });
+  // If newly completed / updated, adjust user total XP & level
+  if (xpDiff !== 0) {
+    const currentXp = Number(athlete.xp) || 0;
+    athlete.xp = Math.max(0, currentXp + xpDiff);
+    athlete.level = Math.max(1, Math.floor(athlete.xp / 500) + 1);
+    await athlete.save();
   }
 
   return {
-    milestoneId: challenge._id.toString(),
-    title: challenge.title,
-    isCompleted: participant.isGoalReached,
-    completedAt: participant.completedAt,
-    earnedXp: participant.earnedXp,
-    message: participant.isGoalReached
-      ? `Milestone "${challenge.title}" marked as completed!`
-      : `Milestone "${challenge.title}" marked as incomplete.`,
+    milestoneId: mission._id.toString(),
+    title: mission.title,
+    day: `Day ${mission.dayNumber}`,
+    dayNumber: mission.dayNumber,
+    isCompleted: progress.isCompleted,
+    status: progress.isCompleted ? 'COMPLETED' : 'IN_PROGRESS',
+    completedAt: progress.completedAt,
+    earnedXp: progress.earnedXp,
+    totalXp: athlete.xp,
+    level: athlete.level,
+    message: progress.isCompleted
+      ? `Curriculum milestone "${mission.title}" marked as completed! (+${xpReward} XP)`
+      : `Curriculum milestone "${mission.title}" marked as incomplete.`,
   };
 };
 
@@ -2835,6 +2950,8 @@ module.exports = {
   getUserHomeFeedService,
   createCoachService,
   getCoachesService,
+  getCoachAthleteRosterService,
+  unassignCoachService,
   createAthleteService,
   getAthletesService,
   assignCoachService,

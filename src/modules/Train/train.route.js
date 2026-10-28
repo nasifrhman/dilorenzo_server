@@ -39,10 +39,10 @@ router.get('/drills', auth(['user', 'athlete', 'admin', 'coach', 'parent']), get
 router.get('/drills/:id', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getDrillDetailController);
 router.post('/drills/:id/complete', auth(['user', 'athlete', 'admin', 'coach', 'parent']), completeDrillSessionController);
 
-// 4. Coach Assignments Screen (Figma Node 33000:12481) - Strictly Requires Token
-router.get('/assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getCoachAssignmentsController);
-router.get('/coach-assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getCoachAssignmentsController);
-router.get('/assignments/:id', auth(['user', 'athlete', 'admin', 'coach', 'parent']), getCoachAssignmentsController);
+// 4. Coach Assignments Screen (Figma Node 32972:6814 & 33000:12481)
+router.get('/assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachAssignmentsController);
+router.get('/coach-assignments', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachAssignmentsController);
+router.get('/assignments/:id', auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachAssignmentsController);
 
 // Upload Assignment Evidence / Submit Assignment (multipart or json) - Strictly Requires Token
 router.post(

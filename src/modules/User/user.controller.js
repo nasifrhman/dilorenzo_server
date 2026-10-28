@@ -1,6 +1,6 @@
 const { default: status } = require("http-status");
 const catchAsync = require("../../helpers/catchAsync");
-const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService, getMyCoachService, getMentorshipGoalsHabitsService, getMentorshipTrainingProgramService, completeMentorshipTrainingDrillService, getMentorshipProgressService, completeMentorshipMilestoneService, getUserCompetePageService, joinCompeteChallengeService } = require("./user.service");
+const { suspendUserService, activeUserService, giveNoteService, giveCreditService, fcmTokenService, deleteFcmTokenService, bulkGiveFlagService, bulkGiveNoteService, bulkGiveCreditService, bulkSuspendUserService, bulkActiveUserService, togglePushNotificationService, getPushNotificationService, getUserHomeFeedService, createCoachService, getCoachesService, getCoachAthleteRosterService, unassignCoachService, createAthleteService, getAthletesService, assignCoachService, getAssignedCoachesOverviewService, getUserProfileService, awardBadgeService, getAthleteProgressReviewService, submitCoachEvaluationService, getAthleteDevPlanService, toggleAthleteHabitTodayService, getUserHomepageService, completeHomepageMissionService, submitHomepageFeedbackService, purchase90DaysProgramService, reset90DaysProgramService, getMyProgramService, toggleProgramTaskService, getMyCoachService, getMentorshipGoalsHabitsService, getMentorshipTrainingProgramService, completeMentorshipTrainingDrillService, getMentorshipProgressService, completeMentorshipMilestoneService, getUserCompetePageService, joinCompeteChallengeService } = require("./user.service");
 const response = require("../../helpers/response");
 
 const suspendUserController = catchAsync(async (req, res) => {
@@ -275,13 +275,40 @@ const createCoachController = catchAsync(async (req, res) => {
 });
 
 const getCoachesController = catchAsync(async (req, res) => {
-  const result = await getCoachesService();
+  const result = await getCoachesService(req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
       statusCode: status.OK,
-      type: 'Coaches',
-      message: 'Coaches retrieved successfully',
+      type: 'StaffAccounts',
+      message: 'Staff & accounts coaches overview retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const getCoachAthleteRosterController = catchAsync(async (req, res) => {
+  const coachId = req.params.coachId || req.query.coachId;
+  const result = await getCoachAthleteRosterService(coachId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachRoster',
+      message: 'Coach athlete roster retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const unassignCoachController = catchAsync(async (req, res) => {
+  const result = await unassignCoachService(req.body);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachUnassignment',
+      message: 'Athlete unassigned successfully',
       data: result,
     })
   );
@@ -652,7 +679,7 @@ const completeMentorshipTrainingDrillController = catchAsync(async (req, res) =>
  */
 const getMentorshipProgressController = catchAsync(async (req, res) => {
   const userId = req.user?._id || req.user?.id || req.User?._id || req.User?.id || req.query?.athleteId;
-  const result = await getMentorshipProgressService(userId);
+  const result = await getMentorshipProgressService(userId, req.query);
   return res.status(status.OK).json(
     response({
       status: 'success',
@@ -736,6 +763,8 @@ module.exports = {
   getUserHomeController,
   createCoachController,
   getCoachesController,
+  getCoachAthleteRosterController,
+  unassignCoachController,
   createAthleteController,
   getAthletesController,
   assignCoachController,

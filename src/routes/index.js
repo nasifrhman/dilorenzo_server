@@ -10,9 +10,21 @@ const coachRoutes = require('../modules/Coach/coach.route');
 const parentRoutes = require('../modules/Parent/parent.route');
 const communityRoutes = require('../modules/Community/community.route');
 const trainRoutes = require('../modules/Train/train.route');
-
+const curriculumRoutes = require('../modules/Curriculum/curriculum.route');
 
 const moduleRoutes = [
+  {
+    path: '/curriculum',
+    route: curriculumRoutes,
+  },
+  {
+    path: '/90-day-curriculum',
+    route: curriculumRoutes,
+  },
+  {
+    path: '/mentorship',
+    route: curriculumRoutes,
+  },
   {
     path: '/train',
     route: trainRoutes,

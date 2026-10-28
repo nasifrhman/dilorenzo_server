@@ -78,7 +78,7 @@ const getParentHomepageService = async ({ parentId = null, athleteId = null }) =
     }
     athleteDoc = await User.findOne({
       _id: athleteId,
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
     if (!athleteDoc) {
@@ -87,7 +87,7 @@ const getParentHomepageService = async ({ parentId = null, athleteId = null }) =
   } else if (parentDoc && Array.isArray(parentDoc.athletes) && parentDoc.athletes.length > 0) {
     athleteDoc = await User.findOne({
       _id: parentDoc.athletes[0],
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
     if (!athleteDoc) {
@@ -122,7 +122,7 @@ const getParentHomepageService = async ({ parentId = null, athleteId = null }) =
 
   // 5. Leaderboard Rank (by XP among active athletes)
   const higherXpCount = await User.countDocuments({
-    role: 'athlete',
+    role: { $in: ['athlete', 'user'] },
     isDeleted: { $ne: true },
     xp: { $gt: Number(athleteDoc.xp) || 0 },
   });
@@ -222,9 +222,11 @@ const getParentHomepageService = async ({ parentId = null, athleteId = null }) =
   };
 
   // 9. Next Coaching Session
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
   const nextSessionDoc = await Session.findOne({
     athlete: athleteDoc._id,
     status: 'scheduled',
+    $or: [{ date: { $gte: todayStart } }, { dateTime: { $gte: todayStart } }],
   })
     .sort({ date: 1, startTime: 1 })
     .populate('coach', 'fullName')
@@ -347,7 +349,7 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
     }
     athleteDoc = await User.findOne({
       _id: athleteId,
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
     if (!athleteDoc) {
@@ -356,7 +358,7 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
   } else if (parentDoc && Array.isArray(parentDoc.athletes) && parentDoc.athletes.length > 0) {
     athleteDoc = await User.findOne({
       _id: parentDoc.athletes[0],
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
     if (!athleteDoc) {
@@ -373,7 +375,7 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
 
   // 3. Leaderboard Rank (XP among active athletes)
   const higherXpCount = await User.countDocuments({
-    role: 'athlete',
+    role: { $in: ['athlete', 'user'] },
     isDeleted: { $ne: true },
     xp: { $gt: Number(athleteDoc.xp) || 0 },
   });
@@ -452,6 +454,7 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
     weekDayLabels.forEach((label, i) => {
       const dayDate = new Date(monday.getTime() + i * 86400000);
       const isPastOrToday = dayDate <= now || isSameDay(dayDate, now);
+      const isToday = isSameDay(dayDate, now);
 
       const dayHabitsCount = weekHabitLogs.filter((l) => isSameDay(l.date, dayDate)).length;
       const dayTasksCount = weekTasks.filter((t) => isSameDay(t.completedAt || t.updatedAt, dayDate)).length;
@@ -467,6 +470,8 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
       mentalPerformanceScores.push({
         day: label,
         score,
+        isToday,
+        isCompleted: dayCompletedCount > 0,
       });
     });
 
@@ -475,8 +480,19 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
       return activeDatesSet.has(dayDate.toDateString());
     }).length;
 
+    const totalWeeklyTarget = 7;
+    const remainingDaysCount = Math.max(0, totalWeeklyTarget - completedDaysCount);
+    const remainingText = remainingDaysCount === 0
+      ? 'Weekly goal completed!'
+      : `${remainingDaysCount} session${remainingDaysCount === 1 ? '' : 's'} remaining this week`;
+
     const weeklyGoalProgress = {
+      title: 'Weekly Goal Progress',
       completedDaysCount,
+      totalWeeklyTarget,
+      ratioText: `${completedDaysCount}/${totalWeeklyTarget}`,
+      remainingDaysCount,
+      remainingText,
       days: weekDayLabels.map((label, i) => {
         const dayDate = new Date(monday.getTime() + i * 86400000);
         return {
@@ -486,23 +502,37 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
       }),
     };
 
-    const dailyHabits = assignedHabits.map((h) => {
+    const habitColors = ['#10B981', '#3B82F6', '#E8A820', '#8B5CF6', '#EC4899'];
+    const dailyHabits = assignedHabits.map((h, idx) => {
       const completedCount = weekHabitLogs.filter((l) => l.habit?.toString() === h._id.toString()).length;
       const completionRate = Math.min(100, Math.round((completedCount / 7) * 100));
       return {
         _id: h._id.toString(),
         title: h.title || '',
         completionRate,
+        progressText: `${completionRate}%`,
+        color: habitColors[idx % habitColors.length],
+      };
+    });
+
+    // Sourced strictly from Figma Node 32917:7169 (Training Consistency)
+    const trainingConsistency = weekDayLabels.map((label, i) => {
+      const dayDate = new Date(monday.getTime() + i * 86400000);
+      return {
+        day: label,
+        completed: activeDatesSet.has(dayDate.toDateString()),
       };
     });
 
     return {
       mentalPerformanceScore: {
+        title: 'Mental Performance Score',
         timeframe: 'Mon – Sun · This week',
         scores: mentalPerformanceScores,
       },
       weeklyGoalProgress,
       dailyHabits,
+      trainingConsistency,
     };
   };
 
@@ -713,12 +743,12 @@ const getParentProgressService = async ({ parentId = null, athleteId = null, tab
     const confidenceCount = countMatches(['confidence', 'belief', 'self-talk', 'reflection', 'feedback', 'mindset']);
     const resilienceCount = countMatches(['resilience', 'recovery', 'bounce', 'mistake', 'reset', 'grit']);
 
-    const totalDaysElapsed = Math.max(1, mentorshipDay);
-    const preMatchRitual = Math.min(100, Math.round((preMatchCount / totalDaysElapsed) * 100));
-    const pressureManagement = Math.min(100, Math.round((pressureCount / totalDaysElapsed) * 100));
-    const focusControl = Math.min(100, Math.round((focusCount / totalDaysElapsed) * 100));
-    const confidence = Math.min(100, Math.round((confidenceCount / totalDaysElapsed) * 100));
-    const resilience = Math.min(100, Math.round((resilienceCount / totalDaysElapsed) * 100));
+    const totalProgramDays = 90;
+    const preMatchRitual = Math.min(100, Math.round((preMatchCount / totalProgramDays) * 100));
+    const pressureManagement = Math.min(100, Math.round((pressureCount / totalProgramDays) * 100));
+    const focusControl = Math.min(100, Math.round((focusCount / totalProgramDays) * 100));
+    const confidence = Math.min(100, Math.round((confidenceCount / totalProgramDays) * 100));
+    const resilience = Math.min(100, Math.round((resilienceCount / totalProgramDays) * 100));
 
     const mindsetDevelopment = [
       { label: 'Pre-Match Ritual', progress: preMatchRitual },
@@ -842,7 +872,7 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
     }
     athleteDoc = await User.findOne({
       _id: athleteId,
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
     if (!athleteDoc) {
@@ -851,7 +881,7 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
   } else if (parentDoc && Array.isArray(parentDoc.athletes) && parentDoc.athletes.length > 0) {
     athleteDoc = await User.findOne({
       _id: parentDoc.athletes[0],
-      role: 'athlete',
+      role: { $in: ['athlete', 'user'] },
       isDeleted: { $ne: true },
     }).lean();
   }
@@ -998,13 +1028,20 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
 
   // Tab 3: Sessions (Node 32924:9853)
   const buildSessionsData = async () => {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
     const sessions = await Session.find({ athlete: athleteDoc._id })
       .sort({ date: 1, dateTime: 1 })
       .populate('coach', 'fullName')
       .lean();
 
     const upcomingSessions = sessions
-      .filter((s) => s.status === 'scheduled' || s.status === 'in-progress')
+      .filter((s) => {
+        const sDate = s.dateTime ? new Date(s.dateTime) : (s.date ? new Date(s.date) : null);
+        const isFutureOrToday = sDate ? sDate >= todayStart : false;
+        return (s.status === 'scheduled' || s.status === 'in-progress') && isFutureOrToday;
+      })
       .map((s) => {
         const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || '';
         const dateStr = s.dateTime || s.date;
@@ -1019,7 +1056,7 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
 
         return {
           _id: s._id.toString(),
-          icon: s.icon || '',
+          icon: s.icon || '🎯',
           title: s.title,
           schedule: scheduleParts.join(' · '),
           meetingLink: s.meetingLink || '',
@@ -1027,7 +1064,11 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
       });
 
     const completedSessions = sessions
-      .filter((s) => s.status === 'completed')
+      .filter((s) => {
+        const sDate = s.dateTime ? new Date(s.dateTime) : (s.date ? new Date(s.date) : null);
+        const isPast = sDate ? sDate < todayStart : false;
+        return s.status === 'completed' || isPast;
+      })
       .map((s) => {
         const coachDisplay = s.coachName || s.coach?.fullName || coachInfo?.fullName || '';
         const dateStr = s.date || s.dateTime;
@@ -1040,10 +1081,11 @@ const getParentCoachHubService = async ({ parentId = null, athleteId = null, tab
 
         return {
           _id: s._id.toString(),
-          icon: s.icon || '',
+          icon: s.icon || '📹',
           title: s.title,
           schedule: scheduleParts.join(' · '),
           status: 'Completed',
+          note: s.notes || '',
         };
       });
 

@@ -15,6 +15,8 @@ ensureUploadFolderExists(UPLOADS_FOLDER_USERS);
 const {
   createCoachController,
   getCoachesController,
+  getCoachAthleteRosterController,
+  unassignCoachController,
   createAthleteController,
   getAthletesController,
   assignCoachController,
@@ -52,6 +54,8 @@ router.get("/program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { o
 router.get("/mentorship-dashboard", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMyProgramController);
 router.post("/my-program/toggle-task", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
 router.post("/my-program/task/:taskId/toggle", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
+router.post("/mentorship/task/toggle", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
+router.post("/mentorship/task/:taskId/toggle", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), toggleProgramTaskController);
 
 // Goals & Habits Screen (Figma node 32966:6467)
 // "when user click on goal habit"
@@ -113,9 +117,14 @@ router.get("/progress-review", auth(['user', 'athlete', 'admin', 'coach', 'paren
 router.get("/progress-review/:athleteId", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getAthleteProgressReviewController);
 router.post("/progress-review/evaluation", auth(['admin', 'coach', 'user'], { optional: true }), submitCoachEvaluationController);
 
-// Coach Provisioning endpoints
+// Coach Provisioning & Staff Dashboard (Figma Node 33295:20111 & 33299:23600)
 router.post("/coach", createCoachController);
 router.get("/coach", getCoachesController);
+router.get("/coaches", getCoachesController);
+router.get("/coach/:coachId/roster", getCoachAthleteRosterController);
+router.get("/coach/:coachId/athletes", getCoachAthleteRosterController);
+router.post("/coach/unassign", unassignCoachController);
+router.post("/unassign-coach", unassignCoachController);
 
 // Athlete Intake & Registration endpoints (Figma node 33275-6181)
 router.post("/athlete", createAthleteController);

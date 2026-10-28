@@ -123,6 +123,8 @@ const userSchema = new mongoose.Schema(
         {
           objectiveId: { type: String },
           title: { type: String, required: true },
+          description: { type: String, default: '' },
+          color: { type: String, default: '#C9911A' },
           category: { type: String, default: 'Focus' },
           icon: { type: String, default: '🎯' },
           progress: { type: Number, default: 0, min: 0, max: 100 },
