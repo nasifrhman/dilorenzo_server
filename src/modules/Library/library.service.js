@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const httpStatus = require('http-status').default;
 const ApiError = require('../../helpers/ApiError');
 const LibraryItem = require('./library.model');
+const User = require('../User/user.model');
 
 // Parse helper for arrays (handling string with newlines, bullet points, or comma arrays)
 const parseLines = (input) => {
@@ -27,6 +28,20 @@ const formatLibraryItem = (item) => {
     createdAt: item.createdAt,
   };
 
+  const coachId = item.coachId?._id
+    ? item.coachId._id.toString()
+    : item.coachId
+    ? item.coachId.toString()
+    : item.coach?._id
+    ? item.coach._id.toString()
+    : item.coach
+    ? item.coach.toString()
+    : null;
+  const coachName =
+    (item.coachId && (item.coachId.fullName || `${item.coachId.firstName || ''} ${item.coachId.lastName || ''}`.trim() || item.coachId.name)) ||
+    (item.coach && (item.coach.fullName || `${item.coach.firstName || ''} ${item.coach.lastName || ''}`.trim() || item.coach.name)) ||
+    '';
+
   if (item.contentType === 'habit') {
     return {
       ...base,
@@ -40,15 +55,16 @@ const formatLibraryItem = (item) => {
 
   if (item.contentType === 'video-drill') {
     return {
-      ...base,
-      video: item.video || item.videoUrl || '',
+      _id: item._id,
+      contentType: 'video-drill',
+      title: item.title,
       videoUrl: item.videoUrl || item.video || '',
       category: item.category || 'Mindset',
-      phase: item.phase || 'Foundation (Phase 1)',
-      duration: item.duration || '10:00 min',
       xpReward: item.xpReward || 0,
-      coachName: item.coachName || 'Valentino Di Lorenzo',
+      coachId: coachId,
+      coachName: coachName,
       teachingPoints: item.teachingPoints || [],
+      createdAt: item.createdAt,
     };
   }
 
@@ -123,7 +139,10 @@ const getLibraryOverviewService = async (query = {}) => {
     filter.title = { $regex: query.search.trim(), $options: 'i' };
   }
 
-  const rawItems = await LibraryItem.find(filter).sort({ createdAt: -1 });
+  const rawItems = await LibraryItem.find(filter)
+    .populate('coachId', '_id fullName firstName lastName name image')
+    .populate('coach', '_id fullName firstName lastName name image')
+    .sort({ createdAt: -1 });
   const items = rawItems.map(formatLibraryItem);
 
   return {
@@ -142,6 +161,10 @@ const createLibraryItemService = async (payload) => {
     category,
     xpReward,
     video,
+    image,
+    thumbnail,
+    coachId,
+    coach,
     // Habit
     frequency,
     checkInWindow,
@@ -150,7 +173,6 @@ const createLibraryItemService = async (payload) => {
     videoUrl,
     phase,
     duration,
-    coachName,
     teachingPoints,
     // Reflection
     formType,
@@ -171,12 +193,21 @@ const createLibraryItemService = async (payload) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Title is required.');
   }
 
-  if (!contentType || !contentType.trim()) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Content Type is required.');
+  let inferredType = (contentType || '').toString().trim().toLowerCase();
+  if (!inferredType) {
+    if (coachId || coach || video || payload.videoUrl || payload.teachingPoints) {
+      inferredType = 'video-drill';
+    } else if (payload.formType || payload.prompt || payload.questions) {
+      inferredType = 'reflection';
+    } else if (payload.curriculumType || payload.phases) {
+      inferredType = 'curriculum';
+    } else {
+      inferredType = 'habit';
+    }
   }
 
   // Normalize contentType
-  const rawType = contentType.toLowerCase().trim();
+  const rawType = inferredType;
   let normalizedType = 'habit';
   if (rawType.includes('video') || rawType.includes('drill')) {
     normalizedType = 'video-drill';
@@ -186,14 +217,36 @@ const createLibraryItemService = async (payload) => {
     normalizedType = 'curriculum';
   }
 
+  // Take coachId (Coach ID is required for video drills)
+  const targetCoachId =
+    coachId ||
+    (coach && typeof coach === 'string' && mongoose.Types.ObjectId.isValid(coach)
+      ? coach
+      : null) ||
+    (coach && coach._id ? coach._id : null);
 
+  if (normalizedType === 'video-drill' && !targetCoachId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'coachId is required for video drills.');
+  }
+
+  let resolvedCoach = null;
+
+  if (targetCoachId) {
+    if (!mongoose.Types.ObjectId.isValid(targetCoachId)) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid coachId format.');
+    }
+    const coachDoc = await User.findOne({ _id: targetCoachId, isDeleted: false });
+    if (!coachDoc) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Coach not found with the provided coachId.');
+    }
+    resolvedCoach = coachDoc._id;
+  }
 
   const itemData = {
     contentType: normalizedType,
     title: title.trim(),
     category: (category || 'Mindset').trim(),
     xpReward: Number(xpReward) || 0,
-    video: video || videoUrl || '',
     createdBy: createdBy && mongoose.Types.ObjectId.isValid(createdBy) ? createdBy : null,
   };
 
@@ -202,11 +255,10 @@ const createLibraryItemService = async (payload) => {
     itemData.checkInWindow = checkInWindow || 'Morning (8:00 AM)';
     itemData.instructions = instructions || '';
   } else if (normalizedType === 'video-drill') {
-    itemData.video = video || videoUrl || '';
+    itemData.video = videoUrl || video || '';
     itemData.videoUrl = videoUrl || video || '';
-    itemData.phase = phase || 'Foundation (Phase 1)';
-    itemData.duration = duration || '10:00 min';
-    itemData.coachName = coachName || 'Valentino Di Lorenzo';
+    itemData.coachId = resolvedCoach;
+    itemData.coach = resolvedCoach;
     itemData.teachingPoints = parseLines(teachingPoints);
   } else if (normalizedType === 'reflection') {
     itemData.formType = formType || 'Match Audit';
@@ -235,6 +287,8 @@ const createLibraryItemService = async (payload) => {
 
   const libraryItem = new LibraryItem(itemData);
   await libraryItem.save();
+  await libraryItem.populate('coachId', '_id fullName firstName lastName name image');
+  await libraryItem.populate('coach', '_id fullName firstName lastName name image');
 
   return formatLibraryItem(libraryItem);
 };
@@ -247,7 +301,9 @@ const getLibraryItemByIdService = async (id) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid item ID format.');
   }
 
-  const item = await LibraryItem.findById(id);
+  const item = await LibraryItem.findById(id)
+    .populate('coachId', '_id fullName firstName lastName name image')
+    .populate('coach', '_id fullName firstName lastName name image');
   if (!item || !item.isActive) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Library item not found.');
   }
@@ -273,13 +329,16 @@ const updateLibraryItemService = async (id, updateData) => {
     'category',
     'xpReward',
     'video',
+    'image',
+    'thumbnail',
     'frequency',
     'checkInWindow',
     'instructions',
     'videoUrl',
     'phase',
     'duration',
-    'coachName',
+    'coachId',
+    'coach',
     'teachingPoints',
     'formType',
     'completionTime',
@@ -293,7 +352,26 @@ const updateLibraryItemService = async (id, updateData) => {
     'moduleCount',
   ];
 
+  if (updateData.coachId !== undefined || updateData.coach !== undefined) {
+    const targetCoachId = updateData.coachId !== undefined ? updateData.coachId : updateData.coach;
+    if (targetCoachId) {
+      if (!mongoose.Types.ObjectId.isValid(targetCoachId)) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid coachId format.');
+      }
+      const coachDoc = await User.findOne({ _id: targetCoachId, isDeleted: false });
+      if (!coachDoc) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Coach not found with the provided coachId.');
+      }
+      item.coachId = coachDoc._id;
+      item.coach = coachDoc._id;
+    } else if (targetCoachId === null || targetCoachId === '') {
+      item.coachId = null;
+      item.coach = null;
+    }
+  }
+
   allowedFields.forEach((field) => {
+    if (field === 'coach' || field === 'coachId') return;
     if (updateData[field] !== undefined) {
       if (field === 'prompt' || field === 'prompts' || field === 'questions') {
         const parsed = parseLines(updateData[field]);
@@ -306,6 +384,8 @@ const updateLibraryItemService = async (id, updateData) => {
   });
 
   await item.save();
+  await item.populate('coachId', '_id fullName firstName lastName name image');
+  await item.populate('coach', '_id fullName firstName lastName name image');
   return formatLibraryItem(item);
 };
 

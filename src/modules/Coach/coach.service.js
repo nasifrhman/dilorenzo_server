@@ -2156,6 +2156,24 @@ const sendAthleteGroupMessageService = async (athleteId, data, senderId = null) 
   return message;
 };
 
+/**
+ * Simple Coach List for Dropdowns & Selectors (Figma dropdown / library selection)
+ * Returns ONLY: _id, id, name, image
+ */
+const getCoachesSimpleListService = async () => {
+  const coaches = await User.find({ role: 'coach', isDeleted: false })
+    .select('_id fullName image')
+    .sort({ fullName: 1 })
+    .lean();
+
+  return coaches.map((coach) => ({
+    _id: coach._id.toString(),
+    id: coach._id.toString(),
+    name: coach.fullName || '',
+    image: coach.image || 'user.jpg',
+  }));
+};
+
 module.exports = {
   getCoachDashboardOverviewService,
   getCoachTasksOverviewService,
@@ -2188,4 +2206,5 @@ module.exports = {
   updateSessionNotesService,
   createCoachSessionService,
   sendAthleteGroupMessageService,
+  getCoachesSimpleListService,
 };

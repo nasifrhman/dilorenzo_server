@@ -33,6 +33,7 @@ const {
   submitAthleteActionStepService,
   getActionStepDetailService,
   getFeedbackDetailService,
+  getCoachesSimpleListService,
 } = require('./coach.service');
 const User = require('../User/user.model');
 
@@ -545,6 +546,19 @@ const sendAthleteGroupMessageController = catchAsync(async (req, res) => {
   );
 });
 
+const getCoachesSimpleListController = catchAsync(async (req, res) => {
+  const result = await getCoachesSimpleListService();
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Coaches',
+      message: 'Coaches retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   getCoachDashboardOverviewController,
   getCoachTasksOverviewController,
@@ -577,4 +591,5 @@ module.exports = {
   updateSessionNotesController,
   createCoachSessionController,
   sendAthleteGroupMessageController,
+  getCoachesSimpleListController,
 };

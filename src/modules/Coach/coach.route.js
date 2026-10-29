@@ -18,6 +18,11 @@ router.get('/dashboard', coachController.getCoachDashboardOverviewController);
 router.get('/overview', coachController.getCoachDashboardOverviewController);
 router.get('/', coachController.getCoachDashboardOverviewController);
 
+// Simple Coach List for Dropdowns / Library Selection (returns only name, image, id)
+router.get('/list', coachController.getCoachesSimpleListController);
+router.get('/dropdown', coachController.getCoachesSimpleListController);
+router.get('/simple-list', coachController.getCoachesSimpleListController);
+
 // All Players Overview for Coach (Figma nodes 33097:12108, 33097:13469, 33101:65, 33102:688)
 router.get('/tasks', coachController.getCoachTasksOverviewController);
 router.get('/training', coachController.getCoachTrainingOverviewController);

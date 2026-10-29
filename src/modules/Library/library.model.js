@@ -23,79 +23,75 @@ const libraryItemSchema = new mongoose.Schema(
     },
     video: {
       type: String,
-      default: '',
+    },
+    videoUrl: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
+    thumbnail: {
+      type: String,
+    },
+
+    // Coach reference for video drill (coach name dynamically populated from User)
+    coachId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    coach: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+    teachingPoints: {
+      type: [String],
     },
 
     // Habit specific fields
     frequency: {
       type: String,
-      default: 'Daily (7x a week)',
     },
     checkInWindow: {
       type: String,
-      default: 'Morning (8:00 AM)',
     },
     instructions: {
       type: String,
-      default: '',
     },
 
-    // Video Drill specific fields
-    videoUrl: {
-      type: String,
-      default: '',
-    },
+    // Optional drill metadata
     phase: {
       type: String,
-      default: 'Foundation (Phase 1)',
     },
     duration: {
       type: String,
-      default: '',
-    },
-    coachName: {
-      type: String,
-      default: 'Valentino Di Lorenzo',
-    },
-    teachingPoints: {
-      type: [String],
-      default: [],
     },
 
     // Reflection specific fields
     formType: {
       type: String,
-      default: 'Match Audit',
     },
     completionTime: {
       type: String,
-      default: '5 min',
     },
     prompt: {
       type: [String],
-      default: [],
     },
     questions: {
       type: [String],
-      default: [],
     },
     autoPostToChat: {
       type: Boolean,
-      default: true,
     },
     isPrivateToCoach: {
       type: Boolean,
-      default: false,
     },
 
     // Curriculum specific fields
     curriculumType: {
       type: String,
-      default: 'Flagship 90-Day',
     },
     tier: {
       type: String,
-      default: 'Mentorship 90 Tier',
     },
     phases: [
       {
@@ -106,7 +102,6 @@ const libraryItemSchema = new mongoose.Schema(
     ],
     moduleCount: {
       type: Number,
-      default: 24,
     },
 
     isActive: {

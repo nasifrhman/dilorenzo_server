@@ -43,6 +43,7 @@ const {
   getUserCompetePageController,
   joinCompeteChallengeController,
 } = require("./user.controller");
+const { getCoachesSimpleListController } = require('../Coach/coach.controller');
 
 // Mentorship Dashboard / 90-Day Mentorship Overview Screen (Figma node 32960:4016)
 // "after clicking 90days mentorship user will see this page"
@@ -121,6 +122,10 @@ router.post("/progress-review/evaluation", auth(['admin', 'coach', 'user'], { op
 router.post("/coach", createCoachController);
 router.get("/coach", getCoachesController);
 router.get("/coaches", getCoachesController);
+router.get("/coach/list", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachesSimpleListController);
+router.get("/coaches/list", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachesSimpleListController);
+router.get("/coach/dropdown", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachesSimpleListController);
+router.get("/coaches/dropdown", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getCoachesSimpleListController);
 router.get("/coach/:coachId/roster", getCoachAthleteRosterController);
 router.get("/coach/:coachId/athletes", getCoachAthleteRosterController);
 router.post("/coach/unassign", unassignCoachController);

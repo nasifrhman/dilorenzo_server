@@ -24,22 +24,56 @@ const getLibraryOverviewController = catchAsync(async (req, res) => {
 });
 
 const extractUploadedFiles = (req) => {
-  if (req.files) {
-    if (req.files.video && req.files.video[0]) {
-      req.body.video = `/uploads/library/${req.files.video[0].filename}`;
-      req.body.videoUrl = `/uploads/library/${req.files.video[0].filename}`;
-    }
+  if (Array.isArray(req.files) && req.files.length > 0) {
+    for (const f of req.files) {
+      const url = `/uploads/library/${f.filename}`;
+      const isVideo = /video/i.test(f.fieldname) || (f.mimetype && f.mimetype.startsWith('video/'));
+      const isImg = /image|thumb|cover/i.test(f.fieldname) || (f.mimetype && f.mimetype.startsWith('image/'));
 
+      if (isVideo) {
+        req.body.video = url;
+        req.body.videoUrl = url;
+      } else if (isImg) {
+        req.body.image = url;
+        req.body.thumbnail = url;
+      } else {
+        if (!req.body.video) req.body.video = url;
+        if (!req.body.videoUrl) req.body.videoUrl = url;
+      }
+    }
+  } else if (req.files && typeof req.files === 'object') {
+    if (req.files.video && req.files.video[0]) {
+      const url = `/uploads/library/${req.files.video[0].filename}`;
+      req.body.video = url;
+      req.body.videoUrl = url;
+    }
+    if (req.files.image && req.files.image[0]) {
+      const url = `/uploads/library/${req.files.image[0].filename}`;
+      req.body.image = url;
+      req.body.thumbnail = url;
+    }
+    if (req.files.thumbnail && req.files.thumbnail[0]) {
+      const url = `/uploads/library/${req.files.thumbnail[0].filename}`;
+      req.body.thumbnail = url;
+      if (!req.body.image) req.body.image = url;
+    }
     if (req.files.file && req.files.file[0]) {
-      const f = req.files.file[0];
-      req.body.video = `/uploads/library/${f.filename}`;
-      req.body.videoUrl = `/uploads/library/${f.filename}`;
+      const url = `/uploads/library/${req.files.file[0].filename}`;
+      req.body.video = url;
+      req.body.videoUrl = url;
     }
   }
 
   if (req.file) {
-    req.body.video = `/uploads/library/${req.file.filename}`;
-    req.body.videoUrl = `/uploads/library/${req.file.filename}`;
+    const url = `/uploads/library/${req.file.filename}`;
+    const isImg = /image|thumb|cover/i.test(req.file.fieldname) || (req.file.mimetype && req.file.mimetype.startsWith('image/'));
+    if (isImg) {
+      req.body.image = url;
+      req.body.thumbnail = url;
+    } else {
+      req.body.video = url;
+      req.body.videoUrl = url;
+    }
   }
 };
 
@@ -67,9 +101,10 @@ const uploadLibraryFileController = catchAsync(async (req, res) => {
       status: 'success',
       statusCode: status.OK,
       type: 'FileUpload',
-      message: 'File uploaded successfully',
+      message: isVideo ? 'Video uploaded successfully' : 'File uploaded successfully',
       data: {
         url,
+        videoUrl: url,
         filename: uploadedFile.filename,
         originalName: uploadedFile.originalname,
         mimetype: uploadedFile.mimetype,
@@ -89,6 +124,21 @@ const createLibraryItemController = catchAsync(async (req, res) => {
       statusCode: status.CREATED,
       type: 'LibraryItem',
       message: 'Library content published successfully',
+      data: result,
+    })
+  );
+});
+
+const createDrillVideoController = catchAsync(async (req, res) => {
+  extractUploadedFiles(req);
+  req.body.contentType = 'video-drill';
+  const result = await createLibraryItemService(req.body);
+  return res.status(status.CREATED).json(
+    response({
+      status: 'success',
+      statusCode: status.CREATED,
+      type: 'DrillVideo',
+      message: 'Master drill video created successfully',
       data: result,
     })
   );
@@ -137,6 +187,7 @@ const deleteLibraryItemController = catchAsync(async (req, res) => {
 module.exports = {
   getLibraryOverviewController,
   createLibraryItemController,
+  createDrillVideoController,
   getLibraryItemByIdController,
   updateLibraryItemController,
   deleteLibraryItemController,

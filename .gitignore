@@ -8,3 +8,10 @@ MODULE_EXPLORATION.md
 PARTNER_DASHBOARD_API.md
 # Runtime uploads
 public/uploads/
+
+# Postman decomposed files & caches
+.postman/
+postman/
+Dilorenzo/
+*.yaml
+*.yml
