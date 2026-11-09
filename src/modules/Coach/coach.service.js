@@ -36,6 +36,28 @@ const formatReadableDate = (date) => {
 };
 
 /**
+ * Filter out dummy default image filenames like "user.jpg"
+ */
+const getCleanAvatar = (user) => {
+  const img = user?.profileImage || user?.image;
+  if (!img || typeof img !== 'string' || img === 'user.jpg' || img.includes('default') || img.trim() === '') {
+    return null;
+  }
+  return img;
+};
+
+/**
+ * Clean initials computation from full name
+ */
+const getCleanInitials = (fullName = '') => {
+  if (!fullName || typeof fullName !== 'string') return '';
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
+
+/**
  * Helper to parse multiple mentality tags (array, comma-separated string, or JSON string)
  */
 const parseMentalityUsed = (val) => {
@@ -86,7 +108,7 @@ const getCoachDashboardOverviewService = async (query = {}) => {
         name: coachDoc.fullName || '',
         email: coachDoc.email || '',
         role: coachDoc.roleTitle || '',
-        title: coachDoc.currentClub || '',
+        title: coachDoc.roleTitle || '',
         image: coachDoc.image || coachDoc.profileImage || '',
       }
     : null;
@@ -109,7 +131,7 @@ const getCoachDashboardOverviewService = async (query = {}) => {
   }
 
   const dbAthletes = await User.find(athleteFilter)
-    .select('fullName currentClub leagueDivision mentorshipDay mentorshipPhase level streak highestStreak focusGoals flagCount createdAt updatedAt')
+    .select('fullName region mentorshipDay mentorshipPhase level streak highestStreak focusGoals flagCount createdAt updatedAt')
     .sort({ createdAt: -1 })
     .lean();
 
@@ -132,7 +154,7 @@ const getCoachDashboardOverviewService = async (query = {}) => {
         _id: a._id.toString(),
         name: a.fullName || '',
         image: a.image || a.profileImage || '',
-        club: a.currentClub || a.leagueDivision || '',
+        region: a.region || '',
         statusBadge,
         badgeType,
         day: dayNumber ? `${dayNumber}/90` : '',
@@ -287,7 +309,6 @@ const getCoachDashboardOverviewService = async (query = {}) => {
     return {
       _id: p._id,
       name: p.name,
-      avatarEmoji: p.avatarEmoji,
       pending: pPending,
       progressPercentage: rate,
       badgeType,
@@ -331,7 +352,7 @@ const getCoachDashboardOverviewService = async (query = {}) => {
       _id: p._id,
       name: p.name,
       avatarEmoji: p.avatarEmoji,
-      club: p.club,
+      region: p.region || '',
       completedVideos: completedCount,
       totalVideos: totalCount,
       week,
@@ -373,8 +394,15 @@ const getCoachDashboardOverviewService = async (query = {}) => {
  */
 const getCoachTasksOverviewService = async (query = {}) => {
   const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
-  if (query.coachId) {
-    athleteFilter.assignedCoach = query.coachId;
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    const assignedCount = await User.countDocuments({
+      role: 'athlete',
+      isDeleted: { $ne: true },
+      assignedCoach: query.coachId,
+    });
+    if (assignedCount > 0) {
+      athleteFilter.assignedCoach = query.coachId;
+    }
   }
   const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
@@ -406,9 +434,16 @@ const getCoachTasksOverviewService = async (query = {}) => {
     upcoming: tasksUpcoming,
     overdue: tasksOverdue,
     completed: tasksCompleted,
+    total: tasks.length,
   };
 
-  const players = athletes.map((a) => {
+  const badgeStyles = {
+    completed: { color: '#27C281', bg: 'rgba(34, 197, 94, 0.13)' },
+    pending: { color: '#E8A820', bg: 'rgba(201, 145, 26, 0.13)' },
+    overdue: { color: '#FF5C5C', bg: 'rgba(239, 68, 68, 0.13)' },
+  };
+
+  let players = athletes.map((a) => {
     const aTasks = tasks.filter((t) => t.athlete.toString() === a._id.toString());
     const pendingTasks = aTasks.filter((t) => t.status !== 'completed');
     const completedTasks = aTasks.filter((t) => t.status === 'completed');
@@ -421,20 +456,38 @@ const getCoachTasksOverviewService = async (query = {}) => {
       badgeType = 'completed';
     } else {
       const hasOverdue = pendingTasks.some((t) => t.dueDate && new Date(t.dueDate) < startOfToday);
-      if (hasOverdue) {
-        badgeType = 'overdue';
-      }
+      badgeType = hasOverdue ? 'overdue' : 'pending';
     }
+
+    const styling = badgeStyles[badgeType] || badgeStyles.pending;
+    const initials = getCleanInitials(a.fullName);
+    const avatar = getCleanAvatar(a);
 
     return {
       _id: a._id.toString(),
-      name: a.fullName || '',
-      avatarEmoji: a.avatarEmoji || '🏃',
+      athleteName: a.fullName || '',
+      initials,
+      avatar,
       pending,
+      pendingLabel: pending === 1 ? '1 pending' : `${pending} pending`,
       progressPercentage,
       badgeType,
+      badgeColor: styling.color,
+      badgeBg: styling.bg,
     };
   });
+
+  // Filter by search query (Search players...)
+  if (query.search) {
+    const q = query.search.toLowerCase().trim();
+    players = players.filter((p) => (p.athleteName || '').toLowerCase().includes(q));
+  }
+
+  // Filter by status badgeType (e.g. overdue, pending, completed)
+  if (query.status || (query.filter && query.filter !== 'all')) {
+    const targetStatus = (query.status || query.filter).toLowerCase().trim();
+    players = players.filter((p) => p.badgeType === targetStatus);
+  }
 
   return {
     metrics,
@@ -493,7 +546,7 @@ const getCoachTrainingOverviewService = async (query = {}) => {
       _id: a._id.toString(),
       name: a.fullName || '',
       avatarEmoji: a.avatarEmoji || '🏃',
-      club: a.currentClub || a.leagueDivision || '',
+      region: a.region || '',
       completedVideos,
       totalVideos,
       week,
@@ -519,38 +572,130 @@ const getCoachTrainingOverviewService = async (query = {}) => {
  *  4. Sam Davies: 🦁, Last feedback: Aug 5, Give Feedback →
  * Note: No coach info per user requirement.
  */
+/**
+ * Dedicated Feedback Overview for Coach (Strictly follows Figma Node #33101:65)
+ * Header: COACH -> FEEDBACK
+ * Description: "Select a player to give or view feedback. Click any player card to open their full profile."
+ * Grid of Player Feedback Cards:
+ *  - Player Name, Avatar Initials, Image
+ *  - Last feedback date / text (e.g. "Last feedback: Aug 5" or "No feedback yet")
+ *  - Action Button: "Give Feedback →"
+ */
 const getCoachFeedbackOverviewService = async (query = {}) => {
   const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
-  if (query.coachId) {
-    athleteFilter.assignedCoach = query.coachId;
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    const assignedCount = await User.countDocuments({
+      role: 'athlete',
+      isDeleted: { $ne: true },
+      assignedCoach: query.coachId,
+    });
+    if (assignedCount > 0) {
+      athleteFilter.assignedCoach = query.coachId;
+    }
   }
+
   const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
   const feedbacks = await CoachFeedback.find({ athlete: { $in: athleteIds } })
     .sort({ date: -1, createdAt: -1 })
     .lean();
 
-  const players = athletes.map((a) => {
+  let players = athletes.map((a) => {
     const aFeedbacks = feedbacks.filter((fb) => fb.athlete.toString() === a._id.toString());
     const latestFb = aFeedbacks[0];
     const dateFormatted = latestFb?.date
       ? formatReadableDate(latestFb.date)
       : (latestFb?.createdAt ? formatReadableDate(latestFb.createdAt) : '');
 
+    const initials = getCleanInitials(a.fullName);
+    const avatar = getCleanAvatar(a);
+
     return {
       _id: a._id.toString(),
-      name: a.fullName || '',
-      avatarEmoji: a.avatarEmoji || '🏃',
+      athleteName: a.fullName || '',
+      initials,
+      avatar,
       lastFeedbackDate: dateFormatted,
       lastFeedbackText: dateFormatted ? `Last feedback: ${dateFormatted}` : 'No feedback yet',
       rating: latestFb?.rating !== undefined && latestFb?.rating !== null ? Number(latestFb.rating) : 0,
       feedbackCount: aFeedbacks.length,
+      actionButtonText: 'Give Feedback →',
+    };
+  });
+
+  // Filter by search query (Search players...)
+  if (query.search) {
+    const q = query.search.toLowerCase().trim();
+    players = players.filter((p) => (p.athleteName || '').toLowerCase().includes(q));
+  }
+
+  return {
+    subheading: 'COACH',
+    heading: 'FEEDBACK',
+    description: 'Select a player to give or view feedback. Click any player card to open their full profile.',
+    players,
+  };
+};
+
+/**
+ * Dedicated Private Groups Overview for Coach (Strictly follows Figma Node #33101:392)
+ * Header: PRIVATE -> GROUPS
+ * Grid of Player 3-Way Private Groups:
+ *  - Player Name, Avatar Initials, Image
+ *  - Member Status (e.g. "3 members · Active")
+ *  - Action Text: "Open group chat →"
+ *  - ChatRoomId for direct chat navigation
+ */
+const getCoachGroupsOverviewService = async (query = {}) => {
+  const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    const assignedCount = await User.countDocuments({
+      role: 'athlete',
+      isDeleted: { $ne: true },
+      assignedCoach: query.coachId,
+    });
+    if (assignedCount > 0) {
+      athleteFilter.assignedCoach = query.coachId;
+    }
+  }
+
+  let athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
+
+  if (query.search) {
+    const q = query.search.toLowerCase().trim();
+    athletes = athletes.filter((a) => a.fullName && a.fullName.toLowerCase().includes(q));
+  }
+
+  const athleteIds = athletes.map((a) => a._id);
+  const chatRooms = await ChatRoom.find({
+    athlete: { $in: athleteIds },
+    type: '3-way',
+  }).lean();
+
+  const groups = athletes.map((a) => {
+    const room = chatRooms.find((r) => r.athlete?.toString() === a._id.toString());
+    const memberCount = room?.participants?.length || 3;
+    const isActive = room?.isActive !== false;
+    const initials = getCleanInitials(a.fullName);
+    const avatar = getCleanAvatar(a);
+
+    return {
+      _id: room?._id?.toString() || a._id.toString(),
+      chatRoomId: room?._id?.toString() || '',
+      athleteId: a._id.toString(),
+      athleteName: a.fullName || '',
+      initials,
+      avatar,
+      memberStatusText: `${memberCount} members · ${isActive ? 'Active' : 'Inactive'}`,
+      actionText: 'Open group chat →',
     };
   });
 
   return {
-    description: 'Select a player to give or view feedback. Click any player card to open their full profile.',
-    players,
+    subheading: 'PRIVATE',
+    heading: 'GROUPS',
+    totalGroups: groups.length,
+    groups,
   };
 };
 
@@ -568,9 +713,17 @@ const getCoachFeedbackOverviewService = async (query = {}) => {
  */
 const getCoachSessionsOverviewService = async (query = {}) => {
   const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
-  if (query.coachId) {
-    athleteFilter.assignedCoach = query.coachId;
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    const assignedCount = await User.countDocuments({
+      role: 'athlete',
+      isDeleted: { $ne: true },
+      assignedCoach: query.coachId,
+    });
+    if (assignedCount > 0) {
+      athleteFilter.assignedCoach = query.coachId;
+    }
   }
+
   const athletes = await User.find(athleteFilter).lean();
 
   const athleteMap = {};
@@ -579,43 +732,87 @@ const getCoachSessionsOverviewService = async (query = {}) => {
   });
 
   const athleteIds = athletes.map((a) => a._id);
-  const allSessions = await Session.find({ athlete: { $in: athleteIds } })
+
+  let sessionFilter = {};
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    sessionFilter = {
+      $or: [
+        { coach: query.coachId },
+        { athlete: { $in: athleteIds } },
+      ],
+    };
+  } else {
+    sessionFilter = { athlete: { $in: athleteIds } };
+  }
+
+  if (query.search) {
+    const sTerm = query.search.trim();
+    if (sTerm) {
+      sessionFilter.$and = sessionFilter.$and || [];
+      sessionFilter.$and.push({
+        $or: [
+          { title: { $regex: sTerm, $options: 'i' } },
+          { athleteName: { $regex: sTerm, $options: 'i' } },
+        ],
+      });
+    }
+  }
+
+  const allSessions = await Session.find(sessionFilter)
     .sort({ date: 1, startTime: 1 })
     .lean();
 
   const upcomingList = allSessions.filter((s) => s.status === 'scheduled');
   const completedList = allSessions.filter((s) => s.status === 'completed');
 
-  const formatSessionItem = (s) => {
+  const formatSessionDate = (date, isUpcoming = true) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) {
+      return 'Today';
+    }
+    if (isUpcoming) {
+      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).replace(',', '');
+    }
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const formatSessionItem = (s, isUpcoming) => {
     const a = athleteMap[s.athlete?.toString()];
     const athleteName = s.athleteName || a?.fullName || '';
-    const avatarEmoji = a?.avatarEmoji || '🏃';
+    const initials = getCleanInitials(athleteName);
+    const avatar = getCleanAvatar(a);
+    const dateFormatted = formatSessionDate(s.date, isUpcoming);
+    const timeTopicParts = [dateFormatted, s.startTime, s.title].filter(Boolean);
+    const description = timeTopicParts.join(' \u00b7 ');
 
-    const isToday = s.date && new Date(s.date).toDateString() === new Date().toDateString();
-    const dateLabel = isToday ? 'Today' : formatReadableDate(s.date);
-    const timeTopicParts = [dateLabel, s.startTime, s.title].filter(Boolean);
-    const timeTopicLabel = timeTopicParts.join(' · ');
-
-    return {
+    const item = {
       _id: s._id.toString(),
       athleteId: (s.athlete || a?._id)?.toString() || '',
       athleteName,
-      avatarEmoji,
-      topic: s.title || '',
-      timeTopicLabel,
-      startTime: s.startTime || '',
-      date: s.date ? formatReadableDate(s.date) : '',
-      status: s.status,
-      statusBadge: s.status === 'scheduled' ? 'UPCOMING' : 'DONE',
-      meetingLink: s.meetingLink || '',
-      canJoin: Boolean(s.meetingLink) && s.status === 'scheduled',
-      notes: s.notes || '',
+      initials,
+      avatar,
+      description,
+      badge: isUpcoming ? 'UPCOMING' : 'DONE',
+      actionText: isUpcoming ? 'Join' : 'Notes',
     };
+
+    if (isUpcoming) {
+      item.meetingLink = s.meetingLink || '';
+    } else {
+      item.notes = s.notes || '';
+    }
+
+    return item;
   };
 
   return {
-    upcoming: upcomingList.map(formatSessionItem),
-    completed: completedList.map(formatSessionItem),
+    subheading: 'SCHEDULE',
+    heading: 'COACHING SESSIONS',
+    upcoming: upcomingList.map((s) => formatSessionItem(s, true)),
+    completed: completedList.map((s) => formatSessionItem(s, false)),
   };
 };
 
@@ -628,8 +825,15 @@ const getCoachSessionsOverviewService = async (query = {}) => {
  */
 const getCoachPlayersOverviewService = async (query = {}) => {
   const athleteFilter = { role: 'athlete', isDeleted: { $ne: true } };
-  if (query.coachId) {
-    athleteFilter.assignedCoach = query.coachId;
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    const assignedCount = await User.countDocuments({
+      role: 'athlete',
+      isDeleted: { $ne: true },
+      assignedCoach: query.coachId,
+    });
+    if (assignedCount > 0) {
+      athleteFilter.assignedCoach = query.coachId;
+    }
   }
   const athletes = await User.find(athleteFilter).sort({ createdAt: 1 }).lean();
   const athleteIds = athletes.map((a) => a._id);
@@ -639,21 +843,23 @@ const getCoachPlayersOverviewService = async (query = {}) => {
     const aSteps = actionSteps.filter((s) => s.athlete.toString() === a._id.toString());
     const day = Number(a.mentorshipDay) || 0;
     const progress = Math.min(100, Math.round((day / 90) * 100));
-    const badgeType = aSteps.length >= 4 ? 'attention' : (day >= 80 ? 'finishing' : 'active');
-    const statusBadge = badgeType.toUpperCase();
+    const pendingCount = aSteps.length || a.pendingTasksCount || 0;
+    const badgeType = (a.flagCount > 0 || pendingCount >= 4) ? 'attention' : (day >= 80 ? 'finishing' : 'active');
+    const statusBadge = badgeType === 'attention' ? 'NEEDS ATTENTION' : (badgeType === 'finishing' ? 'FINISHING' : 'ACTIVE');
     const lastActive = formatRelativeTime(a.updatedAt || a.createdAt);
+    const region = a.currentClub || a.region || '';
+    const programTrack = a.startingPhase || (a.mentorshipPhase ? a.mentorshipPhase.charAt(0).toUpperCase() + a.mentorshipPhase.slice(1) : '') || 'Foundation';
 
     return {
       _id: a._id.toString(),
       name: a.fullName || '',
-      avatarEmoji: a.avatarEmoji || '🏃',
-      club: a.currentClub || a.leagueDivision || '',
+      region,
       programDay: day ? `Day ${day}/90` : '',
-      programTrack: a.startingPhase || '',
+      programTrack,
       progressPercentage: progress,
       level: Number(a.level) || 1,
       levelLabel: `Lvl ${a.level || 1}`,
-      pending: aSteps.length,
+      pending: pendingCount,
       lastActive: lastActive ? `Last active ${lastActive}` : '',
       statusBadge,
       badgeType,
@@ -675,7 +881,7 @@ const getCoachPlayersOverviewService = async (query = {}) => {
   // Apply search query if specified
   if (query.search) {
     const q = query.search.toLowerCase().trim();
-    players = players.filter((p) => p.name.toLowerCase().includes(q) || p.club.toLowerCase().includes(q));
+    players = players.filter((p) => p.name.toLowerCase().includes(q) || (p.region || '').toLowerCase().includes(q));
   }
 
   return {
@@ -718,8 +924,8 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     ? {
         _id: coachDoc._id.toString(),
         name: coachDoc.fullName || '',
-        title: coachDoc.currentClub || coachDoc.roleTitle || '',
-        club: coachDoc.currentClub || '',
+        title: coachDoc.roleTitle || '',
+        roleTitle: coachDoc.roleTitle || '',
       }
     : null;
 
@@ -733,7 +939,7 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
   const athlete = {
     _id: athleteDoc._id.toString(),
     name: athleteDoc.fullName || '',
-    club: athleteDoc.currentClub || athleteDoc.leagueDivision || '',
+    region: athleteDoc.region || '',
     tier: athleteDoc.tier === '90-day-mentorship' ? '90-Day Mentorship Client' : (athleteDoc.tier || ''),
     tierLabel: athleteDoc.tier === '90-day-mentorship' ? '90-DAY MENTORSHIP CLIENT' : (athleteDoc.tier ? athleteDoc.tier.toUpperCase() : ''),
     day: dayNumber ? `${dayNumber}/${totalDays}` : '',
@@ -836,17 +1042,20 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     };
   });
 
-  // 7. Upcoming Session (1 doc from DB; null if none scheduled)
+  // 7. Upcoming Session (1 doc from DB on or after today; null if none scheduled)
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
   const nextSessionDoc = await Session.findOne({
     athlete: athleteDoc._id,
     status: 'scheduled',
+    date: { $gte: startOfToday },
   })
     .sort({ date: 1, startTime: 1 })
     .lean();
 
   let upcomingSession = null;
   if (nextSessionDoc) {
-    const isToday = nextSessionDoc.date && new Date(nextSessionDoc.date).toDateString() === new Date().toDateString();
+    const isToday = nextSessionDoc.date && new Date(nextSessionDoc.date).toDateString() === now.toDateString();
     const dateStr = isToday ? 'Today' : formatReadableDate(nextSessionDoc.date);
     const timeParts = [dateStr, nextSessionDoc.startTime].filter(Boolean);
     upcomingSession = {
@@ -976,6 +1185,99 @@ const getAthleteTrainingService = async (athleteId, query = {}) => {
     totalCount: training.length,
     completedCount: training.filter((tr) => tr.isCompleted).length,
   };
+};
+
+/**
+ * Helper to calculate Week 1, Week 2, etc. based on dueDate selected by coach
+ */
+const calculateWeekFromDueDate = async (dueDate, athleteDoc) => {
+  if (!dueDate) return 1;
+  const targetDue = new Date(dueDate);
+  if (isNaN(targetDue.getTime())) return 1;
+  targetDue.setHours(0, 0, 0, 0);
+
+  // Check if athlete already has training assignments with dueDate
+  const existingWithDueDate = await TrainingAssignment.find({
+    athlete: athleteDoc._id,
+    dueDate: { $ne: null },
+  })
+    .sort({ dueDate: 1 })
+    .lean();
+
+  if (existingWithDueDate.length > 0) {
+    const earliestDueDate = new Date(existingWithDueDate[0].dueDate);
+    earliestDueDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((targetDue.getTime() - earliestDueDate.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 1;
+    return Math.min(12, Math.floor(diffDays / 7) + 1);
+  }
+
+  // If athlete has mentorshipStartDate, calculate relative to program start
+  if (athleteDoc.mentorshipStartDate) {
+    const start = new Date(athleteDoc.mentorshipStartDate);
+    start.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor((targetDue.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays >= 0) {
+      return Math.min(12, Math.floor(diffDays / 7) + 1);
+    }
+  }
+
+  // Otherwise calculate relative to current date (0-6 days = Week 1, 7-13 days = Week 2, etc.)
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  const diffDays = Math.floor((targetDue.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 6) return 1;
+  return Math.min(12, Math.floor(diffDays / 7) + 1);
+};
+
+/**
+ * Get Athlete Videos Tab Data (Figma node 33906-2130)
+ * Returns only the necessary video data required to display video cards.
+ */
+const getCoachAthleteVideosService = async (athleteId = null, coachId = null, query = {}) => {
+  // Query Master Library Video Drills
+  const LibraryItem = require('../Library/library.model');
+  const drillFilter = {
+    contentType: 'video-drill',
+    isActive: true,
+  };
+
+  if (query.coachId && mongoose.Types.ObjectId.isValid(query.coachId)) {
+    drillFilter.$or = [{ coachId: query.coachId }, { coach: query.coachId }];
+  } else if (query.employeeId && mongoose.Types.ObjectId.isValid(query.employeeId)) {
+    drillFilter.$or = [{ coachId: query.employeeId }, { coach: query.employeeId }];
+  }
+
+  const libraryDrills = await LibraryItem.find(drillFilter)
+    .populate('coachId', 'fullName name')
+    .populate('coach', 'fullName name')
+    .sort({ createdAt: 1 })
+    .lean();
+
+  const videos = libraryDrills.map((drill) => {
+    const coachObj = drill.coachId || drill.coach;
+    const instructorName = drill.instructor || coachObj?.fullName || coachObj?.name || 'Valentino Di Lorenzo';
+    const teachingPoints =
+      drill.keyTeachingPoints && drill.keyTeachingPoints.length > 0
+        ? drill.keyTeachingPoints
+        : drill.teachingPoints && drill.teachingPoints.length > 0
+        ? drill.teachingPoints
+        : [];
+
+    return {
+      _id: drill._id.toString(),
+      title: drill.title || '',
+      instructor: instructorName,
+      duration: drill.duration || '',
+      phase: drill.phase || '',
+      xpReward: typeof drill.xpReward === 'number' ? drill.xpReward : 100,
+      thumbnail: drill.thumbnail || drill.image || '',
+      videoUrl: drill.videoUrl || drill.video || '',
+      keyTeachingPoints: teachingPoints,
+    };
+  });
+
+  return videos;
 };
 
 /**
@@ -1439,7 +1741,7 @@ const getAthleteProgressService = async (athleteId, query = {}) => {
   }
 
   // 1. Resolve Filter: 'weekly' (default), 'monthly', 'program'
-  const rawFilter = (query.filter || query.timeframe || query.period || query.range || 'weekly').toLowerCase();
+  const rawFilter = String(query.filter || query.timeframe || query.period || query.range || 'weekly').trim().toLowerCase();
   const isMonthly = rawFilter === 'monthly' || rawFilter === 'month' || rawFilter === 'm';
   const isProgram = rawFilter === 'program' || rawFilter === 'all';
   const filterType = isProgram ? 'program' : isMonthly ? 'monthly' : 'weekly';
@@ -1742,9 +2044,22 @@ const getAthleteGroupChatService = async (athleteId) => {
 };
 
 /**
- * General Player Detail Service (Figma node 33044:13763 Overview)
+ * General Player Detail Service (Figma node 33044:13763 Overview & 33906:2130 Videos)
  */
 const getCoachPlayerDetailService = async (athleteId, coachId = null, query = {}) => {
+  const tab = (query.tab || '').toLowerCase().trim();
+  if (tab === 'videos') {
+    return await getCoachAthleteVideosService(athleteId, coachId, query);
+  }
+  if (tab === 'tasks') {
+    return await getAthleteTasksService(athleteId, query);
+  }
+  if (tab === 'training') {
+    return await getAthleteTrainingService(athleteId, query);
+  }
+  if (tab === 'habits' || tab === 'goals-habits') {
+    return await getAthleteHabitsService(athleteId, query);
+  }
   return await getCoachPlayerOverviewService(athleteId, coachId);
 };
 
@@ -1925,40 +2240,124 @@ const toggleTaskStatusService = async (taskId) => {
 };
 
 /**
- * 6. Assign Training to Athlete (Figma node 33078:3174)
+ * 6. Assign Video / Drill to Athlete (Figma node 33906-2130 & 32973-7799)
+ * Week 1, Week 2 is defined strictly based on the dueDate selected by coach.
  */
-const assignTrainingService = async (athleteId, data, coachId = null) => {
+const assignVideoToAthleteService = async (athleteId, data, coachId = null) => {
   if (!mongoose.Types.ObjectId.isValid(athleteId)) {
     throw new Error('Invalid Athlete ID');
   }
 
-  const { title, videoUrl = '', category = 'Technical', duration = '15 min', week = 1, xpReward = 70 } = data;
-  if (!title) {
-    throw new Error('Video/Drill Title is required');
+  const athleteDoc = await User.findById(athleteId);
+  if (!athleteDoc) {
+    throw new Error('Athlete not found');
   }
 
-  // If coachId is not provided or is admin, fallback to athlete's assignedCoach in DB
+  // 1. Resolve Coach
   let resolvedCoachId = coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null;
-  if (!resolvedCoachId) {
-    const athleteDoc = await User.findById(athleteId).select('assignedCoach');
-    if (athleteDoc?.assignedCoach) {
-      resolvedCoachId = athleteDoc.assignedCoach;
-    }
+  if (!resolvedCoachId && athleteDoc.assignedCoach) {
+    resolvedCoachId = athleteDoc.assignedCoach;
+  }
+
+  // 2. Resolve Library Item if provided
+  const LibraryItem = require('../Library/library.model');
+  const targetDrillId = data.drillId || data.libraryItemId;
+  let libItem = null;
+  if (targetDrillId && mongoose.Types.ObjectId.isValid(targetDrillId)) {
+    libItem = await LibraryItem.findById(targetDrillId).populate('coachId');
+  }
+
+  const title = data.title || libItem?.title;
+  if (!title) {
+    throw new Error('Video/Drill Title or valid drillId is required');
+  }
+
+  const videoUrl = data.videoUrl || libItem?.videoUrl || libItem?.video || '';
+  const category = data.category || libItem?.category || 'Technical';
+  const duration = data.duration || libItem?.duration || '15 min';
+  const phase = data.phase || libItem?.phase || '';
+  const instructor = data.instructor || libItem?.instructor || libItem?.coachId?.fullName || '';
+  const xpReward = typeof data.xpReward === 'number' ? data.xpReward : (libItem?.xpReward || 70);
+  const teachingPoints = data.teachingPoints || libItem?.teachingPoints || libItem?.keyTeachingPoints || [];
+  const notes = data.notes || '';
+
+  // 3. Week Calculation: Defined based on due date coach selects
+  let calculatedWeek = 1;
+  if (typeof data.week === 'number' && data.week >= 1) {
+    calculatedWeek = Number(data.week);
+  } else if (data.dueDate) {
+    calculatedWeek = await calculateWeekFromDueDate(data.dueDate, athleteDoc);
   }
 
   const assignment = await TrainingAssignment.create({
-    athlete: athleteId,
+    athlete: athleteDoc._id,
     coach: resolvedCoachId,
+    libraryItem: libItem ? libItem._id : null,
+    drillId: libItem ? libItem._id.toString() : (targetDrillId || null),
     title,
     videoUrl,
     category,
     duration,
-    week: Number(week) || 1,
+    phase,
+    instructor,
+    teachingPoints,
+    notes,
+    week: calculatedWeek,
+    dueDate: data.dueDate ? new Date(data.dueDate) : null,
     xpReward: Number(xpReward) || 70,
     status: 'assigned',
   });
 
-  return assignment;
+  // 4. Send real-time notification to the athlete
+  try {
+    const { createNotificationService } = require('../Notification/notification.service');
+    const coachUser = resolvedCoachId ? await User.findById(resolvedCoachId).select('fullName') : null;
+    const coachName = coachUser?.fullName || 'Coach Rivera';
+
+    await createNotificationService({
+      receiver: athleteDoc._id,
+      sender: resolvedCoachId,
+      category: 'athlete',
+      type: 'task-assigned',
+      title: 'New Video Drill Assigned',
+      message: `${coachName} assigned you: ${title} (Week ${calculatedWeek})`,
+      icon: 'video',
+      emoji: '⚽',
+      entityId: assignment._id,
+      entityType: 'TrainingAssignment',
+      metadata: {
+        week: calculatedWeek,
+        dueDate: assignment.dueDate,
+        duration: assignment.duration,
+        xpReward: assignment.xpReward,
+      },
+    });
+  } catch (notifErr) {
+    console.error('Failed to send notification for assigned drill:', notifErr.message);
+  }
+
+  return {
+    _id: assignment._id.toString(),
+    athleteId: athleteDoc._id.toString(),
+    drillId: assignment.drillId,
+    title: assignment.title,
+    category: assignment.category,
+    duration: assignment.duration,
+    phase: assignment.phase,
+    instructor: assignment.instructor,
+    week: assignment.week,
+    weekLabel: `Week ${assignment.week}`,
+    dueDate: assignment.dueDate,
+    xpReward: assignment.xpReward,
+    status: assignment.status,
+    notes: assignment.notes,
+    teachingPoints: assignment.teachingPoints,
+    createdAt: assignment.createdAt,
+  };
+};
+
+const assignTrainingService = async (athleteId, data, coachId = null) => {
+  return await assignVideoToAthleteService(athleteId, data, coachId);
 };
 
 /**
@@ -2179,6 +2578,7 @@ module.exports = {
   getCoachTasksOverviewService,
   getCoachTrainingOverviewService,
   getCoachFeedbackOverviewService,
+  getCoachGroupsOverviewService,
   getCoachSessionsOverviewService,
   getCoachPlayersOverviewService,
   getCoachPlayerOverviewService,
@@ -2201,6 +2601,7 @@ module.exports = {
   createAthleteTaskService,
   toggleTaskStatusService,
   assignTrainingService,
+  getCoachAthleteVideosService,
   createCoachFeedbackService,
   reviewActionStepService,
   updateSessionNotesService,

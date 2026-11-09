@@ -11,8 +11,18 @@ const parentRoutes = require('../modules/Parent/parent.route');
 const communityRoutes = require('../modules/Community/community.route');
 const trainRoutes = require('../modules/Train/train.route');
 const curriculumRoutes = require('../modules/Curriculum/curriculum.route');
+const adminClientRoutes = require('../modules/Admin/admin.client.route');
+const notificationRoutes = require('../modules/Notification/notification.route');
 
 const moduleRoutes = [
+  {
+    path: '/notification',
+    route: notificationRoutes,
+  },
+  {
+    path: '/notifications',
+    route: notificationRoutes,
+  },
   {
     path: '/curriculum',
     route: curriculumRoutes,
@@ -88,6 +98,18 @@ const moduleRoutes = [
   {
     path: '/static-contents',
     route: staticContentRoutes
+  },
+  {
+    path: '/admin/clients',
+    route: adminClientRoutes
+  },
+  {
+    path: '/admin',
+    route: adminClientRoutes
+  },
+  {
+    path: '/clients',
+    route: adminClientRoutes
   }
 ];
 

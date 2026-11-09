@@ -9,9 +9,12 @@ PARTNER_DASHBOARD_API.md
 # Runtime uploads
 public/uploads/
 
-# Postman decomposed files & caches
+# Postman files & caches
 .postman/
 postman/
+*postman*
+*Postman*
 Dilorenzo/
 *.yaml
 *.yml
+*.html

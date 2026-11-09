@@ -43,7 +43,14 @@ const libraryItemSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    instructor: {
+      type: String,
+      default: '',
+    },
     teachingPoints: {
+      type: [String],
+    },
+    keyTeachingPoints: {
       type: [String],
     },
 

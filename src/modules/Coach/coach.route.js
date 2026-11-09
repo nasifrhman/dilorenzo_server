@@ -25,9 +25,15 @@ router.get('/simple-list', coachController.getCoachesSimpleListController);
 
 // All Players Overview for Coach (Figma nodes 33097:12108, 33097:13469, 33101:65, 33102:688)
 router.get('/tasks', coachController.getCoachTasksOverviewController);
+router.get('/tasks/overview', coachController.getCoachTasksOverviewController);
+router.post('/tasks', coachController.createAthleteTaskController);
 router.get('/training', coachController.getCoachTrainingOverviewController);
 router.get('/feedback', coachController.getCoachFeedbackOverviewController);
+router.get('/feedback/overview', coachController.getCoachFeedbackOverviewController);
 router.get('/sessions', coachController.getCoachSessionsOverviewController);
+router.get('/sessions/overview', coachController.getCoachSessionsOverviewController);
+router.get('/groups', coachController.getCoachGroupsOverviewController);
+router.get('/groups/overview', coachController.getCoachGroupsOverviewController);
 router.get('/players', coachController.getCoachPlayersOverviewController);
 
 // Player Overview (Figma node 33044-13763) - Strictly returns overview & header
@@ -42,11 +48,13 @@ router.post('/players/tasks', coachController.createAthleteTaskController);
 router.post('/players/:athleteId/tasks', coachController.createAthleteTaskController);
 router.patch('/tasks/:taskId/status', coachController.toggleTaskStatusController);
 
-// 2. Training Assignments
+// 2. Training Assignments & Videos (Figma nodes 33078:3174 & 33906:2130)
 router.get('/players/training', coachController.getAthleteTrainingController);
 router.get('/players/:athleteId/training', coachController.getAthleteTrainingController);
 router.post('/players/training', coachController.assignTrainingController);
 router.post('/players/:athleteId/training', coachController.assignTrainingController);
+router.get('/players/videos', coachController.getAthleteVideosController);
+router.get('/players/:athleteId/videos', coachController.getAthleteVideosController);
 
 // 3. Habits
 router.get('/players/habits', coachController.getAthleteHabitsController);
@@ -98,5 +106,23 @@ router.get('/players/:athleteId/group-chat', coachController.getAthleteGroupChat
 router.get('/players/:athleteId/group', coachController.getAthleteGroupChatController);
 router.post('/players/group-message', coachController.sendAthleteGroupMessageController);
 router.post('/players/:athleteId/group-message', coachController.sendAthleteGroupMessageController);
+
+// 9. Coach Notifications (Figma Node 33102:1009)
+const {
+  getCoachNotificationsController,
+  markNotificationAsReadController,
+  markAllNotificationsAsReadController,
+  deleteNotificationController,
+  getNotificationBadgeCountController,
+} = require('../Notification/notification.controller');
+
+router.get('/notifications', getCoachNotificationsController);
+router.get('/notifications/overview', getCoachNotificationsController);
+router.get('/notification', getCoachNotificationsController);
+router.get('/notifications/badge', getNotificationBadgeCountController);
+router.patch('/notifications/mark-all-read', markAllNotificationsAsReadController);
+router.patch('/notifications/read-all', markAllNotificationsAsReadController);
+router.patch('/notifications/:id/read', markNotificationAsReadController);
+router.delete('/notifications/:id', deleteNotificationController);
 
 module.exports = router;

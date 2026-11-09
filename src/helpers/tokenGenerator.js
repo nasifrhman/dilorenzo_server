@@ -18,7 +18,7 @@ const tokenGenerator = async (user, admin) => {
   }
   // console.log("payload", payload);
   return await jwt.sign(payload, process.env.JWT_ACCESS_TOKEN, {
-    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
+    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '1d',
   });
 }
 

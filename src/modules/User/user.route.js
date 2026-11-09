@@ -71,6 +71,9 @@ router.get("/my-program/training-program", auth(['user', 'athlete', 'admin', 'co
 router.get("/training-program", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), getMentorshipTrainingProgramController);
 router.post("/mentorship/training-program/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
 router.post("/my-program/training-program/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
+router.post("/mentorship/training-drill/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
+router.post("/training-drill/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
+router.post("/training-program/:drillId/complete", auth(['user', 'athlete', 'admin', 'coach', 'parent'], { optional: true }), completeMentorshipTrainingDrillController);
 
 // 90-Day Progress Screen (Figma node 32975:8114)
 // "when click 90days progress"
@@ -144,6 +147,42 @@ const { assignTrainingController } = require('../Coach/coach.controller');
 router.post("/assign-training", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
 router.post("/assign-drill", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
 router.post("/athlete/:athleteId/training", auth(['admin', 'coach', 'user'], { optional: true }), assignTrainingController);
+
+// Client Directory & Athlete Hub (Admin Role)
+const {
+  getClientDirectoryController,
+  getAthleteHubController,
+  getAthleteDashTabController,
+  getAthleteGoalsHabitsTabController,
+  getAthleteTrainingTabController,
+  getAthleteReportsTabController,
+  getAthleteCalendarTabController,
+} = require('../Admin/admin.client.controller');
+
+router.get("/clients", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getClientDirectoryController);
+router.get("/clients/:athleteId/hub", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteHubController);
+router.get("/clients/:athleteId/dash", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteDashTabController);
+router.get("/clients/:athleteId/goals-habits", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteGoalsHabitsTabController);
+router.get("/clients/:athleteId/training", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteTrainingTabController);
+router.get("/clients/:athleteId/reports", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteReportsTabController);
+router.get("/clients/:athleteId/calendar", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getAthleteCalendarTabController);
+
+// User / Athlete Notifications (Figma Node 32761:3698)
+const {
+  getUserNotificationsController,
+  markNotificationAsReadController,
+  markAllNotificationsAsReadController,
+  deleteNotificationController,
+  getNotificationBadgeCountController,
+} = require('../Notification/notification.controller');
+
+router.get("/notifications", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getUserNotificationsController);
+router.get("/notification", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getUserNotificationsController);
+router.get("/notifications/badge", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), getNotificationBadgeCountController);
+router.patch("/notifications/mark-all-read", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), markAllNotificationsAsReadController);
+router.patch("/notifications/read-all", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), markAllNotificationsAsReadController);
+router.patch("/notifications/:id/read", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), markNotificationAsReadController);
+router.delete("/notifications/:id", auth(['admin', 'coach', 'user', 'athlete'], { optional: true }), deleteNotificationController);
 
 module.exports = router;
 

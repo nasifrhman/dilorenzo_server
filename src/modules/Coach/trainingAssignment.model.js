@@ -45,6 +45,34 @@ const trainingAssignmentSchema = new mongoose.Schema(
       default: 'assigned',
       index: true,
     },
+    dueDate: {
+      type: Date,
+      default: null,
+      index: true,
+    },
+    libraryItem: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'LibraryItem',
+      default: null,
+    },
+    drillId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'LibraryItem',
+      default: null,
+    },
+    instructor: {
+      type: String,
+      default: '',
+    },
+    phase: {
+      type: String,
+      default: '',
+    },
+    teachingPoints: [{ type: String }],
+    notes: {
+      type: String,
+      default: '',
+    },
     completedAt: {
       type: Date,
       default: null,

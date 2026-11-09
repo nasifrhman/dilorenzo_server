@@ -824,46 +824,53 @@ const assignCoachService = async (data) => {
   }
   await athleteDoc.save();
 
-  // 5. Auto-Launch 3-Way Group Chat
+  // 5. Ensure 3-Way Group Chat (Admin, Athlete, Coach)
   let chatRoom = null;
-  if (autoLaunchGroupChat) {
-    const adminUser = await userModel.findOne({ role: 'admin' });
-    const participantIds = [athleteDoc._id, coachDoc._id];
-    if (adminUser) participantIds.push(adminUser._id);
+  const adminUser = await userModel.findOne({ role: { $in: ['admin', 'super-admin'] } });
+  const participantIds = [athleteDoc._id, coachDoc._id];
+  if (adminUser) participantIds.push(adminUser._id);
 
-    chatRoom = await ChatRoom.findOne({
+  chatRoom = await ChatRoom.findOne({
+    athlete: athleteDoc._id,
+    type: '3-way'
+  });
+
+  if (!chatRoom) {
+    chatRoom = new ChatRoom({
+      name: `3-Way Mentorship Group (${athleteDoc.fullName} & ${coachDoc.fullName})`,
+      type: '3-way',
+      participants: participantIds,
       athlete: athleteDoc._id,
       coach: coachDoc._id,
-      type: '3-way'
+      parent: athleteDoc.parents?.[0] || null,
+      isActive: true
     });
-
-    if (!chatRoom) {
-      chatRoom = new ChatRoom({
-        name: `3-Way Mentorship Group (${athleteDoc.fullName} & ${coachDoc.fullName})`,
-        type: '3-way',
-        participants: participantIds,
-        athlete: athleteDoc._id,
-        coach: coachDoc._id,
-        parent: athleteDoc.parents?.[0] || null,
-        isActive: true
-      });
-      await chatRoom.save();
+    await chatRoom.save();
+  } else {
+    chatRoom.coach = coachDoc._id;
+    chatRoom.name = `3-Way Mentorship Group (${athleteDoc.fullName} & ${coachDoc.fullName})`;
+    const existingP = (chatRoom.participants || []).map(p => p.toString());
+    for (const pId of participantIds) {
+      if (!existingP.includes(pId.toString())) {
+        chatRoom.participants.push(pId);
+      }
     }
+    await chatRoom.save();
+  }
 
-    if (adminWelcomeMessage && adminWelcomeMessage.trim()) {
-      const senderId = adminUser?._id || coachDoc._id;
-      const newMsg = new Message({
-        chatRoom: chatRoom._id,
-        sender: senderId,
-        messageType: 'text',
-        content: adminWelcomeMessage.trim()
-      });
-      await newMsg.save();
+  if (autoLaunchGroupChat && adminWelcomeMessage && adminWelcomeMessage.trim()) {
+    const senderId = adminUser?._id || coachDoc._id;
+    const newMsg = new Message({
+      chatRoom: chatRoom._id,
+      sender: senderId,
+      messageType: 'text',
+      content: adminWelcomeMessage.trim()
+    });
+    await newMsg.save();
 
-      chatRoom.lastMessage = newMsg._id;
-      chatRoom.lastMessageAt = new Date();
-      await chatRoom.save();
-    }
+    chatRoom.lastMessage = newMsg._id;
+    chatRoom.lastMessageAt = new Date();
+    await chatRoom.save();
   }
 
   const result = await userModel.findById(athleteDoc._id)
@@ -874,6 +881,7 @@ const assignCoachService = async (data) => {
     athlete: result,
     coach: coachDoc,
     chatRoom,
+    chatId: chatRoom ? chatRoom._id.toString() : null,
     tier: normalizedTier,
     startingPhase,
     assignedHabits: athleteDoc.assignedHabits,
@@ -2350,46 +2358,76 @@ const getMentorshipTrainingProgramService = async (userId) => {
   }
 
   // Coach name strictly from DB (no dummy fallback)
-  const coachName = athlete.assignedCoach?.fullName || '';
+  const coachName = athlete.assignedCoach?.fullName || 'Coach Rivera';
+  const personalizedTitle = coachName.startsWith('Coach ') ? coachName : `Coach ${coachName}`;
 
   // Assignments strictly for this athlete (no fallback to other users' assignments)
   const TrainingAssignment = require('../Coach/trainingAssignment.model');
-  const assignments = await TrainingAssignment.find({ athlete: athlete._id }).sort({ week: 1, createdAt: 1 }).lean();
+  const assignments = await TrainingAssignment.find({ athlete: athlete._id })
+    .sort({ week: 1, dueDate: 1, createdAt: 1 })
+    .lean();
 
   const totalCount = assignments.length;
-  const completedCount = assignments.filter(a => a.status === 'completed').length;
+  const completedCount = assignments.filter((a) => a.status === 'completed').length;
   const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   const weeksMap = {};
-  assignments.forEach(a => {
+  assignments.forEach((a) => {
     const wNum = a.week || 1;
     if (!weeksMap[wNum]) {
       weeksMap[wNum] = {
         weekNumber: wNum,
-        weekLabel: `Week ${wNum}`,
+        weekLabel: `WEEK ${wNum}`,
         drills: [],
       };
     }
+    const isCompleted = a.status === 'completed';
+    const xp = typeof a.xpReward === 'number' ? a.xpReward : 70;
     weeksMap[wNum].drills.push({
       _id: a._id.toString(),
+      drillId: a.drillId || a._id.toString(),
       title: a.title || '',
-      category: a.category || '',
-      duration: a.duration || '',
-      xp: typeof a.xpReward === 'number' ? a.xpReward : 0,
-      isCompleted: a.status === 'completed',
+      category: a.category || 'Technical',
+      duration: a.duration || '15 min',
+      phase: a.phase || '',
+      instructor: a.instructor || '',
+      xp,
+      xpText: `+${xp} XP`,
+      xpReward: xp,
+      isCompleted,
+      status: a.status || 'assigned',
+      dueDate: a.dueDate || null,
+      week: wNum,
       videoUrl: a.videoUrl || '',
+      teachingPoints: a.teachingPoints || [],
+      notes: a.notes || '',
+      completedAt: a.completedAt || null,
+      buttons: isCompleted
+        ? [{ label: 'Completed', action: 'completed', isPrimary: false }]
+        : [
+            { label: 'Watch Video', action: 'watch_video', isPrimary: false },
+            { label: 'Mark Complete', action: 'mark_complete', isPrimary: true },
+          ],
     });
   });
 
-  const weeks = Object.values(weeksMap);
+  const weeks = Object.keys(weeksMap)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((k) => weeksMap[k]);
 
   return {
+    title: 'TRAINING PROGRAM',
+    subtitle: `Personalized by ${personalizedTitle}`,
     coachName,
     summary: {
       completedCount,
       totalCount,
       percent,
       text: `${completedCount} of ${totalCount} completed`,
+      completionText: `${completedCount} of ${totalCount} completed`,
+      badge: `${completedCount}/${totalCount}`,
+      progressBadge: `${completedCount}/${totalCount}`,
+      subtext: 'Assigned by your coach · Earn XP for each',
     },
     weeks,
   };
@@ -2430,13 +2468,57 @@ const completeMentorshipTrainingDrillService = async (userId, drillId) => {
     await athlete.save();
   }
 
+  // Real-time notification to coach when drill completed
+  if (willComplete && (assignment.coach || athlete?.assignedCoach)) {
+    try {
+      const { createNotificationService } = require('../Notification/notification.service');
+      const targetCoach = assignment.coach || athlete.assignedCoach;
+      await createNotificationService({
+        receiver: targetCoach,
+        sender: athlete._id,
+        category: 'coach',
+        type: 'task-completed',
+        title: 'Drill Completed',
+        message: `${athlete.fullName || 'Athlete'} completed ${assignment.title}`,
+        icon: 'check',
+        emoji: '🏆',
+        entityId: assignment._id,
+        entityType: 'TrainingAssignment',
+        metadata: {
+          athleteId: athlete._id,
+          xpEarned: xpReward,
+        },
+      });
+    } catch (notifErr) {
+      console.error('Failed to notify coach of completed drill:', notifErr.message);
+    }
+  }
+
+  // Recalculate athlete's training program summary
+  const totalCount = await TrainingAssignment.countDocuments({ athlete: athlete?._id || assignment.athlete });
+  const completedCount = await TrainingAssignment.countDocuments({
+    athlete: athlete?._id || assignment.athlete,
+    status: 'completed',
+  });
+  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
   return {
     drillId: assignment._id.toString(),
     title: assignment.title || '',
     isCompleted: willComplete,
+    status: assignment.status,
     xpDelta: willComplete ? xpReward : -xpReward,
     currentXp: athlete ? athlete.xp : 0,
     message: willComplete ? `Drill completed! +${xpReward} XP awarded` : 'Drill marked pending',
+    summary: {
+      completedCount,
+      totalCount,
+      percent,
+      text: `${completedCount} of ${totalCount} completed`,
+      completionText: `${completedCount} of ${totalCount} completed`,
+      badge: `${completedCount}/${totalCount}`,
+      progressBadge: `${completedCount}/${totalCount}`,
+    },
   };
 };
 

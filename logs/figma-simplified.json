@@ -1,0 +1,2371 @@
+{
+  "name": "dilorenzosoccer || Yatos application & website",
+  "nodes": [
+    {
+      "id": "33102:1009",
+      "name": "dilorenzosoccer",
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "alignItems": "stretch",
+        "sizing": {
+          "horizontal": "contextual",
+          "vertical": "contextual"
+        },
+        "designedWidth": "1417px",
+        "designedHeight": "935px"
+      },
+      "fills": "fill_9f9700c3",
+      "children": [
+        {
+          "id": "33102:1010",
+          "name": "App",
+          "type": "FRAME",
+          "layout": {
+            "mode": "row",
+            "alignSelf": "stretch",
+            "justifyContent": "center",
+            "alignItems": "center",
+            "sizing": {
+              "horizontal": "fill",
+              "vertical": "fixed"
+            },
+            "dimensions": {
+              "height": 895
+            }
+          },
+          "fills": [
+            "#080B10"
+          ],
+          "children": [
+            {
+              "id": "33102:1011",
+              "name": "Container",
+              "type": "FRAME",
+              "layout": {
+                "mode": "column",
+                "alignItems": "stretch",
+                "sizing": {
+                  "horizontal": "fixed",
+                  "vertical": "fixed"
+                },
+                "dimensions": {
+                  "width": 390,
+                  "height": 844
+                }
+              },
+              "fills": "fill_9f9700c3",
+              "children": [
+                {
+                  "id": "33102:1012",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "fill"
+                    }
+                  }
+                },
+                {
+                  "id": "33102:1013",
+                  "name": "BottomNav",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "fixed"
+                    },
+                    "dimensions": {
+                      "height": 76
+                    }
+                  },
+                  "fills": [
+                    "#0C1018"
+                  ],
+                  "strokes": "fill_de39a2d0",
+                  "strokeWeight": "1px 0px 0px",
+                  "children": [
+                    {
+                      "id": "33102:1014",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "padding": "6px 12px",
+                        "alignItems": "center",
+                        "gap": "4px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        },
+                        "locationRelativeToParent": {
+                          "x": 14.97,
+                          "y": 13
+                        }
+                      },
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1015",
+                          "name": "Icon",
+                          "template": "EL-a73b2a19"
+                        },
+                        {
+                          "id": "33102:1018",
+                          "name": "Home",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "Home",
+                          "textStyle": "style_bacf15fe",
+                          "fills": "fill_56ad6c7c"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1019",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "padding": "6px 12px",
+                        "alignItems": "center",
+                        "gap": "4px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        },
+                        "locationRelativeToParent": {
+                          "x": 81.41,
+                          "y": 13
+                        }
+                      },
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1020",
+                          "name": "Icon",
+                          "template": "EL-a73b2a19"
+                        },
+                        {
+                          "id": "33102:1022",
+                          "name": "Train",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "Train",
+                          "textStyle": "style_bacf15fe",
+                          "fills": "fill_56ad6c7c"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1023",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "padding": "6px 12px",
+                        "alignItems": "center",
+                        "gap": "4px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        },
+                        "locationRelativeToParent": {
+                          "x": 143.77,
+                          "y": 13
+                        }
+                      },
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1024",
+                          "name": "Icon",
+                          "template": "EL-a73b2a19"
+                        },
+                        {
+                          "id": "33102:1031",
+                          "name": "Compete",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "Compete",
+                          "textStyle": "style_bacf15fe",
+                          "fills": "fill_56ad6c7c"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1032",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "padding": "6px 12px",
+                        "alignItems": "center",
+                        "gap": "4px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        },
+                        "locationRelativeToParent": {
+                          "x": 225.7,
+                          "y": 13
+                        }
+                      },
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1033",
+                          "name": "Icon",
+                          "template": "EL-a73b2a19"
+                        },
+                        {
+                          "id": "33102:1038",
+                          "name": "Community",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "Community",
+                          "textStyle": "style_bacf15fe",
+                          "fills": "fill_56ad6c7c"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1039",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "padding": "6px 12px",
+                        "alignItems": "center",
+                        "gap": "4px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        },
+                        "locationRelativeToParent": {
+                          "x": 319.61,
+                          "y": 9
+                        }
+                      },
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1040",
+                          "name": "Icon",
+                          "template": "EL-a73b2a19"
+                        },
+                        {
+                          "id": "33102:1043",
+                          "name": "Profile",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "Profile",
+                          "textStyle": "style_bacf15fe",
+                          "fills": "fill_d6c7f496"
+                        },
+                        {
+                          "id": "33102:1044",
+                          "name": "Container",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "none",
+                            "sizing": {
+                              "horizontal": "fixed",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "width": 4,
+                              "height": 4
+                            }
+                          },
+                          "fills": "fill_d6c7f496",
+                          "borderRadius": "33554400px"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "33102:1045",
+          "name": "CoachWebDashboard",
+          "type": "FRAME",
+          "layout": {
+            "mode": "row",
+            "alignItems": "stretch",
+            "sizing": {
+              "horizontal": "hug",
+              "vertical": "fixed"
+            },
+            "position": "absolute",
+            "locationRelativeToParent": {
+              "x": 0,
+              "y": 0
+            },
+            "dimensions": {
+              "height": 935
+            }
+          },
+          "fills": "fill_9f9700c3",
+          "children": [
+            {
+              "id": "33102:1046",
+              "name": "Container",
+              "type": "FRAME",
+              "layout": {
+                "mode": "column",
+                "alignSelf": "stretch",
+                "alignItems": "stretch",
+                "sizing": {
+                  "horizontal": "fixed",
+                  "vertical": "fill"
+                },
+                "dimensions": {
+                  "width": 220
+                }
+              },
+              "fills": [
+                "#0D1117"
+              ],
+              "strokes": "fill_87a9adb8",
+              "strokeWeight": "0px 1px 0px 0px",
+              "children": [
+                {
+                  "id": "33102:1047",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "row",
+                    "alignSelf": "stretch",
+                    "padding": "20px 16px",
+                    "alignItems": "center",
+                    "gap": "12px",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "hug"
+                    }
+                  },
+                  "strokes": "fill_de39a2d0",
+                  "strokeWeight": "0px 0px 1px",
+                  "children": [
+                    {
+                      "id": "33102:1048",
+                      "name": "Object",
+                      "type": "RECTANGLE",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {
+                          "horizontal": "fixed",
+                          "vertical": "fixed"
+                        },
+                        "dimensions": {
+                          "width": 62,
+                          "height": 60
+                        }
+                      },
+                      "fills": [
+                        {
+                          "type": "IMAGE",
+                          "imageRef": "c558da566deab4227887a1e28cc4af9371ef10a5",
+                          "scaleMode": "FILL",
+                          "objectFit": "cover",
+                          "isBackground": false,
+                          "imageDownloadArguments": {
+                            "needsCropping": false,
+                            "requiresImageDimensions": false
+                          }
+                        }
+                      ],
+                      "borderRadius": "28px"
+                    },
+                    {
+                      "id": "33102:1049",
+                      "name": "Text",
+                      "template": "EL-2f9fe287",
+                      "children": [
+                        {
+                          "id": "33102:1050",
+                          "name": "DSM COACH",
+                          "type": "TEXT",
+                          "layout": "layout_177c5efc",
+                          "text": "DSM COACH",
+                          "textStyle": {
+                            "fontFamily": "Barlow Condensed",
+                            "fontStyle": "Black",
+                            "fontWeight": 900,
+                            "fontSize": 14,
+                            "lineHeight": "20px",
+                            "textAlignHorizontal": "LEFT",
+                            "textAlignVertical": "TOP"
+                          },
+                          "fills": "fill_658ab2fa"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1051",
+                      "name": "Button:align",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "row",
+                        "justifyContent": "flex-end",
+                        "sizing": {
+                          "horizontal": "fill",
+                          "vertical": "hug"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "33102:1052",
+                          "name": "Button",
+                          "template": "EL-26bf122a",
+                          "children": [
+                            {
+                              "id": "33102:1053",
+                              "name": "Icon:transform",
+                              "type": "FRAME",
+                              "layout": {
+                                "mode": "column",
+                                "alignItems": "stretch",
+                                "sizing": {
+                                  "horizontal": "fixed",
+                                  "vertical": "fixed"
+                                },
+                                "dimensions": {
+                                  "width": 14,
+                                  "height": 14
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "33102:1054",
+                                  "name": "Icon",
+                                  "type": "IMAGE-SVG",
+                                  "layout": {
+                                    "mode": "none",
+                                    "sizing": {
+                                      "horizontal": "fixed",
+                                      "vertical": "fixed"
+                                    },
+                                    "position": "absolute",
+                                    "locationRelativeToParent": {
+                                      "x": 0,
+                                      "y": 0
+                                    },
+                                    "dimensions": {
+                                      "width": 14,
+                                      "height": 14
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "33102:1056",
+                  "name": "Navigation",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "column",
+                    "alignSelf": "stretch",
+                    "padding": "12px 8px",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "fill"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "33102:1057",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": "layout_63d6be96",
+                      "strokes": "fill_b4c0e48c",
+                      "strokeWeight": "1px",
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1058",
+                          "name": "Text",
+                          "template": "EL-2f9fe287",
+                          "children": [
+                            {
+                              "id": "33102:1059",
+                              "name": "Icon",
+                              "template": "EL-f652840d"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1064",
+                          "name": "Text",
+                          "template": "EL-f676945a",
+                          "children": [
+                            {
+                              "id": "33102:1065",
+                              "name": "Dashboard",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "Dashboard",
+                              "textStyle": "style_d5cd9b07",
+                              "fills": [
+                                "#9CA3AF"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1066",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": "layout_63d6be96",
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1067",
+                          "name": "Text",
+                          "template": "EL-2f9fe287",
+                          "children": [
+                            {
+                              "id": "33102:1068",
+                              "name": "Icon",
+                              "template": "EL-f652840d"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1073",
+                          "name": "Text",
+                          "template": "EL-f676945a",
+                          "children": [
+                            {
+                              "id": "33102:1074",
+                              "name": "My Players",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "My Players",
+                              "textStyle": "style_d5cd9b07",
+                              "fills": "fill_1a918e40"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1075",
+                          "name": "Text",
+                          "template": "EL-b1292e3e",
+                          "children": [
+                            {
+                              "id": "33102:1076",
+                              "name": "1",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "1",
+                              "textStyle": "style_6812f49c",
+                              "fills": "fill_658ab2fa"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1077",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1078",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1079",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1080",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1083",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1084",
+                                  "name": "Tasks",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Tasks",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1085",
+                              "name": "Text",
+                              "template": "EL-b1292e3e",
+                              "children": [
+                                {
+                                  "id": "33102:1086",
+                                  "name": "6",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "6",
+                                  "textStyle": "style_6812f49c",
+                                  "fills": "fill_658ab2fa"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1087",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1088",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1089",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1090",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1092",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1093",
+                                  "name": "Training",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Training",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1094",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1095",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1096",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1097",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1103",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1104",
+                                  "name": "Action Steps",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Action Steps",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1105",
+                              "name": "Text",
+                              "template": "EL-b1292e3e",
+                              "children": [
+                                {
+                                  "id": "33102:1106",
+                                  "name": "2",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "2",
+                                  "textStyle": "style_6812f49c",
+                                  "fills": "fill_658ab2fa"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1107",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1108",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1109",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1110",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1112",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1113",
+                                  "name": "Feedback",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Feedback",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1114",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1115",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1116",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1117",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1119",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1120",
+                                  "name": "Groups",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Groups",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1253",
+                      "name": "Button:margin",
+                      "template": "EL-069fd539",
+                      "children": [
+                        {
+                          "id": "33102:1254",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1255",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1256",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1261",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1262",
+                                  "name": "Sessions",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Sessions",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1264",
+                      "name": "Button",
+                      "type": "FRAME",
+                      "layout": "layout_efe57380",
+                      "fills": "fill_39520c6d",
+                      "strokes": [
+                        "rgba(201, 145, 26, 0.2)"
+                      ],
+                      "strokeWeight": "1px",
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1265",
+                          "name": "Text",
+                          "template": "EL-2f9fe287",
+                          "children": [
+                            {
+                              "id": "33102:1266",
+                              "name": "Icon",
+                              "template": "EL-f652840d"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1269",
+                          "name": "Text",
+                          "template": "EL-f676945a",
+                          "children": [
+                            {
+                              "id": "33102:1270",
+                              "name": "Notifications",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "Notifications",
+                              "textStyle": "style_d5cd9b07",
+                              "fills": "fill_d6c7f496"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1271",
+                          "name": "Text",
+                          "template": "EL-b1292e3e",
+                          "children": [
+                            {
+                              "id": "33102:1272",
+                              "name": "3",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "3",
+                              "textStyle": "style_6812f49c",
+                              "fills": "fill_658ab2fa"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1140",
+                      "name": "Button:margin",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "alignSelf": "stretch",
+                        "padding": "4px 0px",
+                        "alignItems": "center",
+                        "sizing": {
+                          "horizontal": "fill",
+                          "vertical": "hug"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "33102:1141",
+                          "name": "Button",
+                          "template": "EL-1effa6a1",
+                          "children": [
+                            {
+                              "id": "33102:1142",
+                              "name": "Text",
+                              "template": "EL-2f9fe287",
+                              "children": [
+                                {
+                                  "id": "33102:1143",
+                                  "name": "Icon",
+                                  "template": "EL-f652840d"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1146",
+                              "name": "Text",
+                              "template": "EL-f676945a",
+                              "children": [
+                                {
+                                  "id": "33102:1147",
+                                  "name": "Settings",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Settings",
+                                  "textStyle": "style_d5cd9b07",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "33102:1148",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "column",
+                    "alignSelf": "stretch",
+                    "padding": "16px 12px",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "hug"
+                    }
+                  },
+                  "strokes": "fill_de39a2d0",
+                  "strokeWeight": "1px 0px 0px",
+                  "children": [
+                    {
+                      "id": "33102:1149",
+                      "name": "Container",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "row",
+                        "alignSelf": "stretch",
+                        "alignItems": "center",
+                        "gap": "12px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "33102:1150",
+                          "name": "Container",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "row",
+                            "justifyContent": "center",
+                            "alignItems": "center",
+                            "sizing": {
+                              "horizontal": "fixed",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "width": 32,
+                              "height": 32
+                            }
+                          },
+                          "fills": "fill_39520c6d",
+                          "borderRadius": "14px",
+                          "children": [
+                            {
+                              "id": "33102:1151",
+                              "name": "🎯",
+                              "type": "TEXT",
+                              "layout": "layout_177c5efc",
+                              "text": "🎯",
+                              "textStyle": {
+                                "fontFamily": "Inter",
+                                "fontStyle": "Regular",
+                                "fontWeight": 400,
+                                "fontSize": 18,
+                                "lineHeight": "28px",
+                                "textAlignHorizontal": "LEFT",
+                                "textAlignVertical": "TOP"
+                              },
+                              "fills": "fill_1a918e40"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1152",
+                          "name": "Container",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "column",
+                            "alignItems": "stretch",
+                            "sizing": {
+                              "horizontal": "fill",
+                              "vertical": "hug"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "33102:1153",
+                              "name": "Paragraph",
+                              "type": "FRAME",
+                              "layout": {
+                                "mode": "column",
+                                "alignSelf": "stretch",
+                                "sizing": {
+                                  "horizontal": "fill",
+                                  "vertical": "fixed"
+                                },
+                                "dimensions": {
+                                  "height": 16
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "33102:1154",
+                                  "name": "Coach Rivera",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "Coach Rivera",
+                                  "textStyle": {
+                                    "fontFamily": "Inter",
+                                    "fontStyle": "Bold",
+                                    "fontWeight": 700,
+                                    "fontSize": 12,
+                                    "lineHeight": "16px",
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "TOP"
+                                  },
+                                  "fills": "fill_658ab2fa"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1155",
+                              "name": "Paragraph",
+                              "type": "FRAME",
+                              "layout": {
+                                "mode": "column",
+                                "alignSelf": "stretch",
+                                "sizing": {
+                                  "horizontal": "fill",
+                                  "vertical": "fixed"
+                                },
+                                "dimensions": {
+                                  "height": 15
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "33102:1156",
+                                  "name": "DSM Soccer",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "DSM Soccer",
+                                  "textStyle": "style_8caec43b",
+                                  "fills": "fill_1a918e40"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1157",
+                          "name": "Button",
+                          "template": "EL-26bf122a",
+                          "children": [
+                            {
+                              "id": "33102:1158",
+                              "name": "Icon",
+                              "template": "EL-522202e5"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "33102:1162",
+              "name": "Container",
+              "type": "FRAME",
+              "layout": {
+                "mode": "column",
+                "alignSelf": "stretch",
+                "alignItems": "stretch",
+                "sizing": {
+                  "horizontal": "fill",
+                  "vertical": "fill"
+                }
+              },
+              "children": [
+                {
+                  "id": "33102:1163",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "row",
+                    "alignSelf": "stretch",
+                    "padding": "16px 24px",
+                    "justifyContent": "space-between",
+                    "alignItems": "center",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "hug"
+                    }
+                  },
+                  "strokes": "fill_de39a2d0",
+                  "strokeWeight": "0px 0px 1px",
+                  "children": [
+                    {
+                      "id": "33102:1164",
+                      "name": "Container",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "row",
+                        "padding": "8px 12px",
+                        "alignItems": "center",
+                        "gap": "8px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        }
+                      },
+                      "fills": "fill_a5384f61",
+                      "strokes": "fill_87a9adb8",
+                      "strokeWeight": "1px",
+                      "borderRadius": "14px",
+                      "children": [
+                        {
+                          "id": "33102:1165",
+                          "name": "Icon",
+                          "template": "EL-522202e5"
+                        },
+                        {
+                          "id": "33102:1168",
+                          "name": "Text Input",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "column",
+                            "justifyContent": "center",
+                            "alignItems": "stretch",
+                            "sizing": {
+                              "horizontal": "fill",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "height": 20
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "33102:1169",
+                              "name": "Search players, tasks, sessions...",
+                              "type": "TEXT",
+                              "layout": {
+                                "mode": "none",
+                                "sizing": {
+                                  "horizontal": "fill",
+                                  "vertical": "hug"
+                                }
+                              },
+                              "text": "Search players, tasks, sessions...",
+                              "textStyle": {
+                                "fontFamily": "Inter",
+                                "fontStyle": "Regular",
+                                "fontWeight": 400,
+                                "fontSize": 14,
+                                "textAlignHorizontal": "LEFT",
+                                "textAlignVertical": "TOP"
+                              },
+                              "fills": [
+                                "#737378"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "33102:1170",
+                      "name": "Container",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "row",
+                        "justifyContent": "flex-end",
+                        "alignItems": "center",
+                        "gap": "12px",
+                        "sizing": {
+                          "horizontal": "hug",
+                          "vertical": "hug"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "33102:1171",
+                          "name": "Button",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "row",
+                            "justifyContent": "center",
+                            "alignItems": "center",
+                            "sizing": {
+                              "horizontal": "fixed",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "width": 36,
+                              "height": 36
+                            }
+                          },
+                          "fills": "fill_a5384f61",
+                          "strokes": "fill_87a9adb8",
+                          "strokeWeight": "1px",
+                          "borderRadius": "14px",
+                          "children": [
+                            {
+                              "id": "33102:1172",
+                              "name": "Icon",
+                              "type": "IMAGE-SVG",
+                              "layout": {
+                                "mode": "none",
+                                "sizing": {
+                                  "horizontal": "fixed",
+                                  "vertical": "fixed"
+                                },
+                                "dimensions": {
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              }
+                            },
+                            {
+                              "id": "33102:1175",
+                              "name": "Container",
+                              "type": "FRAME",
+                              "layout": {
+                                "mode": "none",
+                                "sizing": {
+                                  "horizontal": "fixed",
+                                  "vertical": "fixed"
+                                },
+                                "position": "absolute",
+                                "locationRelativeToParent": {
+                                  "x": 21,
+                                  "y": 7
+                                },
+                                "dimensions": {
+                                  "width": 8,
+                                  "height": 8
+                                }
+                              },
+                              "fills": "fill_d6c7f496",
+                              "borderRadius": "33554400px"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "33102:1176",
+                  "name": "Container",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "column",
+                    "alignSelf": "stretch",
+                    "padding": "24px",
+                    "alignItems": "stretch",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "fill"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "33102:1177",
+                      "name": "Dashboard",
+                      "type": "FRAME",
+                      "layout": {
+                        "mode": "column",
+                        "alignSelf": "stretch",
+                        "alignItems": "stretch",
+                        "gap": "24px",
+                        "sizing": {
+                          "horizontal": "fill",
+                          "vertical": "hug"
+                        }
+                      },
+                      "children": [
+                        {
+                          "id": "33102:1178",
+                          "name": "Container",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "column",
+                            "alignSelf": "stretch",
+                            "alignItems": "stretch",
+                            "sizing": {
+                              "horizontal": "fill",
+                              "vertical": "hug"
+                            }
+                          },
+                          "children": [
+                            {
+                              "id": "33102:1179",
+                              "name": "Container",
+                              "template": "EL-dfdf56f9",
+                              "children": [
+                                {
+                                  "id": "33102:1180",
+                                  "name": "INBOX",
+                                  "type": "TEXT",
+                                  "layout": "layout_177c5efc",
+                                  "text": "INBOX",
+                                  "textStyle": {
+                                    "fontFamily": "Inter",
+                                    "fontStyle": "Bold",
+                                    "fontWeight": 700,
+                                    "fontSize": 12,
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.1em",
+                                    "textCase": "UPPER",
+                                    "textAlignHorizontal": "LEFT",
+                                    "textAlignVertical": "TOP"
+                                  },
+                                  "fills": "fill_d6c7f496"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1181",
+                              "name": "Heading 1:margin",
+                              "type": "FRAME",
+                              "layout": {
+                                "mode": "column",
+                                "alignSelf": "stretch",
+                                "padding": "4px 0px 0px",
+                                "alignItems": "stretch",
+                                "sizing": {
+                                  "horizontal": "fill",
+                                  "vertical": "hug"
+                                }
+                              },
+                              "children": [
+                                {
+                                  "id": "33102:1182",
+                                  "name": "Heading 1",
+                                  "template": "EL-dfdf56f9",
+                                  "children": [
+                                    {
+                                      "id": "33102:1183",
+                                      "name": "NOTIFICATIONS",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "NOTIFICATIONS",
+                                      "textStyle": {
+                                        "fontFamily": "Barlow Condensed",
+                                        "fontStyle": "Black",
+                                        "fontWeight": 900,
+                                        "fontSize": 36,
+                                        "lineHeight": "40px",
+                                        "textAlignHorizontal": "LEFT",
+                                        "textAlignVertical": "TOP"
+                                      },
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "33102:1274",
+                          "name": "Container",
+                          "type": "FRAME",
+                          "layout": {
+                            "mode": "column",
+                            "alignSelf": "stretch",
+                            "sizing": {
+                              "horizontal": "fill",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "height": 448
+                            }
+                          },
+                          "fills": "fill_a5384f61",
+                          "strokes": "fill_87a9adb8",
+                          "strokeWeight": "1px",
+                          "borderRadius": "16px",
+                          "children": [
+                            {
+                              "id": "33102:1275",
+                              "name": "Container",
+                              "template": "EL-ce497d26",
+                              "children": [
+                                {
+                                  "id": "33102:1276",
+                                  "name": "Container",
+                                  "type": "FRAME",
+                                  "layout": "layout_dfbdbcec",
+                                  "fills": [
+                                    "rgba(59, 130, 246, 0.09)"
+                                  ],
+                                  "borderRadius": "14px",
+                                  "children": [
+                                    {
+                                      "id": "33102:1277",
+                                      "name": "📋",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "📋",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1278",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1279",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1280",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1281",
+                                              "name": "New Action Step",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "New Action Step",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "33102:1282",
+                                          "name": "Container",
+                                          "template": "EL-c09ffe26"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1283",
+                                      "name": "Paragraph",
+                                      "template": "EL-9dac6b90",
+                                      "children": [
+                                        {
+                                          "id": "33102:1284",
+                                          "name": "Alex Thompson submitted Post-Practice Feedback",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Alex Thompson submitted Post-Practice Feedback",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1285",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1286",
+                                      "name": "2h ago",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "2h ago",
+                                      "textStyle": "style_8caec43b",
+                                      "fills": "fill_1a918e40"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1287",
+                              "name": "Container",
+                              "template": "EL-ce497d26",
+                              "children": [
+                                {
+                                  "id": "33102:1288",
+                                  "name": "Container",
+                                  "template": "EL-fc16c131",
+                                  "children": [
+                                    {
+                                      "id": "33102:1289",
+                                      "name": "✅",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "✅",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1290",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1291",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1292",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1293",
+                                              "name": "Task Completed",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "Task Completed",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "33102:1294",
+                                          "name": "Container",
+                                          "template": "EL-c09ffe26"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1295",
+                                      "name": "Paragraph",
+                                      "template": "EL-9dac6b90",
+                                      "children": [
+                                        {
+                                          "id": "33102:1296",
+                                          "name": "Marcus Silva completed Ball Mastery Session",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Marcus Silva completed Ball Mastery Session",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1297",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1298",
+                                      "name": "5h ago",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "5h ago",
+                                      "textStyle": "style_8caec43b",
+                                      "fills": "fill_1a918e40"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1299",
+                              "name": "Container",
+                              "template": "EL-ce497d26",
+                              "children": [
+                                {
+                                  "id": "33102:1300",
+                                  "name": "Container",
+                                  "type": "FRAME",
+                                  "layout": "layout_dfbdbcec",
+                                  "fills": [
+                                    "rgba(239, 68, 68, 0.09)"
+                                  ],
+                                  "borderRadius": "14px",
+                                  "children": [
+                                    {
+                                      "id": "33102:1301",
+                                      "name": "⚠️",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "⚠️",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1302",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1303",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1304",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1305",
+                                              "name": "Overdue Task",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "Overdue Task",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "id": "33102:1306",
+                                          "name": "Container",
+                                          "template": "EL-c09ffe26"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1307",
+                                      "name": "Paragraph",
+                                      "template": "EL-3d589d30",
+                                      "children": [
+                                        {
+                                          "id": "33102:1308",
+                                          "name": "Jordan Lee has missed 2 tasks this week",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Jordan Lee has missed 2 tasks this week",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1309",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1310",
+                                      "name": "1d ago",
+                                      "template": "EL-4d7519fd"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1311",
+                              "name": "Container",
+                              "template": "EL-f2914871",
+                              "children": [
+                                {
+                                  "id": "33102:1312",
+                                  "name": "Container",
+                                  "template": "EL-fc16c131",
+                                  "children": [
+                                    {
+                                      "id": "33102:1313",
+                                      "name": "💬",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "💬",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1314",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1315",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1316",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1317",
+                                              "name": "New Group Message",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "New Group Message",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1318",
+                                      "name": "Paragraph",
+                                      "template": "EL-3d589d30",
+                                      "children": [
+                                        {
+                                          "id": "33102:1319",
+                                          "name": "Alex Thompson sent a message in the private group",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Alex Thompson sent a message in the private group",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1320",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1321",
+                                      "name": "1d ago",
+                                      "template": "EL-4d7519fd"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1322",
+                              "name": "Container",
+                              "template": "EL-f2914871",
+                              "children": [
+                                {
+                                  "id": "33102:1323",
+                                  "name": "Container",
+                                  "type": "FRAME",
+                                  "layout": "layout_dfbdbcec",
+                                  "fills": [
+                                    "rgba(34, 197, 94, 0.09)"
+                                  ],
+                                  "borderRadius": "14px",
+                                  "children": [
+                                    {
+                                      "id": "33102:1324",
+                                      "name": "📅",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "📅",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1325",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1326",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1327",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1328",
+                                              "name": "Upcoming Session",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "Upcoming Session",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1329",
+                                      "name": "Paragraph",
+                                      "template": "EL-9dac6b90",
+                                      "children": [
+                                        {
+                                          "id": "33102:1330",
+                                          "name": "Session with Alex Thompson — Today at 3:00 PM",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Session with Alex Thompson — Today at 3:00 PM",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1331",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1332",
+                                      "name": "2d ago",
+                                      "template": "EL-985bc5e2"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "33102:1333",
+                              "name": "Container",
+                              "type": "FRAME",
+                              "layout": "layout_7266f05b",
+                              "children": [
+                                {
+                                  "id": "33102:1334",
+                                  "name": "Container",
+                                  "template": "EL-fc16c131",
+                                  "children": [
+                                    {
+                                      "id": "33102:1335",
+                                      "name": "🏆",
+                                      "type": "TEXT",
+                                      "layout": "layout_177c5efc",
+                                      "text": "🏆",
+                                      "textStyle": "style_312f68f8",
+                                      "fills": "fill_658ab2fa"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1336",
+                                  "name": "Container",
+                                  "template": "EL-f676945a",
+                                  "children": [
+                                    {
+                                      "id": "33102:1337",
+                                      "name": "Container",
+                                      "template": "EL-c8d50cb3",
+                                      "children": [
+                                        {
+                                          "id": "33102:1338",
+                                          "name": "Paragraph",
+                                          "template": "EL-2f9fe287",
+                                          "children": [
+                                            {
+                                              "id": "33102:1339",
+                                              "name": "Player Achievement",
+                                              "type": "TEXT",
+                                              "layout": "layout_177c5efc",
+                                              "text": "Player Achievement",
+                                              "textStyle": "style_c4cf7ace",
+                                              "fills": "fill_658ab2fa"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "id": "33102:1340",
+                                      "name": "Paragraph",
+                                      "template": "EL-9dac6b90",
+                                      "children": [
+                                        {
+                                          "id": "33102:1341",
+                                          "name": "Sam Davies hit a 21-day streak",
+                                          "type": "TEXT",
+                                          "layout": "layout_177c5efc",
+                                          "text": "Sam Davies hit a 21-day streak",
+                                          "textStyle": "style_73f9d092",
+                                          "fills": "fill_1a918e40"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "33102:1342",
+                                  "name": "Text",
+                                  "template": "EL-2f9fe287",
+                                  "children": [
+                                    {
+                                      "id": "33102:1343",
+                                      "name": "2d ago",
+                                      "template": "EL-985bc5e2"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "components": {},
+  "componentSets": {},
+  "globalVars": {
+    "styles": {
+      "fill_9f9700c3": [
+        "#0B0E14"
+      ],
+      "fill_de39a2d0": [
+        "rgba(255, 255, 255, 0.05)"
+      ],
+      "fill_56ad6c7c": [
+        "#4B5563"
+      ],
+      "layout_177c5efc": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "style_bacf15fe": {
+        "fontFamily": "Inter",
+        "fontStyle": "Semi Bold",
+        "fontWeight": 600,
+        "fontSize": 10,
+        "lineHeight": "15px",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "TOP"
+      },
+      "fill_d6c7f496": [
+        "#E8A820"
+      ],
+      "fill_87a9adb8": [
+        "rgba(255, 255, 255, 0.06)"
+      ],
+      "fill_658ab2fa": [
+        "#FFFFFF"
+      ],
+      "layout_63d6be96": {
+        "mode": "row",
+        "alignSelf": "stretch",
+        "padding": "10px 12px",
+        "alignItems": "center",
+        "gap": "12px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "fill_b4c0e48c": [
+        "rgba(0, 0, 0, 0)"
+      ],
+      "style_d5cd9b07": {
+        "fontFamily": "Inter",
+        "fontStyle": "Medium",
+        "fontWeight": 500,
+        "fontSize": 14,
+        "lineHeight": "20px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "fill_1a918e40": [
+        "#BFBFBF"
+      ],
+      "style_6812f49c": {
+        "fontFamily": "Inter",
+        "fontStyle": "Black",
+        "fontWeight": 900,
+        "fontSize": 10,
+        "lineHeight": "15px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "layout_efe57380": {
+        "mode": "row",
+        "padding": "10px 12px",
+        "alignItems": "center",
+        "gap": "12px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "dimensions": {
+          "width": 203
+        }
+      },
+      "fill_39520c6d": [
+        "rgba(201, 145, 26, 0.12)"
+      ],
+      "style_8caec43b": {
+        "fontFamily": "Inter",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 10,
+        "lineHeight": "15px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "fill_a5384f61": [
+        "#131820"
+      ],
+      "layout_7266f05b": {
+        "mode": "row",
+        "alignSelf": "stretch",
+        "padding": "16px 20px",
+        "gap": "16px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "fill_749cf8f7": [
+        "rgba(255, 255, 255, 0.04)"
+      ],
+      "layout_dfbdbcec": {
+        "mode": "row",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 40,
+          "height": 40
+        }
+      },
+      "style_312f68f8": {
+        "fontFamily": "Inter",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 20,
+        "lineHeight": "28px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "style_c4cf7ace": {
+        "fontFamily": "Inter",
+        "fontStyle": "Semi Bold",
+        "fontWeight": 600,
+        "fontSize": 14,
+        "lineHeight": "20px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "style_73f9d092": {
+        "fontFamily": "Inter",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 12,
+        "lineHeight": "19.5px",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      }
+    }
+  },
+  "elements": {
+    "EL-a73b2a19": {
+      "type": "IMAGE-SVG",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 20,
+          "height": 20
+        }
+      }
+    },
+    "EL-2f9fe287": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-26bf122a": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "justifyContent": "center",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-f652840d": {
+      "type": "IMAGE-SVG",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 18,
+          "height": 18
+        }
+      }
+    },
+    "EL-f676945a": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-b1292e3e": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "padding": "2px 6px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "fills": "fill_d6c7f496",
+      "borderRadius": "33554400px"
+    },
+    "EL-069fd539": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "padding": "4px 0px 0px",
+        "alignItems": "center",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-1effa6a1": {
+      "type": "FRAME",
+      "layout": "layout_efe57380",
+      "strokes": "fill_b4c0e48c",
+      "strokeWeight": "1px",
+      "borderRadius": "14px"
+    },
+    "EL-522202e5": {
+      "type": "IMAGE-SVG",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 14,
+          "height": 14
+        }
+      }
+    },
+    "EL-dfdf56f9": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "alignSelf": "stretch",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-ce497d26": {
+      "type": "FRAME",
+      "layout": "layout_7266f05b",
+      "fills": [
+        "rgba(255, 255, 255, 0.02)"
+      ],
+      "strokes": "fill_749cf8f7",
+      "strokeWeight": "0px 0px 1px"
+    },
+    "EL-c8d50cb3": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "row",
+        "alignSelf": "stretch",
+        "alignItems": "center",
+        "gap": "8px",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      }
+    },
+    "EL-c09ffe26": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 6,
+          "height": 6
+        }
+      },
+      "fills": [
+        "#3B82F6"
+      ],
+      "borderRadius": "33554400px"
+    },
+    "EL-9dac6b90": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "padding": "2px 0px 0px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 1002,
+          "height": 22
+        }
+      }
+    },
+    "EL-fc16c131": {
+      "type": "FRAME",
+      "layout": "layout_dfbdbcec",
+      "fills": [
+        "rgba(201, 145, 26, 0.09)"
+      ],
+      "borderRadius": "14px"
+    },
+    "EL-3d589d30": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "padding": "2px 0px 0px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 1003,
+          "height": 22
+        }
+      }
+    },
+    "EL-4d7519fd": {
+      "type": "TEXT",
+      "layout": "layout_177c5efc",
+      "text": "1d ago",
+      "textStyle": "style_8caec43b",
+      "fills": "fill_1a918e40"
+    },
+    "EL-f2914871": {
+      "type": "FRAME",
+      "layout": "layout_7266f05b",
+      "strokes": "fill_749cf8f7",
+      "strokeWeight": "0px 0px 1px"
+    },
+    "EL-985bc5e2": {
+      "type": "TEXT",
+      "layout": "layout_177c5efc",
+      "text": "2d ago",
+      "textStyle": "style_8caec43b",
+      "fills": "fill_1a918e40"
+    }
+  }
+}

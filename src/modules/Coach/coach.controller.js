@@ -6,6 +6,7 @@ const {
   getCoachTasksOverviewService,
   getCoachTrainingOverviewService,
   getCoachFeedbackOverviewService,
+  getCoachGroupsOverviewService,
   getCoachSessionsOverviewService,
   getCoachPlayersOverviewService,
   getCoachPlayerOverviewService,
@@ -24,6 +25,7 @@ const {
   createAthleteTaskService,
   toggleTaskStatusService,
   assignTrainingService,
+  getCoachAthleteVideosService,
   createCoachFeedbackService,
   reviewActionStepService,
   updateSessionNotesService,
@@ -57,7 +59,10 @@ const getCoachDashboardOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachTasksOverviewController = catchAsync(async (req, res) => {
-  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const isPrivileged = req.user && ['admin', 'super_admin', 'sub_admin'].includes(req.user.role);
+  const coachId = isPrivileged
+    ? req.query.coachId
+    : (req.query.coachId || getLoggedInUserId(req));
   const result = await getCoachTasksOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
@@ -85,7 +90,10 @@ const getCoachTrainingOverviewController = catchAsync(async (req, res) => {
 });
 
 const getCoachFeedbackOverviewController = catchAsync(async (req, res) => {
-  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const isPrivileged = req.user && ['admin', 'super_admin', 'sub_admin'].includes(req.user.role);
+  const coachId = isPrivileged
+    ? req.query.coachId
+    : (req.query.coachId || getLoggedInUserId(req));
   const result = await getCoachFeedbackOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
@@ -98,15 +106,35 @@ const getCoachFeedbackOverviewController = catchAsync(async (req, res) => {
   );
 });
 
+const getCoachGroupsOverviewController = catchAsync(async (req, res) => {
+  const isPrivileged = req.user && ['admin', 'super_admin', 'sub_admin'].includes(req.user.role);
+  const coachId = isPrivileged
+    ? req.query.coachId
+    : (req.query.coachId || getLoggedInUserId(req));
+  const result = await getCoachGroupsOverviewService({ ...req.query, coachId });
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachGroupsOverview',
+      message: 'Coach private groups overview retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 const getCoachSessionsOverviewController = catchAsync(async (req, res) => {
-  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const isPrivileged = req.user && ['admin', 'super_admin', 'sub_admin'].includes(req.user.role);
+  const coachId = isPrivileged
+    ? req.query.coachId
+    : (req.query.coachId || getLoggedInUserId(req));
   const result = await getCoachSessionsOverviewService({ ...req.query, coachId });
   return res.status(status.OK).json(
     response({
       status: 'success',
       statusCode: status.OK,
       type: 'CoachSessionsOverview',
-      message: 'Coach sessions overview retrieved successfully',
+      message: 'Coach coaching sessions overview retrieved successfully',
       data: result,
     })
   );
@@ -414,6 +442,24 @@ const assignTrainingController = catchAsync(async (req, res) => {
   );
 });
 
+const getAthleteVideosController = catchAsync(async (req, res) => {
+  const { athleteId } = req.params;
+  const targetAthleteId = (athleteId && athleteId !== 'me')
+    ? athleteId
+    : (getLoggedInUserId(req) || req.query.athleteId || athleteId);
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getCoachAthleteVideosService(targetAthleteId, coachId, req.query);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'AthleteVideos',
+      message: 'Athlete videos retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 const createCoachFeedbackController = catchAsync(async (req, res) => {
   const { athleteId } = req.params;
   const targetAthleteId = (athleteId && athleteId !== 'me')
@@ -564,6 +610,7 @@ module.exports = {
   getCoachTasksOverviewController,
   getCoachTrainingOverviewController,
   getCoachFeedbackOverviewController,
+  getCoachGroupsOverviewController,
   getCoachSessionsOverviewController,
   getCoachPlayersOverviewController,
   getCoachPlayerDetailController,
@@ -584,6 +631,7 @@ module.exports = {
   createAthleteTaskController,
   toggleTaskStatusController,
   assignTrainingController,
+  getAthleteVideosController,
   createCoachFeedbackController,
   reviewActionStepController,
   assignAthleteActionStepController,

@@ -54,16 +54,26 @@ const formatLibraryItem = (item) => {
   }
 
   if (item.contentType === 'video-drill') {
+    const teachingPoints = (item.teachingPoints && item.teachingPoints.length > 0)
+      ? item.teachingPoints
+      : (item.keyTeachingPoints || []);
     return {
       _id: item._id,
+      id: item._id,
       contentType: 'video-drill',
       title: item.title,
       videoUrl: item.videoUrl || item.video || '',
-      category: item.category || 'Mindset',
-      xpReward: item.xpReward || 0,
+      thumbnail: item.thumbnail || item.image || '',
+      category: item.category || 'Technical',
+      duration: item.duration || '10:00 min',
+      phase: item.phase || 'Foundation (Phase 1)',
+      xpReward: item.xpReward || 100,
+      xpText: `+${item.xpReward || 100} XP`,
+      instructor: item.instructor || coachName || '',
       coachId: coachId,
       coachName: coachName,
-      teachingPoints: item.teachingPoints || [],
+      teachingPoints,
+      keyTeachingPoints: teachingPoints,
       createdAt: item.createdAt,
     };
   }
@@ -257,9 +267,15 @@ const createLibraryItemService = async (payload) => {
   } else if (normalizedType === 'video-drill') {
     itemData.video = videoUrl || video || '';
     itemData.videoUrl = videoUrl || video || '';
+    itemData.thumbnail = thumbnail || image || '';
+    itemData.image = thumbnail || image || '';
+    itemData.duration = duration || '10:00 min';
+    itemData.phase = phase || 'Foundation (Phase 1)';
+    itemData.instructor = payload.instructor || '';
     itemData.coachId = resolvedCoach;
     itemData.coach = resolvedCoach;
-    itemData.teachingPoints = parseLines(teachingPoints);
+    itemData.teachingPoints = parseLines(teachingPoints || payload.keyTeachingPoints);
+    itemData.keyTeachingPoints = itemData.teachingPoints;
   } else if (normalizedType === 'reflection') {
     itemData.formType = formType || 'Match Audit';
     itemData.completionTime = completionTime || '5 min';

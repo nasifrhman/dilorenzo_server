@@ -10,7 +10,6 @@ const logger = require("./helpers/logger");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 require("dotenv").config();
-const { getDevLoginPage } = require("./helpers/logViewerLogin");
 
 
 // Import Error Handling Middleware
@@ -81,65 +80,7 @@ app.use((req, res, next) => {
 // Static Files
 app.use(express.static("public"));
 
-// Coach Provisioning Page (Figma node 33275-4002)
-app.get(["/add-coach", "/admin/add-coach", "/coach-provisioning"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
 
-// Athlete Intake Page (Figma node 33275-6181)
-app.get(["/add-athlete", "/intake-athlete", "/admin/add-athlete", "/admin/athlete-intake"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/add-athlete.html"));
-});
-
-// Assign Dedicated Coach & Program Page (Figma node 33275-5077)
-app.get(["/assign-coach", "/admin/assign-coach", "/coach-assignment"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/assign-coach.html"));
-});
-
-// Challenges Dashboard & Create Challenge Wizard (Figma nodes 33299-22507, 33368-577, 33384-2128, 33373-1468, 33384-3578)
-app.get(["/challenges", "/admin/challenges", "/create-challenge"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/challenges.html"));
-});
-
-// Manage Challenge Detail Page (Figma nodes 33384-4219, 33384-5212, 33384-5694, 33384-6692)
-app.get(["/manage-challenge", "/admin/manage-challenge"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/manage-challenge.html"));
-});
-
-// Sessions & Admission Calls Scheduling Page (Figma node 33305-3332, 33305-4485)
-app.get(["/scheduling", "/admin/scheduling", "/sessions", "/admin/sessions"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/scheduling.html"));
-});
-
-// Master Libraries Management Page (Figma nodes 33302-24339, 33302-25759, 33304-673, 33304-569, 33304-1357, 33304-2141, 33304-2397, 33304-3116)
-app.get(["/master-libraries", "/libraries", "/library", "/admin/master-libraries", "/admin/libraries"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/master-libraries.html"));
-});
-
-// Coach Web Dashboard Page (Figma node 33026-13150)
-app.get(["/coach-dashboard", "/coach/dashboard", "/dsm-coach", "/coach-portal"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/coach-dashboard.html"));
-});
-
-// Coach Athlete Detail & Management Suite (Figma nodes 33044-13763 to 33092-10752)
-app.get(["/coach-player-detail", "/coach/player", "/coach-player", "/player-detail"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/coach-player-detail.html"));
-});
-
-// Athlete Progress Review Page (Figma nodes 32905-2100 & 32906-2338)
-app.get(["/progress-review", "/athlete/progress-review", "/athlete-progress-review", "/progress"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/athlete-progress-review.html"));
-});
-
-// Athlete Homepage (Figma nodes 32801:5982 & 32959:3560)
-app.get(["/homepage", "/home", "/athlete-home", "/user-home"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/homepage.html"));
-});
-
-// Personalised Development Plan Page (Figma node 32906:2936)
-app.get(["/my-dev-plan", "/dev-plan", "/athlete/my-dev-plan", "/athlete/dev-plan", "/roadmap"], (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/my-dev-plan.html"));
-});
 
 // Serve assetlinks.json
 app.get('/.well-known/assetlinks.json', (req, res) => {
@@ -158,9 +99,12 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
 // Routes
 app.use("/api/v1", routes);
 
-// Health check + log viewer
+// Health check
 app.get("/", (req, res) => {
-  res.send(getDevLoginPage());
+  res.status(200).json({
+    status: "success",
+    message: "Di Lorenzo Backend API is running",
+  });
 });
 
 app.post("/", (req, res) => {
