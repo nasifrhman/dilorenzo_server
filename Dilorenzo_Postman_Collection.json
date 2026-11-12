@@ -4333,6 +4333,41 @@
           "createdAt": "2026-10-29T03:02:14.000Z",
           "updatedAt": "2026-10-29T03:02:14.000Z",
           "uid": "48870830-139bc4c4-af69-4fb1-91d2-005d33f5b569"
+        },
+        {
+          "name": "Announcements (Profile > Announcements)",
+          "item": [
+            {
+              "name": "Get Announcements (User Mobile View)",
+              "id": "c41bcd6d-7e82-45d2-bf09-b72f66ff6892",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/announcements",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "announcements"
+                  ]
+                },
+                "description": "User Mobile View (Profile > Announcements): Displays platform announcements list with unread count, badge indicators, category icons, relative timestamps, and content."
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "id": "b4d1dbf1-673f-453c-a4fc-d4e5dcc2556f",
@@ -6133,6 +6168,447 @@
           "createdAt": "2026-10-29T03:02:14.000Z",
           "updatedAt": "2026-10-29T03:05:39.000Z",
           "uid": "48870830-7ba7395b-7eeb-4107-9c4e-596a5e76f961"
+        },
+        {
+          "name": "Direct Messages (3-Way Groups)",
+          "item": [
+            {
+              "name": "Get 3-Way Groups List (Left Panel)",
+              "id": "2bf0b8b3-e8b3-4c3c-98d5-d15faf4208d8",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups?search=&page=1&limit=50",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "",
+                      "description": "Filter by athlete name or group name"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "50"
+                    }
+                  ]
+                },
+                "description": "Retrieves all active 3-way athlete mentorship groups for the left panel, including unread message counts, athlete initials/avatars, program name, and latest message snippet."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Details & Messages Feed (Center Panel)",
+              "id": "142aa868-9220-4479-a4ce-512e1480bdc2",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0"
+                  ]
+                },
+                "description": "Retrieves active 3-way private group header details (Athlete, Coach, Admin), participants, mentions, and chronological message feed with role badges (ADMIN / FOUNDER, COACH, ATHLETE), video cards, and file attachments."
+              },
+              "response": []
+            },
+            {
+              "name": "Send 3-Way Group Message (Admin / Founder)",
+              "id": "660727e7-0251-4999-b03c-d161521b83a0",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"content\": \"Welcome to your private group, Andrew! Coach Rivera has been assigned to your 90-day program. This is your space for all communication, feedback, and session recordings.\",\n  \"messageType\": \"text\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/messages",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "messages"
+                  ]
+                },
+                "description": "Allows Admin/Founder to send text messages, media links, and file attachments into the athlete 3-way group."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Right Sidebar (All 4 Tabs)",
+              "id": "80f90720-710e-4bc6-bc4f-239280660344",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/sidebar",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "sidebar"
+                  ]
+                },
+                "description": "Retrieves complete right-hand sidebar data containing all 4 tabs: Summary (athlete profile, streak, xp, adherence %, active habits), Files, Timeline, and Members."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Sidebar - Tab 1: Summary",
+              "id": "e75f8144-c31e-41a2-a336-f7ca736ab46e",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/sidebar?tab=summary",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "sidebar"
+                  ],
+                  "query": [
+                    {
+                      "key": "tab",
+                      "value": "summary"
+                    }
+                  ]
+                },
+                "description": "Tab 1: Athlete stats (5d STREAK, 2,340 XP, 88% ADHERENCE, Foundation Day 12/90), Program card (Soccer Mindset 90-Day Mentorship), Assigned Coach (Coach Rivera 1/10 capacity), and Active Habits checklist."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Sidebar - Tab 2: Files",
+              "id": "8adaf5b3-b987-4164-8604-c70a8ca6f8ca",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/sidebar?tab=files",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "sidebar"
+                  ],
+                  "query": [
+                    {
+                      "key": "tab",
+                      "value": "files"
+                    }
+                  ]
+                },
+                "description": "Tab 2: Shared files list (PDF worksheets, review videos, templates) with name, file size, formatted date, and access URLs."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Sidebar - Tab 3: Timeline",
+              "id": "c6d9de81-95bb-4e87-b4c6-9854ef1115f5",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/sidebar?tab=timeline",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "sidebar"
+                  ],
+                  "query": [
+                    {
+                      "key": "tab",
+                      "value": "timeline"
+                    }
+                  ]
+                },
+                "description": "Tab 3: Program timeline milestones (Group Created, Phase 1 Started, First Coaching Session, 5-Day Streak, upcoming Phase 2 Begins)."
+              },
+              "response": []
+            },
+            {
+              "name": "Get 3-Way Group Sidebar - Tab 4: Members",
+              "id": "1667eb85-5aa4-4dff-9679-6dd65a1c4670",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/sidebar?tab=members",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "sidebar"
+                  ],
+                  "query": [
+                    {
+                      "key": "tab",
+                      "value": "members"
+                    }
+                  ]
+                },
+                "description": "Tab 4: Group members roster: Athlete (with streak/XP and Athlete Hub link), Assigned Coach (specialty, roster capacity, rating), and Founder & Admin."
+              },
+              "response": []
+            },
+            {
+              "name": "Reassign Coach for 3-Way Group",
+              "id": "2cba692a-2271-4812-a96d-daacf6f4bac4",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newCoachId\": \"6acb088d1585cdc26ae1d8b9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups/6ae047d022fe341793a6d3b0/reassign-coach",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups",
+                    "6ae047d022fe341793a6d3b0",
+                    "reassign-coach"
+                  ]
+                },
+                "description": "Reassigns a coach to the 3-way private group, updates athlete record, and posts an informative system message."
+              },
+              "response": []
+            },
+            {
+              "name": "Create / Launch New 3-Way Group (+ NEW)",
+              "id": "b118da84-2a25-42b9-925f-2cadaa909d8a",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6ae0471e037afc3f6810305a\",\n  \"coachId\": \"6acb088d1585cdc26ae1d8b9\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/groups",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "groups"
+                  ]
+                },
+                "description": "+ NEW action: Launches a new 3-way private mentorship group for an athlete, attaches assigned coach and admin, and delivers the initial welcome message."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Announcements (Broadcast Platform Announcement)",
+          "item": [
+            {
+              "name": "Broadcast Platform Announcement (Publish to All Athlete Apps)",
+              "id": "64186ff3-1c4a-4ef9-92f9-e4c11a7b1113",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Regional Mental Performance Cup – Registration Open\",\n  \"content\": \"Sign up for the first-ever DSM Regional Cup! Top 3 players from each region qualify. Closes Aug 15.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/announcements",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "announcements"
+                  ]
+                },
+                "description": "Admin Modal (Broadcast Platform Announcement): Publishes Headline and Body to all athlete apps."
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "id": "dab260fa-9be8-40de-b030-3091c8138adc",

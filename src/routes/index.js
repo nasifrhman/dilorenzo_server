@@ -12,9 +12,27 @@ const communityRoutes = require('../modules/Community/community.route');
 const trainRoutes = require('../modules/Train/train.route');
 const curriculumRoutes = require('../modules/Curriculum/curriculum.route');
 const adminClientRoutes = require('../modules/Admin/admin.client.route');
+const adminGroupsRoutes = require('../modules/Admin/admin.groups.route');
 const notificationRoutes = require('../modules/Notification/notification.route');
+const announcementRoutes = require('../modules/Announcement/announcement.route');
 
 const moduleRoutes = [
+  {
+    path: '/announcement',
+    route: announcementRoutes,
+  },
+  {
+    path: '/announcements',
+    route: announcementRoutes,
+  },
+  {
+    path: '/admin/announcements',
+    route: announcementRoutes,
+  },
+  {
+    path: '/admin/announcement',
+    route: announcementRoutes,
+  },
   {
     path: '/notification',
     route: notificationRoutes,
@@ -98,6 +116,18 @@ const moduleRoutes = [
   {
     path: '/static-contents',
     route: staticContentRoutes
+  },
+  {
+    path: '/admin/groups',
+    route: adminGroupsRoutes
+  },
+  {
+    path: '/admin/messages',
+    route: adminGroupsRoutes
+  },
+  {
+    path: '/admin/direct-messages',
+    route: adminGroupsRoutes
   },
   {
     path: '/admin/clients',

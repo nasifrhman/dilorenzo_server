@@ -21,6 +21,14 @@ const messageSchema = new mongoose.Schema(
     content: { type: String, default: '' },
     mediaUrl: { type: String, default: '' },
     mediaDuration: { type: Number, default: 0 }, // in seconds for voice/video
+    fileName: { type: String, default: '' },
+    fileSize: { type: String, default: '' },
+    fileType: { type: String, default: '' },
+    linkCard: {
+      title: { type: String, default: '' },
+      url: { type: String, default: '' },
+      type: { type: String, default: '' },
+    },
     readBy: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

@@ -2827,30 +2827,34 @@ const getUserCompetePageService = async (userId, query = {}) => {
   const userNation = currentUser.nation || currentUser.nationality;
 
   const filter = {
-    role: 'athlete',
-    isDeleted: false,
+    role: { $in: ['athlete', 'user'] },
+    isDeleted: { $ne: true },
     isBan: { $ne: true },
   };
 
-  if (scope === 'national') {
-    const targetNation = query.nation || userNation;
-    if (targetNation) {
+  if (scope === 'regional') {
+    // Regional: filter by regional zone, club, or league
+    const targetRegion = query.region || userRegion || currentUser.currentClub;
+    if (targetRegion) {
       filter.$or = [
-        { nation: new RegExp(`^${targetNation}$`, 'i') },
-        { nationality: new RegExp(`^${targetNation}$`, 'i') },
+        { region: new RegExp(`^${targetRegion}$`, 'i') },
+        { currentClub: new RegExp(`^${targetRegion}$`, 'i') },
+        { leagueDivision: new RegExp(`^${targetRegion}$`, 'i') },
       ];
     }
-  } else {
-    // Default: regional
-    const targetRegion = query.region || userRegion;
-    if (targetRegion) {
-      filter.region = new RegExp(`^${targetRegion}$`, 'i');
+  } else if (scope === 'national') {
+    // National: if query.nation explicitly provided, filter by that nation; otherwise show nationwide academy leaderboard
+    if (query.nation) {
+      filter.$or = [
+        { nation: new RegExp(`^${query.nation}$`, 'i') },
+        { nationality: new RegExp(`^${query.nation}$`, 'i') },
+      ];
     }
   }
 
   const athletes = await userModel
     .find(filter)
-    .select('fullName xp streak region nation nationality createdAt')
+    .select('fullName xp streak region nation nationality currentClub leagueDivision image createdAt')
     .sort({ xp: -1, streak: -1, createdAt: 1 })
     .lean();
 
@@ -2865,7 +2869,7 @@ const getUserCompetePageService = async (userId, query = {}) => {
     userRankNumber = higherCount + 1;
   }
 
-  // Limit leaderboard to top 7 matching Figma design
+  // Limit leaderboard to top 7 matching design
   const limit = Math.max(1, parseInt(query.limit, 10) || 7);
   const topAthletes = athletes.slice(0, limit);
 
@@ -2873,50 +2877,60 @@ const getUserCompetePageService = async (userId, query = {}) => {
     const rank = idx + 1;
     const isCurrentUser = a._id.toString() === currentUser._id.toString();
 
-    let badge = '';
-    if (rank === 1) badge = '🥇';
-    else if (rank === 2) badge = '🥈';
-    else if (rank === 3) badge = '🥉';
-    else if (rank === 4) badge = '🎖';
-    else if (isCurrentUser) badge = '⭐';
-    else badge = String(rank);
+    let cleanAvatar = null;
+    if (a.image && typeof a.image === 'string' && a.image !== 'user.jpg' && !a.image.endsWith('/user.jpg') && a.image !== 'null') {
+      cleanAvatar = a.image;
+    }
 
-    let name = (a.fullName || '').trim();
-    const nameParts = name.split(/\s+/);
-    if (nameParts.length > 1) {
-      name = `${nameParts[0]} ${nameParts[1].charAt(0).toUpperCase()}.`;
-    }
-    if (isCurrentUser) {
-      name = `${nameParts[0]} (You)`;
-    }
+    const nameParts = (a.fullName || '').trim().split(/\s+/).filter(Boolean);
+    const initials = nameParts.length === 0 ? '' : (nameParts.length === 1 ? nameParts[0].slice(0, 2).toUpperCase() : (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase());
 
     return {
       _id: a._id.toString(),
       rank,
-      badge,
-      name,
-      streak: `🔥 ${a.streak || 0} day streak`,
-      xp: (a.xp || 0).toLocaleString(),
+      badge: String(rank),
+      name: a.fullName || '',
+      initials,
+      avatar: cleanAvatar,
+      streak: a.streak || 0,
+      streakFormatted: `${a.streak || 0} day streak`,
+      xp: a.xp || 0,
+      xpFormatted: (a.xp || 0).toLocaleString(),
+      region: a.region || '',
+      nation: a.nation || '',
+      club: a.currentClub || a.leagueDivision || '',
       isCurrentUser,
     };
   });
 
-  // Top Banner Card: e.g. Rank 5, ALEX, 2,340 XP, 🔥 5 day streak
-  const firstName = (currentUser.fullName || '').trim().split(/\s+/)[0].toUpperCase();
+  // Top Banner Card
   const yourRank = {
     _id: currentUser._id.toString(),
     rank: userRankNumber,
-    name: firstName || currentUser.fullName || '',
-    xp: `${(currentUser.xp || 0).toLocaleString()} XP`,
-    streak: `🔥 ${currentUser.streak || 0} day streak`,
+    name: currentUser.fullName || '',
+    xp: currentUser.xp || 0,
+    xpFormatted: `${(currentUser.xp || 0).toLocaleString()} XP`,
+    streak: currentUser.streak || 0,
+    streakFormatted: `${currentUser.streak || 0} day streak`,
+    region: currentUser.region || '',
+    nation: currentUser.nation || '',
+    club: currentUser.currentClub || currentUser.leagueDivision || '',
   };
 
   // Challenges section (Figma Node 32817:6878)
   const Challenge = require('../Challenge/challenge.model');
+  const ChallengeParticipant = require('../Challenge/challengeParticipant.model');
 
   const challenges = await Challenge.find({ status: { $in: ['active', 'upcoming'] } })
     .sort({ startDate: 1, createdAt: 1 })
     .lean();
+
+  // Query challenges user has joined
+  const userParticipants = await ChallengeParticipant.find({ athlete: currentUser._id }).lean();
+  const participantMap = new Map();
+  userParticipants.forEach((p) => {
+    participantMap.set(p.challenge.toString(), p);
+  });
 
   const challengesList = challenges.map((c) => {
     // Calculate real time left from DB endDate
@@ -2942,20 +2956,47 @@ const getUserCompetePageService = async (userId, query = {}) => {
     if (timeLeft) subtitleParts.push(timeLeft);
     const subtitle = subtitleParts.join(' · ');
 
+    const participant = participantMap.get(c._id.toString());
+    const isJoined = Boolean(participant) ||
+      (Array.isArray(c.assignedAthletes) && c.assignedAthletes.some((id) => id.toString() === currentUser._id.toString()));
+
     return {
       _id: c._id.toString(),
+      id: c._id.toString(),
       icon: c.icon || '🏆',
       title: c.title,
+      description: c.description || '',
+      category: c.category || 'mental',
+      difficulty: c.difficulty || 'medium',
+      xpGoal: c.xpGoal || 300,
+      rewardBadge: c.rewardBadge || '',
+      rewardTrophy: c.rewardTrophy || '',
       subtitle,
+      timeLeft,
+      isJoined,
+      joined: isJoined,
+      status: isJoined ? 'joined' : (c.status || 'active'),
+      earnedXp: participant ? participant.earnedXp : 0,
+      completedActivities: participant ? participant.completedActivities : [],
+      isGoalReached: participant ? participant.isGoalReached : false,
+      participantCount: Array.isArray(c.assignedAthletes) ? c.assignedAthletes.length : 0,
+      startDate: c.startDate,
+      endDate: c.endDate,
     };
   });
+
+  const myChallenges = challengesList.filter((c) => c.isJoined);
+  const availableChallenges = challengesList.filter((c) => !c.isJoined);
 
   return {
     yourRank,
     scope,
     leaderboard,
     challenges: challengesList,
+    myChallenges,
+    availableChallenges,
   };
+
 };
 
 /**
