@@ -15,8 +15,25 @@ const adminClientRoutes = require('../modules/Admin/admin.client.route');
 const adminGroupsRoutes = require('../modules/Admin/admin.groups.route');
 const notificationRoutes = require('../modules/Notification/notification.route');
 const announcementRoutes = require('../modules/Announcement/announcement.route');
+const paymentRoutes = require('../modules/Payment/payment.route');
 
 const moduleRoutes = [
+  {
+    path: '/subscription',
+    route: paymentRoutes,
+  },
+  {
+    path: '/subscriptions',
+    route: paymentRoutes,
+  },
+  {
+    path: '/payment',
+    route: paymentRoutes,
+  },
+  {
+    path: '/payments',
+    route: paymentRoutes,
+  },
   {
     path: '/announcement',
     route: announcementRoutes,

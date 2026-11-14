@@ -22,7 +22,13 @@ const app = express();
 
 
 // Body Parsers
-app.use(express.json()); // JSON
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+); // JSON with rawBody preserved for Stripe webhook verification
 app.use(bodyParser.urlencoded({ extended: true })); // form submissions
 
 // const flutterwaveWebhook = require("./helpers/flutterWaveWebhook");

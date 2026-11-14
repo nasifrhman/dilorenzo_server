@@ -4368,6 +4368,151 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Subscription",
+          "id": "5658d37d-5958-40ef-a482-89107cd40c67",
+          "description": "Subscription APIs: see all plans, see my plan, and purchase plan using Stripe.",
+          "item": [
+            {
+              "name": "1. Get All Plans",
+              "id": "4065c6d0-5b0a-48bd-94a3-2e77c1d610f5",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/plans",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "plans"
+                  ]
+                },
+                "description": "See all subscription plans (Free and Academy with features, price £4.99/mo, and 7-day trial)."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Get My Plan",
+              "id": "7842de13-cf09-409d-941b-01071f506d4d",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/my-plan",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "my-plan"
+                  ]
+                },
+                "description": "See authenticated user current plan, status, trial state, and renewal date."
+              },
+              "response": []
+            },
+            {
+              "name": "3. Purchase Plan",
+              "id": "75740a50-57dd-4b41-a475-af7094d567f8",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"planId\": \"academy-monthly\",\n  \"paymentMethodId\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/purchase",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "purchase"
+                  ]
+                },
+                "description": "Purchase Academy plan using Stripe. Pass paymentMethodId for mobile direct payment, or leave empty to get a Stripe Checkout URL."
+              },
+              "response": []
+            },
+            {
+              "name": "4. Stripe Webhook Listener",
+              "id": "824ad045-b1ba-4059-a430-95ba42f8e77c",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Stripe-Signature",
+                    "value": "t=1700000000,v1=test_sig"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"mode\": \"subscription\",\n      \"customer\": \"cus_test\",\n      \"subscription\": \"sub_test\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/webhook",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "webhook"
+                  ]
+                },
+                "description": "Stripe webhook event listener to handle asynchronous subscription activations, renewals, and cancellations."
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "id": "b4d1dbf1-673f-453c-a4fc-d4e5dcc2556f",
