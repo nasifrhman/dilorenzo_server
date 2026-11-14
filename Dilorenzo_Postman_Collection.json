@@ -4372,11 +4372,11 @@
         {
           "name": "Subscription",
           "id": "5658d37d-5958-40ef-a482-89107cd40c67",
-          "description": "Subscription APIs: see all plans, see my plan, and purchase plan using Stripe.",
+          "description": "Subscription & Mentorship purchase flows handled through Stripe.",
           "item": [
             {
-              "name": "1. Get All Plans",
-              "id": "4065c6d0-5b0a-48bd-94a3-2e77c1d610f5",
+              "name": "1. Get All Plans (App Subscription & 90-Day Mentorship)",
+              "id": "4be84a7b-111e-43b3-ad4b-46fa4de8ecf3",
               "request": {
                 "method": "GET",
                 "header": [
@@ -4397,13 +4397,13 @@
                     "plans"
                   ]
                 },
-                "description": "See all subscription plans (Free and Academy with features, price £4.99/mo, and 7-day trial)."
+                "description": "See all plans matching the Upgrade screen: App Subscription (Monthly £7.99, Annual £59.99 with 7-day free trial & comparison table) and 90-Day Mentorship Elite Program (£450.00)."
               },
               "response": []
             },
             {
-              "name": "2. Get My Plan",
-              "id": "7842de13-cf09-409d-941b-01071f506d4d",
+              "name": "2. Get My Plan & Status",
+              "id": "6dc537e0-e1b2-4b2e-87e9-aed0dbb87f52",
               "request": {
                 "method": "GET",
                 "header": [
@@ -4428,13 +4428,13 @@
                     "my-plan"
                   ]
                 },
-                "description": "See authenticated user current plan, status, trial state, and renewal date."
+                "description": "Returns authenticated user's active tier, app subscription status, trial status (isTrialActive, trialDaysRemaining), and 90-day mentorship progress if enrolled."
               },
               "response": []
             },
             {
-              "name": "3. Purchase Plan",
-              "id": "75740a50-57dd-4b41-a475-af7094d567f8",
+              "name": "3. Purchase App Subscription (Monthly £7.99 / Annual £59.99 with 7-Day Trial)",
+              "id": "ed28bc0b-c306-43b9-ac5b-7ada2a6addfa",
               "request": {
                 "method": "POST",
                 "header": [
@@ -4449,7 +4449,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"planId\": \"academy-monthly\",\n  \"paymentMethodId\": \"\"\n}",
+                  "raw": "{\n  \"planId\": \"app-subscription-monthly\",\n  \"paymentMethodId\": \"\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -4468,13 +4468,53 @@
                     "purchase"
                   ]
                 },
-                "description": "Purchase Academy plan using Stripe. Pass paymentMethodId for mobile direct payment, or leave empty to get a Stripe Checkout URL."
+                "description": "Purchases the DSM Academy App Subscription via Stripe. Pass paymentMethodId for mobile direct card entry, or leave empty to receive a hosted Stripe Checkout URL."
               },
               "response": []
             },
             {
-              "name": "4. Stripe Webhook Listener",
-              "id": "824ad045-b1ba-4059-a430-95ba42f8e77c",
+              "name": "4. Purchase 90-Day Mentorship Program (£450.00 via Stripe)",
+              "id": "f5beefb5-811a-431c-91fe-cd0d06ff3430",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"planId\": \"90-day-mentorship\",\n  \"paymentMethodId\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/purchase",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "purchase"
+                  ]
+                },
+                "description": "Purchases the 90-Day Mentorship Elite Admission (£450.00) via Stripe. Grants tier: \"90-day-mentorship\", sets up Day 1 to 90 progression, and records payment."
+              },
+              "response": []
+            },
+            {
+              "name": "5. Stripe Webhook Listener",
+              "id": "1aa43c18-d302-455a-860e-5a544f6c12a9",
               "request": {
                 "method": "POST",
                 "header": [
@@ -4508,7 +4548,7 @@
                     "webhook"
                   ]
                 },
-                "description": "Stripe webhook event listener to handle asynchronous subscription activations, renewals, and cancellations."
+                "description": "Stripe webhook event listener to handle asynchronous subscription activations, renewals, cancellations, and mentorship payments."
               },
               "response": []
             }
