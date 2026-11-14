@@ -17,75 +17,59 @@ const getStripe = () => {
   return new Stripe(secretKey);
 };
 
-// All Available Plans matching the design (Figma Upgrade screen)
-const PLANS = {
-  appSubscription: {
-    category: 'DSM ACADEMY APP',
-    title: 'APP SUBSCRIPTION',
-    subtitle: 'Gamification · Training content · Challenges · Leaderboards',
-    footnote: 'Does not include 1-on-1 coaching · Cancel anytime',
-    monthly: {
-      id: 'app-subscription-monthly',
-      name: 'Monthly App Subscription',
-      price: 7.99,
-      currency: 'GBP',
-      currencySymbol: '£',
-      interval: 'month',
-      trialDays: 7,
-      buttonText: 'START 7-DAY FREE TRIAL',
-      formattedPrice: '£7.99/month',
-    },
-    annual: {
-      id: 'app-subscription-annual',
-      name: 'Annual App Subscription',
-      price: 59.99,
-      currency: 'GBP',
-      currencySymbol: '£',
-      interval: 'year',
-      trialDays: 7,
-      discountText: 'save 37%',
-      formattedPrice: '£59.99/year — save 37%',
-    },
-    featuresComparison: [
-      { feature: 'Daily Missions & XP', free: true, pro: true },
-      { feature: 'Community Feed', free: true, pro: true },
-      { feature: 'Leaderboard & Challenges', free: true, pro: true },
-      { feature: 'Training Program', free: false, pro: true },
-      { feature: 'Rewards Wallet', free: false, pro: true },
-      { feature: 'Parent Dashboard', free: false, pro: true },
-      { feature: 'Priority Support', free: false, pro: true },
-      { feature: '1-on-1 Coach (Mentorship only)', free: false, pro: false },
+// Clean Production Subscription & Mentorship Plans (Feature & Price only)
+const PLANS = [
+  {
+    id: 'app-subscription-monthly',
+    name: 'Monthly Pro',
+    price: 7.99,
+    currency: 'GBP',
+    interval: 'month',
+    trialDays: 7,
+    features: [
+      'Daily Missions & XP',
+      'Community Feed',
+      'Leaderboard & Challenges',
+      'Training Program',
+      'Rewards Wallet',
+      'Parent Dashboard',
+      'Priority Support',
     ],
   },
-  mentorship: {
-    category: 'ELITE PROGRAM',
-    title: '90-DAY MENTORSHIP',
-    subtitle:
-      'A high-ticket, high-accountability 1-on-1 mentorship program. Selective admission. Personal coach assigned by our team.',
+  {
+    id: 'app-subscription-annual',
+    name: 'Annual Pro',
+    price: 59.99,
+    currency: 'GBP',
+    interval: 'year',
+    trialDays: 7,
+    features: [
+      'Daily Missions & XP',
+      'Community Feed',
+      'Leaderboard & Challenges',
+      'Training Program',
+      'Rewards Wallet',
+      'Parent Dashboard',
+      'Priority Support',
+    ],
+  },
+  {
     id: '90-day-mentorship',
-    name: '90-Day Mentorship Elite Program',
+    name: '90-Day Mentorship',
     price: 450.0,
     currency: 'GBP',
-    currencySymbol: '£',
-    type: 'one-time',
-    buttonText: 'LEARN MORE & APPLY →',
-    formattedPrice: '£450.00 one-off',
-    pills: [
-      'Assigned Coach',
-      'Private Group',
-      'Action Steps',
-      'Personalized Training',
-    ],
+    interval: 'one-time',
+    trialDays: 0,
     features: [
       'Dedicated 1-on-1 High-Performance Mindset Coach',
       'Private 3-Way Group (Athlete, Coach, Parent)',
-      '90-Day Step-by-Step Curriculum Roadmap (Days 1–90)',
+      '90-Day Step-by-Step Curriculum Roadmap',
       'Personalized Action Steps & Habit Auditing',
       'Match Mentality Audits & 1-on-1 Video Calls',
       'Full App Subscription Pro Access Included',
     ],
   },
-};
+];
 
 // Helper: Find or create Stripe Customer
 const getOrCreateStripeCustomer = async (user, stripeInstance) => {
@@ -112,12 +96,15 @@ const getOrCreateStripeCustomer = async (user, stripeInstance) => {
   return customer.id;
 };
 
-// Helper: Resolve or Create Stripe Price for Monthly (£7.99/mo) or Annual (£59.99/yr)
+// Helper: Resolve or Create Stripe Price for Academy (£4.99/mo), Monthly (£7.99/mo) or Annual (£59.99/yr)
 const getOrCreateStripePriceId = async (stripeInstance, planKey) => {
+  const isAcademy = planKey === 'academy-monthly' || planKey === 'academy';
   const isAnnual = planKey === 'app-subscription-annual' || planKey === 'annual';
-  const unitAmount = isAnnual ? 5999 : 799; // £59.99 or £7.99 in pence
+  const unitAmount = isAcademy ? 499 : (isAnnual ? 5999 : 799); // £4.99, £59.99, or £7.99 in pence
   const interval = isAnnual ? 'year' : 'month';
-  const envPriceId = isAnnual
+  const envPriceId = isAcademy
+    ? process.env.STRIPE_PRICE_ID_ACADEMY_MONTHLY
+    : isAnnual
     ? process.env.STRIPE_PRICE_ID_APP_ANNUAL
     : process.env.STRIPE_PRICE_ID_APP_MONTHLY;
 
@@ -140,8 +127,14 @@ const getOrCreateStripePriceId = async (stripeInstance, planKey) => {
 
   if (existing) return existing.id;
 
+  const productName = isAcademy
+    ? 'Academy Membership'
+    : isAnnual
+    ? 'DSM Academy App (Annual Pro)'
+    : 'DSM Academy App (Monthly Pro)';
+
   const product = await stripeInstance.products.create({
-    name: isAnnual ? 'DSM Academy App (Annual Pro)' : 'DSM Academy App (Monthly Pro)',
+    name: productName,
     description: 'Gamification · Training content · Challenges · Leaderboards · Parent Dashboard',
   });
 
