@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { status } = require('http-status');
+const ApiError = require('../../helpers/ApiError');
 const User = require('../User/user.model');
 const Session = require('../Session/session.model');
 const ActionStep = require('../ActionStep/actionStep.model');
@@ -238,8 +240,11 @@ const getCoachDashboardOverviewService = async (query = {}) => {
     .lean();
 
   const recentActivity = recentActionSteps.map((act) => {
+    const athleteId = act.athlete?._id ? act.athlete._id.toString() : (act.athlete ? act.athlete.toString() : '');
     return {
       id: act._id.toString(),
+      playerId: athleteId,
+      athleteId,
       name: act.athlete?.fullName || act.athleteName || '',
       avatarEmoji: '',
       action: act.title ? `${act.title} (${act.status || ''})` : (act.status || ''),
@@ -257,15 +262,23 @@ const getCoachDashboardOverviewService = async (query = {}) => {
     upcomingFilter.coach = athleteFilter.assignedCoach;
   }
 
-  const dbUpcomingSessions = await Session.find(upcomingFilter).sort({ date: 1, startTime: 1 }).limit(5).lean();
+  const dbUpcomingSessions = await Session.find(upcomingFilter)
+    .populate('athlete', 'fullName image')
+    .sort({ date: 1, startTime: 1 })
+    .limit(5)
+    .lean();
 
   const upcomingSessions = dbUpcomingSessions.map((s) => {
     const isToday = s.date && new Date(s.date).toDateString() === new Date().toDateString();
     const dayStr = isToday ? 'Today' : (s.date ? new Date(s.date).toLocaleDateString('en-US', { weekday: 'short' }) : '');
     const timeParts = [dayStr, s.startTime, s.title].filter(Boolean);
+    const athleteId = s.athlete?._id ? s.athlete._id.toString() : (s.athlete ? s.athlete.toString() : '');
+    const athleteName = s.athlete?.fullName || s.athleteName || '';
     return {
       id: s._id.toString(),
-      athleteName: s.athleteName || '',
+      playerId: athleteId,
+      athleteId,
+      athleteName,
       timeLabel: timeParts.join(' · '),
       canJoin: isToday && Boolean(s.meetingLink),
       platform: s.platform || '',
@@ -790,7 +803,12 @@ const getCoachSessionsOverviewService = async (query = {}) => {
 
     const item = {
       _id: s._id.toString(),
+      playerId: (s.athlete || a?._id)?.toString() || '',
       athleteId: (s.athlete || a?._id)?.toString() || '',
+      player: {
+        _id: (s.athlete || a?._id)?.toString() || '',
+        name: athleteName,
+      },
       athleteName,
       initials,
       avatar,
@@ -808,11 +826,22 @@ const getCoachSessionsOverviewService = async (query = {}) => {
     return item;
   };
 
+  const upcoming = upcomingList.map((s) => formatSessionItem(s, true));
+  const completed = completedList.map((s) => formatSessionItem(s, false));
+
+  let filteredList = [...upcoming, ...completed];
+  if (query.status === 'upcoming') {
+    filteredList = upcoming;
+  } else if (query.status === 'completed') {
+    filteredList = completed;
+  }
+
   return {
     subheading: 'SCHEDULE',
     heading: 'COACHING SESSIONS',
-    upcoming: upcomingList.map((s) => formatSessionItem(s, true)),
-    completed: completedList.map((s) => formatSessionItem(s, false)),
+    sessions: filteredList,
+    upcoming,
+    completed,
   };
 };
 
@@ -1060,8 +1089,12 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     const timeParts = [dateStr, nextSessionDoc.startTime].filter(Boolean);
     upcomingSession = {
       _id: nextSessionDoc._id.toString(),
+      playerId: athleteDoc._id.toString(),
+      athleteId: athleteDoc._id.toString(),
       title: nextSessionDoc.title || '',
       time: timeParts.join(' · ') || '',
+      startTime: nextSessionDoc.startTime || '',
+      dateTime: nextSessionDoc.dateTime || nextSessionDoc.date || null,
       meetingLink: nextSessionDoc.meetingLink || '',
       canJoin: Boolean(nextSessionDoc.meetingLink) && nextSessionDoc.status === 'scheduled',
     };
@@ -1072,6 +1105,7 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
   if (athleteDoc.achievements && Array.isArray(athleteDoc.achievements) && athleteDoc.achievements.length > 0) {
     athleteDoc.achievements.slice(0, 3).forEach((ach) => {
       recentAchievements.push({
+        playerId: athleteDoc._id.toString(),
         title: ach.title || ach.name || '',
       });
     });
@@ -1088,6 +1122,7 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     completedChallenges.forEach((cp) => {
       if (cp.challenge?.title) {
         recentAchievements.push({
+          playerId: athleteDoc._id.toString(),
           title: cp.challenge.title,
         });
       }
@@ -1419,13 +1454,13 @@ const getAthleteActionStepsService = async (athleteId, query = {}) => {
  * Get Action Step Detail by ID
  */
 const getActionStepDetailService = async (actionStepId) => {
-  if (!mongoose.Types.ObjectId.isValid(actionStepId)) {
-    throw new Error('Invalid Action Step ID');
+  if (!actionStepId || !mongoose.Types.ObjectId.isValid(actionStepId)) {
+    throw new ApiError(status.NOT_FOUND, 'Action step not found');
   }
 
   const as = await ActionStep.findById(actionStepId).lean();
   if (!as) {
-    throw new Error('Action step not found');
+    throw new ApiError(status.NOT_FOUND, 'Action step not found');
   }
 
   const submittedDate = as.submittedAt || as.createdAt;
@@ -1644,8 +1679,8 @@ const getAthleteFeedbackService = async (athleteId, query = {}) => {
  * Get Feedback Detail by ID
  */
 const getFeedbackDetailService = async (feedbackId) => {
-  if (!mongoose.Types.ObjectId.isValid(feedbackId)) {
-    throw new Error('Invalid Feedback ID');
+  if (!feedbackId || !mongoose.Types.ObjectId.isValid(feedbackId)) {
+    throw new ApiError(status.NOT_FOUND, 'Feedback not found');
   }
 
   const fb = await CoachFeedback.findById(feedbackId)
@@ -1653,7 +1688,7 @@ const getFeedbackDetailService = async (feedbackId) => {
     .lean();
 
   if (!fb) {
-    throw new Error('Feedback not found');
+    throw new ApiError(status.NOT_FOUND, 'Feedback not found');
   }
 
   return {
@@ -1977,8 +2012,8 @@ const getAthleteProgressService = async (athleteId, query = {}) => {
  * Get Athlete Group 3-Way Chat (Dedicated API)
  */
 const getAthleteGroupChatService = async (athleteId) => {
-  if (!mongoose.Types.ObjectId.isValid(athleteId)) {
-    throw new Error('Invalid Athlete ID');
+  if (!athleteId || !mongoose.Types.ObjectId.isValid(athleteId)) {
+    throw new ApiError(status.NOT_FOUND, 'Athlete not found');
   }
 
   let chatRoom = await ChatRoom.findOne({
@@ -1987,6 +2022,25 @@ const getAthleteGroupChatService = async (athleteId) => {
   })
     .populate('participants', 'fullName role email')
     .lean();
+
+  if (!chatRoom) {
+    const athlete = await User.findById(athleteId).lean();
+    if (athlete) {
+      const coach = athlete.assignedCoach ? await User.findById(athlete.assignedCoach).lean() : null;
+      const parent = athlete.parent ? await User.findById(athlete.parent).lean() : null;
+      const created = await ChatRoom.create({
+        name: athlete.fullName ? `${athlete.fullName}'s Coaching Group` : 'Coaching Group',
+        type: '3-way',
+        athlete: athleteId,
+        coach: coach?._id || null,
+        parent: parent?._id || null,
+        participants: [athleteId, coach?._id, parent?._id].filter(Boolean),
+      });
+      chatRoom = await ChatRoom.findById(created._id)
+        .populate('participants', 'fullName role email')
+        .lean();
+    }
+  }
 
   let groupMessages = [];
   let members = [];
@@ -2000,16 +2054,25 @@ const getAthleteGroupChatService = async (athleteId) => {
     groupMessages = rawMsgs.map((m) => {
       const senderRole = m.sender?.role || '';
       const roleBadge = senderRole ? senderRole.toUpperCase() : '';
+      const text = m.content || '';
 
       return {
         _id: m._id.toString(),
+        text,
+        content: text,
+        createdAt: m.createdAt,
+        sender: {
+          _id: m.sender?._id?.toString() || null,
+          name: m.sender?.fullName || '',
+          role: senderRole,
+        },
         senderId: m.sender?._id?.toString() || null,
         senderName: m.sender?.fullName || '',
         senderRole,
         roleBadge,
         avatarEmoji: '',
-        content: m.content || '',
         messageType: m.messageType || 'text',
+        mediaUrl: m.mediaUrl || '',
         timeLabel: m.createdAt ? new Date(m.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '',
         dateLabel: formatReadableDate(m.createdAt),
       };
@@ -2038,6 +2101,7 @@ const getAthleteGroupChatService = async (athleteId) => {
       messages: groupMessages,
     },
     chatRoomId: chatRoom?._id?.toString() || null,
+    name: chatRoom?.name || '',
     members,
     messages: groupMessages,
   };
@@ -2079,6 +2143,9 @@ const createAthleteHabitService = async (athleteId, data, coachId = null) => {
     timesPerWeek = 7,
     startDate = new Date(),
     category = 'mindset',
+    checkInWindow = 'Morning',
+    cue = '',
+    instructions = '',
     xpReward = 10,
     completion = 0,
     completionRate = 0,
@@ -2096,6 +2163,9 @@ const createAthleteHabitService = async (athleteId, data, coachId = null) => {
     frequency,
     days: days || (frequency === 'Daily' ? 'Every day' : ''),
     timesPerWeek: Number(timesPerWeek) || 7,
+    checkInWindow: checkInWindow || 'Morning',
+    cue: cue || instructions || '',
+    instructions: instructions || cue || '',
     completionRate: Number(completion || completionRate) || 0,
     category,
     xpReward: Number(xpReward) || 10,
@@ -2114,6 +2184,10 @@ const createAthleteHabitService = async (athleteId, data, coachId = null) => {
     title: newHabit.title,
     frequency: newHabit.frequency,
     days: newHabit.days,
+    timesPerWeek: newHabit.timesPerWeek,
+    checkInWindow: newHabit.checkInWindow,
+    cue: newHabit.cue,
+    instructions: newHabit.instructions,
     completion: newHabit.completionRate || 0,
     status: newHabit.status,
     isActive: newHabit.isActive,
@@ -2136,6 +2210,12 @@ const updateAthleteHabitService = async (habitId, data) => {
   if (data.title || data.habit) habitDoc.title = data.title || data.habit;
   if (data.frequency) habitDoc.frequency = data.frequency;
   if (data.days) habitDoc.days = data.days;
+  if (data.timesPerWeek) habitDoc.timesPerWeek = Number(data.timesPerWeek);
+  if (data.checkInWindow) habitDoc.checkInWindow = data.checkInWindow;
+  if (data.cue || data.instructions) {
+    habitDoc.cue = data.cue || data.instructions;
+    habitDoc.instructions = data.instructions || data.cue;
+  }
   if (typeof data.completion === 'number') habitDoc.completionRate = data.completion;
   if (typeof data.completionRate === 'number') habitDoc.completionRate = data.completionRate;
   if (data.status) {
@@ -2155,6 +2235,10 @@ const updateAthleteHabitService = async (habitId, data) => {
     title: habitDoc.title,
     frequency: habitDoc.frequency,
     days: habitDoc.days,
+    timesPerWeek: habitDoc.timesPerWeek,
+    checkInWindow: habitDoc.checkInWindow,
+    cue: habitDoc.cue,
+    instructions: habitDoc.instructions,
     completion: habitDoc.completionRate || 0,
     status: habitDoc.status,
     isActive: habitDoc.isActive,
@@ -2505,10 +2589,11 @@ const createCoachSessionService = async (athleteId, data, coachId = null) => {
 
 /**
  * 11. Send 3-Way Group Message (Figma node 33086:8034)
+ * Supports text, voice notes, video attachments, and images via multipart upload or JSON mediaUrl.
  */
-const sendAthleteGroupMessageService = async (athleteId, data, senderId = null) => {
-  if (!mongoose.Types.ObjectId.isValid(athleteId)) {
-    throw new Error('Invalid Athlete ID');
+const sendAthleteGroupMessageService = async (athleteId, data = {}, senderId = null, files = []) => {
+  if (!athleteId || !mongoose.Types.ObjectId.isValid(athleteId)) {
+    throw new ApiError(status.NOT_FOUND, 'Invalid Athlete ID');
   }
 
   let chatRoom = await ChatRoom.findOne({
@@ -2530,29 +2615,75 @@ const sendAthleteGroupMessageService = async (athleteId, data, senderId = null) 
     });
   }
 
-  const { content, messageType = 'text', mediaUrl = '' } = data;
-  if (!content && !mediaUrl) {
-    throw new Error('Message content is required');
+  let uploadedMediaUrl = data.mediaUrl || '';
+  let resolvedMessageType = data.messageType || 'text';
+
+  const firstFile = Array.isArray(files) && files.length > 0 ? files[0] : (files && files.filename ? files : null);
+  if (firstFile && firstFile.filename) {
+    uploadedMediaUrl = `/uploads/chat/${firstFile.filename}`;
+    const mime = (firstFile.mimetype || '').toLowerCase();
+    if (mime.startsWith('audio/') || firstFile.filename.match(/\.(mp3|m4a|wav|aac|ogg|webm)$/i)) {
+      resolvedMessageType = 'voice';
+    } else if (mime.startsWith('video/') || firstFile.filename.match(/\.(mp4|mov|avi|webm)$/i)) {
+      resolvedMessageType = 'video';
+    } else if (mime.startsWith('image/') || firstFile.filename.match(/\.(jpg|jpeg|png|webp|gif|heic)$/i)) {
+      resolvedMessageType = 'image';
+    } else {
+      resolvedMessageType = 'file';
+    }
+  }
+
+  let content = data.content || data.text || data.message || '';
+  if (!content && uploadedMediaUrl) {
+    if (resolvedMessageType === 'voice') content = 'Voice message';
+    else if (resolvedMessageType === 'image') content = 'Photo';
+    else if (resolvedMessageType === 'video') content = 'Video';
+    else content = 'Attachment';
+  }
+
+  if (!content && !uploadedMediaUrl) {
+    throw new ApiError(status.BAD_REQUEST, 'Message text or attachment is required');
   }
 
   let sender = senderId;
   if (!sender || !mongoose.Types.ObjectId.isValid(sender)) {
-    throw new Error('Valid sender ID is required');
+    throw new ApiError(status.BAD_REQUEST, 'Valid sender ID is required');
   }
 
   const message = await Message.create({
     chatRoom: chatRoom._id,
     sender,
-    messageType,
+    messageType: resolvedMessageType,
     content,
-    mediaUrl,
+    mediaUrl: uploadedMediaUrl,
   });
 
   chatRoom.lastMessage = message._id;
   chatRoom.lastMessageAt = new Date();
   await chatRoom.save();
 
-  return message;
+  const populated = await Message.findById(message._id)
+    .populate('sender', 'fullName role')
+    .lean();
+
+  return {
+    _id: populated._id.toString(),
+    text: populated.content || '',
+    content: populated.content || '',
+    createdAt: populated.createdAt,
+    sender: {
+      _id: populated.sender?._id?.toString() || null,
+      name: populated.sender?.fullName || '',
+      role: populated.sender?.role || '',
+    },
+    senderId: populated.sender?._id?.toString() || null,
+    senderName: populated.sender?.fullName || '',
+    senderRole: populated.sender?.role || '',
+    messageType: populated.messageType || 'text',
+    mediaUrl: populated.mediaUrl || '',
+    timeLabel: new Date(populated.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    dateLabel: formatReadableDate(populated.createdAt),
+  };
 };
 
 /**
@@ -2571,6 +2702,202 @@ const getCoachesSimpleListService = async () => {
     name: coach.fullName || '',
     image: coach.image || 'user.jpg',
   }));
+};
+
+/**
+ * Bulk Assign Video to multiple players
+ */
+const bulkAssignVideoService = async (videoId, playerIds = [], dueDate = null, coachId = null) => {
+  const LibraryItem = require('../Library/library.model');
+  const TrainingAssignment = require('./trainingAssignment.model');
+
+  let videoTitle = 'Video Drill';
+  let videoUrl = '';
+  let duration = '15 min';
+
+  if (videoId && mongoose.Types.ObjectId.isValid(videoId)) {
+    const video = await LibraryItem.findById(videoId).lean();
+    if (video) {
+      videoTitle = video.title || videoTitle;
+      videoUrl = video.videoUrl || video.video || '';
+      duration = video.duration || duration;
+    }
+  }
+
+  const athleteIds = Array.isArray(playerIds) ? playerIds : [playerIds].filter(Boolean);
+  let assignedCount = 0;
+
+  for (const athleteId of athleteIds) {
+    if (mongoose.Types.ObjectId.isValid(athleteId)) {
+      await TrainingAssignment.create({
+        athlete: athleteId,
+        coach: coachId && mongoose.Types.ObjectId.isValid(coachId) ? coachId : null,
+        title: videoTitle,
+        videoUrl,
+        duration,
+        category: 'Mental',
+        status: 'assigned',
+        dueDate: dueDate ? new Date(dueDate) : null,
+      });
+      assignedCount++;
+    }
+  }
+
+  return {
+    assignedCount,
+    message: `Video successfully assigned to ${assignedCount} player(s).`,
+  };
+};
+
+/**
+ * Graduate Player Phase (90-Day Mentorship)
+ * Evaluates 4 criteria:
+ * 1. 30+ day streak
+ * 2. Habit consistency above 75%
+ * 3. 5+ reviewed action steps
+ * 4. Coach sign-off
+ */
+const graduatePlayerPhaseService = async (athleteId, data = {}, coachId = null) => {
+  if (!mongoose.Types.ObjectId.isValid(athleteId)) {
+    throw new Error('Invalid Athlete ID');
+  }
+
+  const athlete = await User.findById(athleteId);
+  if (!athlete) {
+    throw new Error('Athlete not found');
+  }
+
+  const Habit = require('../Habit/habit.model');
+  const ActionStep = require('../ActionStep/actionStep.model');
+
+  const streak = athlete.streak || 0;
+  const habits = await Habit.find({ assignedAthletes: athleteId, isActive: true }).lean();
+  const avgHabitRate = habits.length > 0
+    ? habits.reduce((acc, h) => acc + (h.completionRate || 0), 0) / habits.length
+    : 0;
+  const reviewedStepsCount = await ActionStep.countDocuments({
+    athlete: athleteId,
+    status: { $in: ['reviewed', 'completed'] },
+  });
+
+  const failedCriteria = [];
+  if (streak < 30) failedCriteria.push(`Streak must be 30+ days (currently ${streak} days)`);
+  if (avgHabitRate < 75) failedCriteria.push(`Habit consistency must be above 75% (currently ${Math.round(avgHabitRate)}%)`);
+  if (reviewedStepsCount < 5) failedCriteria.push(`Must have at least 5 reviewed action steps (currently ${reviewedStepsCount})`);
+
+  // If coach explicitly forces sign-off (data.coachSignOff = true) or all criteria pass
+  const isCoachSignOff = Boolean(data.coachSignOff !== false);
+  if (!isCoachSignOff) {
+    failedCriteria.push('Coach sign-off is required');
+  }
+
+  if (failedCriteria.length > 0 && !data.force) {
+    const error = new Error(`Cannot graduate phase. Missing criteria: ${failedCriteria.join('; ')}`);
+    error.statusCode = 400;
+    error.failedCriteria = failedCriteria;
+    throw error;
+  }
+
+  const phaseProgression = {
+    foundation: 'acceleration',
+    acceleration: 'mastery',
+    mastery: 'mastery',
+  };
+
+  const currentPhase = athlete.mentorshipPhase || 'foundation';
+  const nextPhase = data.nextPhase || phaseProgression[currentPhase] || 'acceleration';
+  const xpReward = Number(data.xpReward) || 500;
+
+  athlete.mentorshipPhase = nextPhase;
+  athlete.xp = (athlete.xp || 0) + xpReward;
+  await athlete.save();
+
+  return {
+    athleteId: athlete._id.toString(),
+    athleteName: athlete.fullName,
+    previousPhase: currentPhase,
+    currentPhase: athlete.mentorshipPhase,
+    xpAwarded: xpReward,
+    totalXp: athlete.xp,
+    message: `Congratulations! ${athlete.fullName} successfully graduated to ${nextPhase} phase.`,
+  };
+};
+
+/**
+ * Get All Action Steps for Coach across all players (Section C)
+ */
+const getAllCoachActionStepsService = async (query = {}, coachId = null) => {
+  const ActionStep = require('../ActionStep/actionStep.model');
+  const filter = {};
+  if (query.status) {
+    filter.status = query.status;
+  }
+  if (coachId && mongoose.Types.ObjectId.isValid(coachId)) {
+    filter.coach = coachId;
+  }
+
+  const steps = await ActionStep.find(filter)
+    .populate('athlete', 'fullName image')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return steps.map((s) => {
+    const athlete = s.athlete || {};
+    return {
+      _id: s._id.toString(),
+      title: s.title || '',
+      description: s.description || '',
+      dueDate: s.dueDate || null,
+      status: s.status || 'assigned',
+      submittedAt: s.submittedAt || null,
+      playerId: athlete._id ? athlete._id.toString() : '',
+      player: {
+        _id: athlete._id ? athlete._id.toString() : '',
+        name: athlete.fullName || 'Athlete',
+      },
+    };
+  });
+};
+
+/**
+ * Get Coach Preferences
+ */
+const getCoachPreferencesService = async (coachId) => {
+  if (!coachId || !mongoose.Types.ObjectId.isValid(coachId)) {
+    throw new Error('Valid Coach ID required');
+  }
+
+  const coach = await User.findById(coachId).select('coachPreferences').lean();
+  return coach?.coachPreferences || {
+    actionSteps: true,
+    tasks: true,
+    messages: true,
+    sessions: true,
+  };
+};
+
+/**
+ * Update Coach Preferences
+ */
+const updateCoachPreferencesService = async (coachId, data = {}) => {
+  if (!coachId || !mongoose.Types.ObjectId.isValid(coachId)) {
+    throw new Error('Valid Coach ID required');
+  }
+
+  const coach = await User.findById(coachId);
+  if (!coach) {
+    throw new Error('Coach not found');
+  }
+
+  coach.coachPreferences = {
+    actionSteps: typeof data.actionSteps === 'boolean' ? data.actionSteps : (coach.coachPreferences?.actionSteps ?? true),
+    tasks: typeof data.tasks === 'boolean' ? data.tasks : (coach.coachPreferences?.tasks ?? true),
+    messages: typeof data.messages === 'boolean' ? data.messages : (coach.coachPreferences?.messages ?? true),
+    sessions: typeof data.sessions === 'boolean' ? data.sessions : (coach.coachPreferences?.sessions ?? true),
+  };
+
+  await coach.save();
+  return coach.coachPreferences;
 };
 
 module.exports = {
@@ -2608,4 +2935,9 @@ module.exports = {
   createCoachSessionService,
   sendAthleteGroupMessageService,
   getCoachesSimpleListService,
+  bulkAssignVideoService,
+  graduatePlayerPhaseService,
+  getAllCoachActionStepsService,
+  getCoachPreferencesService,
+  updateCoachPreferencesService,
 };

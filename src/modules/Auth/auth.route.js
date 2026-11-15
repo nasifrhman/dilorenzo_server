@@ -92,7 +92,15 @@ router.post("/change-password", auth(ALL_ROLES), changePassword);
 router.patch("/delete-account", auth(ALL_ROLES), deleteAccountController);
 router.put(
   '/update-profile',
-  uploadUsers.single('image'),
+  uploadUsers.any(),
+  convertHeicToPng(UPLOADS_FOLDER_USERS),
+  auth(ALL_ROLES),
+  parseData(),
+  updateProfile
+);
+router.patch(
+  '/update-profile',
+  uploadUsers.any(),
   convertHeicToPng(UPLOADS_FOLDER_USERS),
   auth(ALL_ROLES),
   parseData(),
@@ -113,7 +121,7 @@ router.get("/admin/my-profile", auth(ADMIN_ROLES), adminGetProfile);
 router.get("/admin/profile", auth(ADMIN_ROLES), adminGetProfile);
 router.patch(
   "/admin/update-profile",
-  uploadUsers.single('image'),
+  uploadUsers.any(),
   convertHeicToPng(UPLOADS_FOLDER_USERS),
   auth(ADMIN_ROLES),
   parseData(),
@@ -121,7 +129,7 @@ router.patch(
 );
 router.put(
   "/admin/update-profile",
-  uploadUsers.single('image'),
+  uploadUsers.any(),
   convertHeicToPng(UPLOADS_FOLDER_USERS),
   auth(ADMIN_ROLES),
   parseData(),

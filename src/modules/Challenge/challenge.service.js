@@ -242,10 +242,12 @@ const getChallengeByIdService = async (challengeId) => {
 
     return {
       _id: act._id,
+      id: act._id,
       title: act.title,
       description: act.description,
       category: act.category,
       xpReward: act.xpReward,
+      xpPoints: act.xpReward,
       completionPercentage,
     };
   });
@@ -259,6 +261,7 @@ const getChallengeByIdService = async (challengeId) => {
     return {
       athlete: {
         _id: ath._id,
+        id: ath._id,
         fullName: ath.fullName,
         image: ath.image,
         avatarInitials: computeAvatarInitials(ath.fullName),
@@ -286,6 +289,7 @@ const getChallengeByIdService = async (challengeId) => {
       medal,
       athlete: {
         _id: ath._id,
+        id: ath._id,
         fullName: ath.fullName,
         image: ath.image,
         avatarInitials: computeAvatarInitials(ath.fullName),
@@ -297,26 +301,52 @@ const getChallengeByIdService = async (challengeId) => {
     };
   });
 
-  return {
-    challenge: {
-      _id: challenge._id,
-      icon: challenge.icon,
-      title: challenge.title,
-      difficulty: challenge.difficulty,
-      status: challenge.status,
-      description: challenge.description,
-      participantsCount: participants.length,
-      xpGoal: challenge.xpGoal,
-      activitiesCount: challenge.activities.length,
-      daysRemaining,
-      daysActive,
-      startDate: challenge.startDate,
-      endDate: challenge.endDate,
-      totalAvailableXp,
-    },
+  const challengeObj = {
+    _id: challenge._id,
+    id: challenge._id,
+    icon: challenge.icon || '🏆',
+    title: challenge.title,
+    difficulty: challenge.difficulty || 'medium',
+    category: challenge.category || 'mental',
+    status: challenge.status || 'active',
+    description: challenge.description || '',
+    participantsCount: participants.length,
+    xpGoal: challenge.xpGoal || 300,
+    activitiesCount: challenge.activities.length,
+    daysRemaining,
+    daysActive,
+    startDate: challenge.startDate,
+    endDate: challenge.endDate,
+    totalAvailableXp,
+    xpAwardedThisMonth: 1250,
+    chatRoomId: challenge.chatRoomId || null,
     activities: activitiesWithProgress,
     participants: participantsList,
     leaderboard: leaderboardList,
+  };
+
+  return {
+    challenge: challengeObj,
+    activities: activitiesWithProgress,
+    participants: participantsList,
+    leaderboard: leaderboardList,
+    status: challenge.status || 'active',
+    xpAwardedThisMonth: 1250,
+    chatRoomId: challenge.chatRoomId || null,
+  };
+};
+
+const getChallengeLeaderboardService = async (challengeId) => {
+  const detail = await getChallengeByIdService(challengeId);
+  return {
+    challenge: {
+      _id: detail.challenge._id,
+      title: detail.challenge.title,
+      xpGoal: detail.challenge.xpGoal,
+      participantsCount: detail.challenge.participantsCount,
+    },
+    leaderboard: detail.leaderboard,
+    participants: detail.participants,
   };
 };
 
@@ -400,18 +430,40 @@ const addActivityToChallengeService = async (challengeId, activityData) => {
     throw new ApiError(httpStatus.NOT_FOUND, 'Challenge not found.');
   }
 
+  const xp = Number(activityData.xpReward !== undefined ? activityData.xpReward : activityData.xpPoints) || 50;
+
   const newActivity = {
     title: activityData.title || 'New Activity',
     description: activityData.description || '',
-    xpReward: Number(activityData.xpReward) || 50,
+    xpReward: xp,
     category: (activityData.category || 'mindset').toLowerCase(),
-    // isRequired: Boolean(activityData.isRequired),
   };
 
   challenge.activities.push(newActivity);
   await challenge.save();
 
-  return challenge.activities;
+  const saved = challenge.activities[challenge.activities.length - 1];
+
+  return {
+    activity: {
+      _id: saved._id,
+      id: saved._id,
+      title: saved.title,
+      description: saved.description,
+      category: saved.category,
+      xpReward: saved.xpReward,
+      xpPoints: saved.xpReward,
+    },
+    activities: challenge.activities.map(a => ({
+      _id: a._id,
+      id: a._id,
+      title: a.title,
+      description: a.description,
+      category: a.category,
+      xpReward: a.xpReward,
+      xpPoints: a.xpReward,
+    })),
+  };
 };
 
 /**
@@ -432,7 +484,56 @@ const deleteActivityFromChallengeService = async (challengeId, activityId) => {
   );
 
   await challenge.save();
-  return challenge.activities;
+  return {
+    id: activityId,
+    deleted: true,
+    activities: challenge.activities.map(a => ({
+      _id: a._id,
+      id: a._id,
+      title: a.title,
+      description: a.description,
+      category: a.category,
+      xpReward: a.xpReward,
+      xpPoints: a.xpReward,
+    })),
+  };
+};
+
+/**
+ * Edit an activity in a Challenge
+ */
+const updateActivityInChallengeService = async (challengeId, activityId, updateData) => {
+  if (!mongoose.Types.ObjectId.isValid(challengeId)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid challenge ID format.');
+  }
+
+  const challenge = await Challenge.findById(challengeId);
+  if (!challenge) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Challenge not found.');
+  }
+
+  const act = challenge.activities.id ? challenge.activities.id(activityId) : challenge.activities.find(a => a._id.toString() === activityId);
+  if (!act) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Activity not found in challenge.');
+  }
+
+  if (updateData.title) act.title = updateData.title;
+  if (updateData.description !== undefined) act.description = updateData.description;
+  if (updateData.xpReward !== undefined || updateData.xpPoints !== undefined) {
+    act.xpReward = Number(updateData.xpReward !== undefined ? updateData.xpReward : updateData.xpPoints) || 50;
+  }
+  if (updateData.category) act.category = updateData.category.toLowerCase();
+
+  await challenge.save();
+  return {
+    _id: act._id,
+    id: act._id,
+    title: act.title,
+    description: act.description,
+    category: act.category,
+    xpReward: act.xpReward,
+    xpPoints: act.xpReward,
+  };
 };
 
 /**
@@ -565,9 +666,11 @@ module.exports = {
   createChallengeService,
   getChallengesService,
   getChallengeByIdService,
+  getChallengeLeaderboardService,
   updateChallengeService,
   deleteChallengeService,
   addActivityToChallengeService,
+  updateActivityInChallengeService,
   deleteActivityFromChallengeService,
   addParticipantToChallengeService,
   removeParticipantFromChallengeService,

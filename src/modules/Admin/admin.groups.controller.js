@@ -8,6 +8,7 @@ const {
   createAdminGroupService,
   reassignAdminGroupCoachService,
   getAdminGroupSidebarService,
+  markAdminGroupReadService,
 } = require('./admin.groups.service');
 
 // 1. Get 3-Way Groups List (Left panel)
@@ -41,17 +42,49 @@ const getAdminGroupDetailsController = catchAsync(async (req, res) => {
   );
 });
 
-// 3. Send Message into 3-Way Group (Admin message input)
+// 3. Send Message into 3-Way Group (Admin message input, supports text & file attachments)
 const sendAdminGroupMessageController = catchAsync(async (req, res) => {
   const chatRoomId = req.params.chatRoomId || req.body.chatRoomId;
   const senderId = req.User?._id || req.user?._id || req.body.senderId;
-  const result = await sendAdminGroupMessageService(chatRoomId, senderId, req.body);
+
+  const data = { ...req.body };
+  const uploadedFile = req.file || (req.files && req.files[0]);
+  if (uploadedFile) {
+    data.mediaUrl = `/uploads/chat/${uploadedFile.filename}`;
+    data.fileName = uploadedFile.originalname;
+    data.fileSize = `${(uploadedFile.size / 1024).toFixed(1)} KB`;
+    data.fileType = uploadedFile.mimetype;
+    if (!data.messageType) {
+      if (uploadedFile.mimetype.startsWith('audio/')) data.messageType = 'voice';
+      else if (uploadedFile.mimetype.startsWith('image/')) data.messageType = 'image';
+      else if (uploadedFile.mimetype.startsWith('video/')) data.messageType = 'video';
+      else data.messageType = 'file';
+    }
+  }
+
+  const result = await sendAdminGroupMessageService(chatRoomId, senderId, data);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
       statusCode: status.CREATED,
       type: 'AdminGroupMessage',
       message: 'Message sent successfully',
+      data: result,
+    })
+  );
+});
+
+// 3b. Mark Group Messages as Read
+const markAdminGroupReadController = catchAsync(async (req, res) => {
+  const chatRoomId = req.params.chatRoomId || req.body.chatRoomId;
+  const userId = req.User?._id || req.user?._id || null;
+  const result = await markAdminGroupReadService(chatRoomId, userId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'AdminGroupRead',
+      message: 'Group messages marked as read',
       data: result,
     })
   );
@@ -172,6 +205,7 @@ module.exports = {
   getAdminGroupsListController,
   getAdminGroupDetailsController,
   sendAdminGroupMessageController,
+  markAdminGroupReadController,
   createAdminGroupController,
   reassignAdminGroupCoachController,
   getAdminGroupSidebarController,

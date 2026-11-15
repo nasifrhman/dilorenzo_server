@@ -36,6 +36,11 @@ const {
   getActionStepDetailService,
   getFeedbackDetailService,
   getCoachesSimpleListService,
+  bulkAssignVideoService,
+  graduatePlayerPhaseService,
+  getAllCoachActionStepsService,
+  getCoachPreferencesService,
+  updateCoachPreferencesService,
 } = require('./coach.service');
 const User = require('../User/user.model');
 
@@ -580,7 +585,8 @@ const sendAthleteGroupMessageController = catchAsync(async (req, res) => {
     ? athleteId
     : (req.body.athleteId || getLoggedInUserId(req));
   const senderId = getLoggedInUserId(req) || req.body.senderId;
-  const result = await sendAthleteGroupMessageService(targetAthleteId, req.body, senderId);
+  const files = req.files || (req.file ? [req.file] : []);
+  const result = await sendAthleteGroupMessageService(targetAthleteId, req.body, senderId, files);
   return res.status(status.CREATED).json(
     response({
       status: 'success',
@@ -600,6 +606,81 @@ const getCoachesSimpleListController = catchAsync(async (req, res) => {
       statusCode: status.OK,
       type: 'Coaches',
       message: 'Coaches retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const bulkAssignVideoController = catchAsync(async (req, res) => {
+  const { videoId, id } = req.params;
+  const targetVideoId = videoId || id;
+  const { playerIds, dueDate } = req.body;
+  const coachId = getLoggedInUserId(req);
+  const result = await bulkAssignVideoService(targetVideoId, playerIds, dueDate, coachId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'VideoAssignment',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
+const graduatePlayerPhaseController = catchAsync(async (req, res) => {
+  const { athleteId, id } = req.params;
+  const targetId = athleteId || id;
+  const coachId = getLoggedInUserId(req);
+  const result = await graduatePlayerPhaseService(targetId, req.body, coachId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'PhaseGraduation',
+      message: result.message,
+      data: result,
+    })
+  );
+});
+
+const getCoachPreferencesController = catchAsync(async (req, res) => {
+  const coachId = getLoggedInUserId(req);
+  const result = await getCoachPreferencesService(coachId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachPreferences',
+      message: 'Coach preferences retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const updateCoachPreferencesController = catchAsync(async (req, res) => {
+  const coachId = getLoggedInUserId(req);
+  const result = await updateCoachPreferencesService(coachId, req.body);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'CoachPreferences',
+      message: 'Coach preferences updated successfully',
+      data: result,
+    })
+  );
+});
+
+const getAllCoachActionStepsController = catchAsync(async (req, res) => {
+  const coachId = getLoggedInUserId(req) || req.query.coachId;
+  const result = await getAllCoachActionStepsService(req.query, coachId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ActionSteps',
+      message: 'Action steps retrieved successfully',
       data: result,
     })
   );
@@ -640,4 +721,9 @@ module.exports = {
   createCoachSessionController,
   sendAthleteGroupMessageController,
   getCoachesSimpleListController,
+  bulkAssignVideoController,
+  graduatePlayerPhaseController,
+  getCoachPreferencesController,
+  updateCoachPreferencesController,
+  getAllCoachActionStepsController,
 };

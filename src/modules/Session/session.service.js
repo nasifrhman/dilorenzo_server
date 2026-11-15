@@ -42,23 +42,37 @@ const getSessionsOverviewService = async (query = {}) => {
       Session.countDocuments({ sessionType: { $in: ['match-activation', 'match-audit'] } }),
     ]);
 
+  const callsCount = admissionCallsCount + sessionsCount;
+
   const filterCounts = {
     all: totalCount,
+    calls: callsCount,
+    call: callsCount,
     sessions: sessionsCount,
+    session: sessionsCount,
+    mentorship: sessionsCount,
+    mentorshipSessions: sessionsCount,
     assignments: assignmentsCount,
+    assignment: assignmentsCount,
+    admission: admissionCallsCount,
     admissionCalls: admissionCallsCount,
     matchActivations: matchActivationsCount,
+    match: matchActivationsCount,
   };
 
   const filter = {};
   if (query.type && query.type !== 'all') {
     const qType = query.type.toLowerCase();
-    if (qType === 'sessions' || qType === 'session') {
-      filter.sessionType = { $in: ['session', '1-on-1-mentorship-call', 'screening-call'] };
+    if (qType === 'calls' || qType === 'call') {
+      filter.sessionType = { $in: ['session', '1-on-1-mentorship-call', 'screening-call', 'admission-call', 'Mentorship', 'AdmissionCall', 'Call'] };
+    } else if (qType === 'sessions' || qType === 'session') {
+      filter.sessionType = { $in: ['session', '1-on-1-mentorship-call', 'screening-call', 'Mentorship', 'Call'] };
+    } else if (qType === 'mentorship' || qType === 'mentorshipsessions' || qType === 'mentorship-sessions') {
+      filter.sessionType = { $in: ['session', '1-on-1-mentorship-call', 'Mentorship'] };
     } else if (qType === 'assignments' || qType === 'assignment') {
       filter.sessionType = 'assignment';
-    } else if (qType === 'admission calls' || qType === 'admission-call' || qType === 'admission-calls') {
-      filter.sessionType = 'admission-call';
+    } else if (qType === 'admission calls' || qType === 'admission-call' || qType === 'admission-calls' || qType === 'admission' || qType === 'admissioncall') {
+      filter.sessionType = { $in: ['admission-call', 'AdmissionCall'] };
     } else if (qType === 'match activations' || qType === 'match-activation' || qType === 'match') {
       filter.sessionType = { $in: ['match-activation', 'match-audit'] };
     }

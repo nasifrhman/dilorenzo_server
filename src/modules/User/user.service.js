@@ -807,22 +807,45 @@ const assignCoachService = async (data) => {
   }
 
   // 4. Update Athlete
-  athleteDoc.assignedCoach = coachDoc._id;
-  athleteDoc.tier = normalizedTier;
-  athleteDoc.startingPhase = startingPhase;
-  athleteDoc.mentorshipPhase = normalizedPhase;
-  athleteDoc.assignedHabits = Array.isArray(habits) && habits.length > 0 ? habits : [
+  const Habit = require('../Habit/habit.model');
+  const habitsToAssign = Array.isArray(habits) && habits.length > 0 ? habits : [
     'Ball mastery / Dribbling (5x/week)',
     'Send action steps feedback (3x/week)',
     'Morning Mindset Journal (Daily)',
     'Breathing Reset 4-7-8 Protocol (Pre-training)'
   ];
+
+  athleteDoc.assignedCoach = coachDoc._id;
+  athleteDoc.tier = normalizedTier;
+  athleteDoc.startingPhase = startingPhase;
+  athleteDoc.mentorshipPhase = normalizedPhase;
+  athleteDoc.assignedHabits = habitsToAssign;
   athleteDoc.autoLaunchGroupChat = Boolean(autoLaunchGroupChat);
   athleteDoc.adminWelcomeMessage = adminWelcomeMessage;
   if (!athleteDoc.mentorshipStartDate) {
     athleteDoc.mentorshipStartDate = new Date();
   }
   await athleteDoc.save();
+
+  // Create Habit records for the athlete so they appear in Athlete Hub & mobile apps
+  for (const habitTitle of habitsToAssign) {
+    if (typeof habitTitle === 'string' && habitTitle.trim()) {
+      await Habit.findOneAndUpdate(
+        { title: habitTitle.trim(), assignedAthletes: athleteDoc._id },
+        {
+          $setOnInsert: {
+            title: habitTitle.trim(),
+            frequency: habitTitle.includes('5x') ? 'Weekdays (5×)' : (habitTitle.includes('3x') ? 'Weekly' : 'Daily'),
+            timesPerWeek: habitTitle.includes('5x') ? 5 : (habitTitle.includes('3x') ? 3 : 7),
+            category: 'mindset',
+            assignedAthletes: [athleteDoc._id],
+            status: 'active',
+          }
+        },
+        { upsert: true, new: true }
+      ).catch(() => {});
+    }
+  }
 
   // 5. Ensure 3-Way Group Chat (Admin, Athlete, Coach)
   let chatRoom = null;

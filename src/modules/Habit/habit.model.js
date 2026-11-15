@@ -21,6 +21,13 @@ const habitSchema = new mongoose.Schema(
       default: 'active',
     },
     timesPerWeek: { type: Number, default: 7 },
+    checkInWindow: {
+      type: String,
+      enum: ['Morning', 'Midday', 'Evening', 'Night', 'Anytime'],
+      default: 'Morning',
+    },
+    cue: { type: String, default: '' },
+    instructions: { type: String, default: '' },
     xpReward: { type: Number, default: 10 },
     icon: { type: String, default: '🔥' },
     targetPhase: {

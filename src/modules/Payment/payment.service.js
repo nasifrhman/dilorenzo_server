@@ -20,6 +20,21 @@ const getStripe = () => {
 // Clean Production Subscription & Mentorship Plans (Feature & Price only)
 const PLANS = [
   {
+    id: 'academy-monthly',
+    name: 'Academy Membership',
+    price: 4.99,
+    currency: 'GBP',
+    interval: 'month',
+    trialDays: 7,
+    features: [
+      'Everything in Free',
+      'Personal coach feedback',
+      '1-on-1 sessions',
+      'Parent dashboard',
+      'Priority support',
+    ],
+  },
+  {
     id: 'app-subscription-monthly',
     name: 'Monthly Pro',
     price: 7.99,
@@ -168,7 +183,7 @@ const getMyPlanService = async (userId) => {
 
   const subscription = await Subscription.findOne({
     user: userId,
-    plan: { $in: ['premium-monthly', 'premium-annual', 'app-subscription-monthly', 'app-subscription-annual'] },
+    plan: { $in: ['premium-monthly', 'premium-annual', 'app-subscription-monthly', 'app-subscription-annual', 'academy-monthly'] },
   }).sort({ createdAt: -1 });
 
   const now = new Date();
@@ -333,13 +348,18 @@ const purchasePlanService = async (userId, data = {}) => {
   }
 
   // ==========================================
-  // Flow 2: APP SUBSCRIPTION (Monthly £7.99 / Annual £59.99 with 7-Day Trial)
+  // Flow 2: APP SUBSCRIPTION (Academy £4.99 / Monthly £7.99 / Annual £59.99 with 7-Day Trial)
   // ==========================================
+  const isAcademy = planId === 'academy-monthly' || planId === 'academy';
   const isAnnual = planId === 'app-subscription-annual' || planId === 'annual';
   const priceId = await getOrCreateStripePriceId(stripe, planId);
   const hasUsedTrial = Boolean(user.trialEndDate);
   const trialDays = hasUsedTrial ? undefined : 7;
-  const planKey = isAnnual ? 'app-subscription-annual' : 'app-subscription-monthly';
+  const planKey = isAcademy
+    ? 'academy-monthly'
+    : isAnnual
+    ? 'app-subscription-annual'
+    : 'app-subscription-monthly';
 
   // Mobile direct card purchase
   if (data.paymentMethodId) {
@@ -365,12 +385,12 @@ const purchasePlanService = async (userId, data = {}) => {
     let subRecord = await Subscription.findOne({ user: userId });
     if (!subRecord) subRecord = new Subscription({ user: userId });
 
-    subRecord.plan = isAnnual ? 'premium-annual' : 'premium-monthly';
+    subRecord.plan = isAcademy ? 'academy-monthly' : (isAnnual ? 'premium-annual' : 'premium-monthly');
     subRecord.status = stripeSub.status;
     subRecord.stripeSubscriptionId = stripeSub.id;
     subRecord.stripeCustomerId = stripeCustomerId;
     subRecord.stripePriceId = priceId;
-    subRecord.amount = isAnnual ? 59.99 : 7.99;
+    subRecord.amount = isAcademy ? 4.99 : (isAnnual ? 59.99 : 7.99);
     subRecord.currency = 'GBP';
     subRecord.currentPeriodEnd = periodEnd;
     subRecord.trialEndDate = trialEnd;

@@ -5,9 +5,11 @@ const {
   createChallengeController,
   getChallengesController,
   getChallengeByIdController,
+  getChallengeLeaderboardController,
   updateChallengeController,
   deleteChallengeController,
   addActivityController,
+  updateActivityController,
   deleteActivityController,
   addParticipantController,
   removeParticipantController,
@@ -36,9 +38,12 @@ router.delete('/:id', deleteChallengeController);
 
 // Manage Challenge: Activities Tab (Figma node 33384-5212)
 router.post('/:id/activities', addActivityController);
+router.patch('/:id/activities/:activityId', updateActivityController);
+router.put('/:id/activities/:activityId', updateActivityController);
 router.delete('/:id/activities/:activityId', deleteActivityController);
 
-// Manage Challenge: Participants Tab (Figma node 33384-5694)
+// Manage Challenge: Participants & Leaderboard (Figma nodes 33384-5694, 33384-6692)
+router.get('/:id/leaderboard', getChallengeLeaderboardController);
 router.post('/:id/participants', addParticipantController);
 router.delete('/:id/participants/:athleteId', removeParticipantController);
 

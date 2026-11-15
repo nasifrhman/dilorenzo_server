@@ -10,18 +10,22 @@ const UPLOADS_FOLDER_EVIDENCE = './public/uploads/evidence';
 ensureUploadFolderExists(UPLOADS_FOLDER_EVIDENCE);
 const uploadEvidence = fileUploadMiddleware(UPLOADS_FOLDER_EVIDENCE);
 
-// Authenticate user if Bearer token is provided (populates req.user & req.User)
-router.use(auth(['coach', 'admin', 'user', 'athlete', 'parent'], { optional: true }));
+const UPLOADS_FOLDER_CHAT = './public/uploads/chat';
+ensureUploadFolderExists(UPLOADS_FOLDER_CHAT);
+const uploadChat = fileUploadMiddleware(UPLOADS_FOLDER_CHAT);
+
+// Simple Coach List for Dropdowns / Library Selection (accessible publicly or authenticated)
+router.get('/list', coachController.getCoachesSimpleListController);
+router.get('/dropdown', coachController.getCoachesSimpleListController);
+router.get('/simple-list', coachController.getCoachesSimpleListController);
+
+// Strictly enforce authentication for Coach Dashboard routes (coach and admin roles only)
+router.use(auth(['coach', 'admin']));
 
 // Overview Dashboard (Figma node 33026-13150)
 router.get('/dashboard', coachController.getCoachDashboardOverviewController);
 router.get('/overview', coachController.getCoachDashboardOverviewController);
 router.get('/', coachController.getCoachDashboardOverviewController);
-
-// Simple Coach List for Dropdowns / Library Selection (returns only name, image, id)
-router.get('/list', coachController.getCoachesSimpleListController);
-router.get('/dropdown', coachController.getCoachesSimpleListController);
-router.get('/simple-list', coachController.getCoachesSimpleListController);
 
 // All Players Overview for Coach (Figma nodes 33097:12108, 33097:13469, 33101:65, 33102:688)
 router.get('/tasks', coachController.getCoachTasksOverviewController);
@@ -66,6 +70,7 @@ router.patch('/habits/:habitId/status', coachController.toggleHabitStatusControl
 router.patch('/habits/:habitId', coachController.updateAthleteHabitController);
 
 // 4. Action Steps (Figma nodes 33078:3424 & 33097:12107)
+router.get('/action-steps', coachController.getAllCoachActionStepsController);
 router.get('/players/action-steps', coachController.getAthleteActionStepsController);
 router.get('/players/actionSteps', coachController.getAthleteActionStepsController);
 router.get('/players/:athleteId/action-steps', coachController.getAthleteActionStepsController);
@@ -102,12 +107,34 @@ router.get('/players/:athleteId/progress', coachController.getAthleteProgressCon
 // 8. Group 3-Way Chat
 router.get('/players/group-chat', coachController.getAthleteGroupChatController);
 router.get('/players/group', coachController.getAthleteGroupChatController);
+router.get('/players/group-message', coachController.getAthleteGroupChatController);
+router.get('/players/group-messages', coachController.getAthleteGroupChatController);
 router.get('/players/:athleteId/group-chat', coachController.getAthleteGroupChatController);
 router.get('/players/:athleteId/group', coachController.getAthleteGroupChatController);
-router.post('/players/group-message', coachController.sendAthleteGroupMessageController);
-router.post('/players/:athleteId/group-message', coachController.sendAthleteGroupMessageController);
+router.get('/players/:athleteId/group-message', coachController.getAthleteGroupChatController);
+router.get('/players/:athleteId/group-messages', coachController.getAthleteGroupChatController);
+router.get('/players/:athleteId/group/messages', coachController.getAthleteGroupChatController);
+router.get('/players/:athleteId/messages', coachController.getAthleteGroupChatController);
+router.get('/players/:athleteId/chat', coachController.getAthleteGroupChatController);
+router.post('/players/group-message', uploadChat.any(), parseData(), coachController.sendAthleteGroupMessageController);
+router.post('/players/group-messages', uploadChat.any(), parseData(), coachController.sendAthleteGroupMessageController);
+router.post('/players/:athleteId/group-message', uploadChat.any(), parseData(), coachController.sendAthleteGroupMessageController);
+router.post('/players/:athleteId/group-messages', uploadChat.any(), parseData(), coachController.sendAthleteGroupMessageController);
+router.post('/players/:athleteId/group/messages', uploadChat.any(), parseData(), coachController.sendAthleteGroupMessageController);
 
-// 9. Coach Notifications (Figma Node 33102:1009)
+// 9. Video Library & Assignments (New B.4 & B.5)
+router.get('/videos', coachController.getAthleteVideosController);
+router.post('/videos/:videoId/assign', coachController.bulkAssignVideoController);
+router.post('/videos/:id/assign', coachController.bulkAssignVideoController);
+
+// 10. Phase Graduation (New B.7)
+router.post('/players/:athleteId/graduate-phase', coachController.graduatePlayerPhaseController);
+
+// 11. Coach Preferences (New B.8)
+router.get('/preferences', coachController.getCoachPreferencesController);
+router.patch('/preferences', coachController.updateCoachPreferencesController);
+
+// 12. Coach Notifications (Figma Node 33102:1009)
 const {
   getCoachNotificationsController,
   markNotificationAsReadController,
@@ -122,7 +149,15 @@ router.get('/notification', getCoachNotificationsController);
 router.get('/notifications/badge', getNotificationBadgeCountController);
 router.patch('/notifications/mark-all-read', markAllNotificationsAsReadController);
 router.patch('/notifications/read-all', markAllNotificationsAsReadController);
+router.put('/notifications/mark-all-read', markAllNotificationsAsReadController);
+router.put('/notifications/read-all', markAllNotificationsAsReadController);
+router.post('/notifications/mark-all-read', markAllNotificationsAsReadController);
+router.post('/notifications/read-all', markAllNotificationsAsReadController);
 router.patch('/notifications/:id/read', markNotificationAsReadController);
+router.patch('/notifications/:id', markNotificationAsReadController);
+router.put('/notifications/:id/read', markNotificationAsReadController);
+router.put('/notifications/:id', markNotificationAsReadController);
+router.post('/notifications/:id/read', markNotificationAsReadController);
 router.delete('/notifications/:id', deleteNotificationController);
 
 module.exports = router;

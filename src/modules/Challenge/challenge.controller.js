@@ -7,9 +7,11 @@ const {
   createChallengeService,
   getChallengesService,
   getChallengeByIdService,
+  getChallengeLeaderboardService,
   updateChallengeService,
   deleteChallengeService,
   addActivityToChallengeService,
+  updateActivityInChallengeService,
   deleteActivityFromChallengeService,
   addParticipantToChallengeService,
   removeParticipantFromChallengeService,
@@ -109,6 +111,19 @@ const addActivityController = catchAsync(async (req, res) => {
   );
 });
 
+const updateActivityController = catchAsync(async (req, res) => {
+  const result = await updateActivityInChallengeService(req.params.id, req.params.activityId, req.body);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'Activities',
+      message: 'Activity updated successfully',
+      data: result,
+    })
+  );
+});
+
 const deleteActivityController = catchAsync(async (req, res) => {
   const result = await deleteActivityFromChallengeService(req.params.id, req.params.activityId);
   return res.status(status.OK).json(
@@ -162,14 +177,29 @@ const awardXpController = catchAsync(async (req, res) => {
   );
 });
 
+const getChallengeLeaderboardController = catchAsync(async (req, res) => {
+  const result = await getChallengeLeaderboardService(req.params.id);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'ChallengeLeaderboard',
+      message: 'Challenge leaderboard retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 module.exports = {
   getCommunityChallengesOverviewController,
   createChallengeController,
   getChallengesController,
   getChallengeByIdController,
+  getChallengeLeaderboardController,
   updateChallengeController,
   deleteChallengeController,
   addActivityController,
+  updateActivityController,
   deleteActivityController,
   addParticipantController,
   removeParticipantController,

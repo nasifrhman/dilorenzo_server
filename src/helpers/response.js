@@ -12,6 +12,9 @@ const response = (response = {}) => {
     if (response.data) {
         responseObject.data.attributes = response.data;
     }
+    if (response.resetToken) {
+        responseObject.data.resetToken = response.resetToken;
+    }
     if (response.accessToken) {
         responseObject.data.accessToken = response.accessToken;
     }

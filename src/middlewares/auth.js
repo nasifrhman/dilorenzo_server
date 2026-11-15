@@ -79,7 +79,7 @@ const auth = (userRoles, { optional = false } = {}) => {
     if (!user) throw new ApiError(status.NOT_FOUND, "Unauthorized User");
 
     if (userRoles && !userRoles.includes(decodedData.role)) {
-      throw new ApiError(status.UNAUTHORIZED, "You are not authorized");
+      throw new ApiError(status.FORBIDDEN, "You do not have permission to access this resource");
     }
     
     if ((decodedData.tokenVersion || 0) !== (user.tokenVersion || 0)) {

@@ -941,6 +941,24 @@ const getAdminGroupSidebarService = async (chatRoomId, tab = null) => {
   };
 };
 
+const markAdminGroupReadService = async (chatRoomId, userId = null) => {
+  if (!chatRoomId) {
+    const error = new Error('chatRoomId is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+  const filter = { chatRoom: chatRoomId };
+  if (userId) {
+    await Message.updateMany(
+      { chatRoom: chatRoomId, 'readBy.user': { $ne: userId } },
+      { $addToSet: { readBy: { user: userId, readAt: new Date() } } }
+    );
+  } else {
+    await Message.updateMany(filter, { $set: { isRead: true } });
+  }
+  return { chatRoomId, status: 'read' };
+};
+
 module.exports = {
   getAdminGroupsListService,
   getAdminGroupDetailsService,
@@ -948,6 +966,7 @@ module.exports = {
   createAdminGroupService,
   reassignAdminGroupCoachService,
   getAdminGroupSidebarService,
+  markAdminGroupReadService,
   getCleanAvatar,
   getCleanInitials,
 };

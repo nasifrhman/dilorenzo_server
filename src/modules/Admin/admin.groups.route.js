@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('../../middlewares/auth');
+const fileUploadMiddleware = require('../../middlewares/fileUpload');
+const UPLOADS_FOLDER_CHAT = './public/uploads/chat';
+const uploadChat = fileUploadMiddleware(UPLOADS_FOLDER_CHAT);
+
 const {
   getAdminGroupsListController,
   getAdminGroupDetailsController,
   sendAdminGroupMessageController,
+  markAdminGroupReadController,
   createAdminGroupController,
   reassignAdminGroupCoachController,
   getAdminGroupSidebarController,
@@ -29,10 +34,14 @@ router.post('/create', allowAdminOrCoach, createAdminGroupController);
 router.get('/:chatRoomId', allowAdminOrCoach, getAdminGroupDetailsController);
 router.get('/:chatRoomId/messages', allowAdminOrCoach, getAdminGroupDetailsController);
 
-// 4. Send Message into 3-Way Group
-router.post('/:chatRoomId/messages', allowAdminOrCoach, sendAdminGroupMessageController);
-router.post('/:chatRoomId/message', allowAdminOrCoach, sendAdminGroupMessageController);
-router.post('/:chatRoomId/send', allowAdminOrCoach, sendAdminGroupMessageController);
+// 3b. Mark Group Messages Read
+router.patch('/:chatRoomId/read', allowAdminOrCoach, markAdminGroupReadController);
+router.post('/:chatRoomId/read', allowAdminOrCoach, markAdminGroupReadController);
+
+// 4. Send Message into 3-Way Group (supports text, voice notes, attachments)
+router.post('/:chatRoomId/messages', allowAdminOrCoach, uploadChat.any(), sendAdminGroupMessageController);
+router.post('/:chatRoomId/message', allowAdminOrCoach, uploadChat.any(), sendAdminGroupMessageController);
+router.post('/:chatRoomId/send', allowAdminOrCoach, uploadChat.any(), sendAdminGroupMessageController);
 
 // 5. Reassign Coach for 3-Way Group
 router.patch('/:chatRoomId/reassign-coach', allowAdminOrCoach, reassignAdminGroupCoachController);

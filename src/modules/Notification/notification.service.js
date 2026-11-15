@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { status } = require('http-status');
+const ApiError = require('../../helpers/ApiError');
 const Notification = require('./notification.model');
 const User = require('../User/user.model');
 const ActionStep = require('../ActionStep/actionStep.model');
@@ -456,12 +458,21 @@ const getCoachNotificationsService = async ({ coachId, query = {} }) => {
     filter.$or = [{ title: regex }, { message: regex }, { type: regex }];
   }
 
-  const notifications = await Notification.find(filter)
-    .sort({ createdAt: -1 })
-    .lean();
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.max(1, parseInt(query.limit, 10) || 20);
+  const skip = (page - 1) * limit;
 
-  const unreadFilter = { ...filter, isRead: false };
-  const unreadCount = await Notification.countDocuments(unreadFilter);
+  const [total, unreadCount, notifications] = await Promise.all([
+    Notification.countDocuments(filter),
+    Notification.countDocuments({ ...filter, isRead: false }),
+    Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+  ]);
+
+  const totalPages = Math.ceil(total / limit);
 
   const formatted = notifications.map((n) => ({
     _id: n._id.toString(),
@@ -472,13 +483,26 @@ const getCoachNotificationsService = async ({ coachId, query = {} }) => {
     iconVariant: getIconVariant(n.type, n.icon),
     isRead: Boolean(n.isRead),
     timeAgo: formatRelativeTime(n.createdAt, 'short'),
+    createdAt: n.createdAt,
+    playerId: n.entityId || n.sender || null,
   }));
 
   return {
     subheading: 'INBOX',
     heading: 'NOTIFICATIONS',
     unreadCount,
-    total: formatted.length,
+    total,
+    page,
+    limit,
+    totalPages,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
     notifications: formatted,
   };
 };
@@ -598,27 +622,21 @@ const getUserNotificationsService = async ({ userId, query = {} }) => {
 /**
  * Mark a single notification as read
  */
-const markNotificationAsReadService = async ({ notificationId, userId }) => {
-  if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-    throw new Error('Invalid notification ID');
+const markNotificationAsReadService = async ({ notificationId, userId = null }) => {
+  if (!notificationId || !mongoose.Types.ObjectId.isValid(notificationId)) {
+    throw new ApiError(status.NOT_FOUND, 'Notification not found');
   }
 
-  const query = { _id: notificationId };
-  if (userId) {
-    query.receiver = userId;
+  const notif = await Notification.findById(notificationId);
+  if (!notif) {
+    throw new ApiError(status.NOT_FOUND, 'Notification not found');
   }
 
-  const updated = await Notification.findOneAndUpdate(
-    query,
-    { $set: { isRead: true, readAt: new Date() } },
-    { new: true }
-  );
+  notif.isRead = true;
+  notif.readAt = new Date();
+  await notif.save();
 
-  if (!updated) {
-    throw new Error('Notification not found or access denied');
-  }
-
-  return updated;
+  return notif;
 };
 
 /**
@@ -626,22 +644,20 @@ const markNotificationAsReadService = async ({ notificationId, userId }) => {
  */
 const markAllNotificationsAsReadService = async ({ userId = null, category = null }) => {
   let targetUserId = userId;
-  if (!targetUserId) {
-    const filterRole = category === 'coach' ? 'coach' : { $in: ['user', 'athlete'] };
-    const defaultUser = await User.findOne({ role: filterRole }).select('_id').lean();
-    targetUserId = defaultUser?._id;
-  }
-
   const filter = {
     isRead: false,
   };
 
-  if (targetUserId) {
-    filter.receiver = targetUserId;
-  }
-
-  if (category) {
-    filter.category = category;
+  if (category === 'coach') {
+    filter.$or = [
+      { category: 'coach' },
+      ...(targetUserId ? [{ receiver: targetUserId }] : []),
+    ];
+  } else if (targetUserId) {
+    filter.$or = [
+      { receiver: targetUserId },
+      { category: 'coach' },
+    ];
   }
 
   const result = await Notification.updateMany(filter, {

@@ -112,6 +112,12 @@ const userSchema = new mongoose.Schema(
     coachPermissions: [{ type: String }], // ['Assign Habits & Drills', '3-Way Group Voice/Chat']
     welcomeEmailSent: { type: Boolean, default: false },
     isHeadCoach: { type: Boolean, default: false },
+    coachPreferences: {
+      actionSteps: { type: Boolean, default: true },
+      tasks: { type: Boolean, default: true },
+      messages: { type: Boolean, default: true },
+      sessions: { type: Boolean, default: true },
+    },
 
     // Personalised Development Plan (Figma node 32906:2936)
     devPlan: {

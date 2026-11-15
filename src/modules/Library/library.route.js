@@ -45,6 +45,11 @@ router.post('/drill-video', uploadAny, parseData(), createDrillVideoController);
 router.post('/video-drill', uploadAny, parseData(), createDrillVideoController);
 router.post('/create-drill-video', uploadAny, parseData(), createDrillVideoController);
 
+// Dedicated Reflection Form (mindset) and Habit creation endpoints (AM9)
+router.post('/reflection-form', uploadAny, parseData(), (req, res, next) => { req.body.contentType = 'mindset'; next(); }, createLibraryItemController);
+router.post('/mindset', uploadAny, parseData(), (req, res, next) => { req.body.contentType = 'mindset'; next(); }, createLibraryItemController);
+router.post('/habit', uploadAny, parseData(), (req, res, next) => { req.body.contentType = 'habit'; next(); }, createLibraryItemController);
+
 // Library Item CRUD supporting pure JSON or multipart form-data
 router.post('/', uploadAny, parseData(), createLibraryItemController);
 router.get('/:id', getLibraryItemByIdController);

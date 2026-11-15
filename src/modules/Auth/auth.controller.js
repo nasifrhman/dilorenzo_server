@@ -425,6 +425,11 @@ const otpVerification = catchAsync(async (req, res) => {
         message: "OTP verified successfully. You may now reset your password.",
         resetToken,
         accessToken: resetToken,
+        data: {
+          resetToken,
+          accessToken: resetToken,
+          email: user.email,
+        },
       })
     );
   }
@@ -726,8 +731,9 @@ const updateProfile = catchAsync(async (req, res) => {
   const user = await getUserById(req.User._id);
   if (!user) throw new ApiError(status.NOT_FOUND, 'user not found');
 
-  if (req.file) {
-    const { filename } = req.file;
+  const uploadedFile = req.file || (req.files && req.files.length > 0 ? req.files[0] : null);
+  if (uploadedFile) {
+    const { filename } = uploadedFile;
 
     if (filename && filename.length > 0) {
       const defaultPath1 = 'user.png';
@@ -804,6 +810,14 @@ const updateProfile = catchAsync(async (req, res) => {
       parentEmail: targetUser.parentEmail,
       intakeNotes: targetUser.intakeNotes,
       focusGoals: targetUser.focusGoals,
+      roleTitle: targetUser.roleTitle || '',
+      bio: targetUser.bio || '',
+      coachingPhilosophy: targetUser.coachingPhilosophy || '',
+      experienceYears: targetUser.experienceYears || 0,
+      operationalTimezone: targetUser.operationalTimezone || '',
+      specialties: targetUser.specialties || [],
+      coachPermissions: targetUser.coachPermissions || [],
+      coachPreferences: targetUser.coachPreferences || { actionSteps: true, tasks: true, messages: true, sessions: true },
       isEmailVerified: targetUser.isEmailVerified,
       isProfileCompleted: targetUser.isProfileCompleted,
       tier: targetUser.tier,
@@ -914,6 +928,14 @@ const userDetailsByID = catchAsync(async (req, res) => {
       parentEmail: targetUser.parentEmail,
       intakeNotes: targetUser.intakeNotes,
       focusGoals: targetUser.focusGoals,
+      roleTitle: targetUser.roleTitle || '',
+      bio: targetUser.bio || '',
+      coachingPhilosophy: targetUser.coachingPhilosophy || '',
+      experienceYears: targetUser.experienceYears || 0,
+      operationalTimezone: targetUser.operationalTimezone || '',
+      specialties: targetUser.specialties || [],
+      coachPermissions: targetUser.coachPermissions || [],
+      coachPreferences: targetUser.coachPreferences || { actionSteps: true, tasks: true, messages: true, sessions: true },
       isEmailVerified: targetUser.isEmailVerified,
       isProfileCompleted: targetUser.isProfileCompleted,
       tier: targetUser.tier,
@@ -1244,8 +1266,9 @@ const adminUpdateProfile = catchAsync(async (req, res) => {
     throw new ApiError(status.FORBIDDEN, "Access denied: Administrator privileges required");
   }
 
-  if (req.file) {
-    const { filename } = req.file;
+  const uploadedFile = req.file || (req.files && req.files.length > 0 ? req.files[0] : null);
+  if (uploadedFile) {
+    const { filename } = uploadedFile;
     if (filename && filename.length > 0) {
       if (user.image && user.image !== 'user.png' && user.image !== 'user.jpg' && !user.image.includes('default')) {
         unlinkImage(`uploads/users/${user.image}`);
