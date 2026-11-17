@@ -959,20 +959,109 @@ const createAdminInvoiceService = async (body) => {
     description,
     status: 'pending',
     paymentMethod: 'invoice',
+    plan,
+    dueDate: dueDate ? new Date(dueDate) : null,
     createdAt: new Date(),
   });
   return {
     _id: newPayment._id.toString(),
+    id: newPayment._id.toString(),
     invoiceId: `INV-2026-${newPayment._id.toString().slice(-4).toUpperCase()}`,
     amount: newPayment.amount,
     currency: newPayment.currency,
     description: newPayment.description,
     status: newPayment.status,
+    plan,
     dueDate: dueDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     receiptUrl: `/uploads/invoices/receipt-${newPayment._id}.pdf`,
     invoiceUrl: `/uploads/invoices/invoice-${newPayment._id}.pdf`,
     createdAt: newPayment.createdAt,
   };
+};
+
+/**
+ * Get single payment by ID / Invoice ID
+ */
+const getAdminPaymentByIdService = async (id) => {
+  if (!id) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Payment ID is required.');
+  }
+
+  let payment = null;
+  if (mongoose.isValidObjectId(id)) {
+    payment = await Payment.findById(id).populate('athlete', 'fullName email image').lean();
+  }
+
+  if (!payment) {
+    payment = await Payment.findOne({
+      $or: [
+        { stripeInvoiceId: id },
+        { stripePaymentIntentId: id },
+      ]
+    }).populate('athlete', 'fullName email image').lean();
+  }
+
+  if (!payment) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Payment not found.');
+  }
+
+  return {
+    _id: payment._id.toString(),
+    id: payment._id.toString(),
+    invoiceId: payment.stripeInvoiceId || `INV-2026-${payment._id.toString().slice(-4).toUpperCase()}`,
+    athlete: {
+      _id: payment.athlete?._id?.toString() || null,
+      id: payment.athlete?._id?.toString() || null,
+      name: payment.athlete?.fullName || 'Athlete',
+      fullName: payment.athlete?.fullName || 'Athlete',
+      email: payment.athlete?.email || '',
+      image: payment.athlete?.image || '',
+    },
+    description: payment.description || 'DSM Coaching Subscription',
+    amount: payment.amount,
+    currency: payment.currency || 'GBP',
+    formattedAmount: `£${(Number(payment.amount) || 0).toFixed(2)}`,
+    paymentMethod: payment.paymentMethod || 'card',
+    status: payment.status || 'succeeded',
+    receiptUrl: `/uploads/invoices/receipt-${payment._id}.pdf`,
+    invoiceUrl: `/uploads/invoices/invoice-${payment._id}.pdf`,
+    plan: payment.plan || 'custom',
+    dueDate: payment.dueDate || null,
+    paidAt: payment.paidAt || payment.createdAt,
+    createdAt: payment.createdAt,
+    timeAgo: formatRelativeTime(payment.paidAt || payment.createdAt),
+  };
+};
+
+/**
+ * Get standard soccer leagues and divisions for athlete intake
+ */
+const getLeaguesListService = async () => {
+  const defaultLeagues = [
+    'MLS NEXT (U13-U19)',
+    'ECNL Boys',
+    'ECNL Girls',
+    'USL Academy',
+    'USL Youth',
+    'Premier League Academy',
+    'English EFL Academy',
+    'USYS National League',
+    'Girls Academy (GA)',
+    'DPL (Development Player League)',
+    'High School Varsity',
+    'Regional Stars / Premier Division',
+    'Other / Independent Club',
+  ];
+
+  try {
+    const existing = await User.distinct('leagueDivision', {
+      leagueDivision: { $nin: ['', null] },
+    });
+    const combined = Array.from(new Set([...defaultLeagues, ...existing])).filter(Boolean);
+    return combined;
+  } catch (err) {
+    return defaultLeagues;
+  }
 };
 
 /**
@@ -1014,12 +1103,12 @@ const getAdminBusinessMetricsService = async (query = {}) => {
   ] = await Promise.all([
     User.countDocuments({ isDeleted: false }),
     User.countDocuments({ role: 'athlete', tier: { $in: ['free', null] }, isDeleted: false }),
-    Subscription.countDocuments({ plan: { $in: ['premium-monthly', 'app-subscription-monthly'] }, status: 'active' }),
-    Subscription.countDocuments({ plan: { $in: ['premium-annual', 'app-subscription-annual'] }, status: 'active' }),
+    Subscription.countDocuments({ plan: { $in: ['academy-monthly', 'premium-monthly', 'app-subscription-monthly'] }, status: 'active' }),
+    Subscription.countDocuments({ plan: { $in: ['academy-annual', 'premium-annual', 'app-subscription-annual'] }, status: 'active' }),
     User.countDocuments({ role: 'athlete', tier: '90-day-mentorship', isDeleted: false }),
   ]);
 
-  const mrrFromMonthly = appMonthlySubscribers * 7.99;
+  const mrrFromMonthly = appMonthlySubscribers * 4.99;
   const mrrFromAnnual = (appAnnualSubscribers * 59.99) / 12;
   const mrrFromMentorship = mentorshipAthletes * (450 / 3);
   const totalMrr = Math.round(mrrFromMonthly + mrrFromAnnual + mrrFromMentorship);
@@ -1049,7 +1138,7 @@ const getAdminBusinessMetricsService = async (query = {}) => {
       monthlyGoal: { target: 3000 * multiplier, current: totalMrr * multiplier, progressPercent: Math.min(100, Math.round(((totalMrr * multiplier) / (3000 * multiplier)) * 100)) },
       revenueByTier: {
         mentorship90Day: Math.round(mentorshipAthletes * 150 * multiplier),
-        appMonthly: Math.round(appMonthlySubscribers * 7.99 * multiplier),
+        appMonthly: Math.round(appMonthlySubscribers * 4.99 * multiplier),
         appAnnual: Math.round(appAnnualSubscribers * (59.99 / 12) * multiplier),
         free: 0,
       },
@@ -1137,7 +1226,7 @@ const getAdminNotificationsService = async (query = {}) => {
         link = `/scheduling/${targetId}`;
       } else if (typeStr.includes('payment') || typeStr.includes('invoice')) {
         targetType = 'payment';
-        link = '/payments';
+        link = targetId ? `/payments/${targetId}` : '/payments';
       } else if (typeStr.includes('group') || typeStr.includes('chat')) {
         targetType = 'group';
         link = `/groups/${targetId}`;
@@ -1309,8 +1398,10 @@ module.exports = {
   buildAthleteHubHeader,
   getAdminDashboardOverviewService,
   getAdminPaymentsService,
+  getAdminPaymentByIdService,
   createAdminInvoiceService,
   exportAdminPaymentsCsvService,
+  getLeaguesListService,
   getAdminBusinessMetricsService,
   exportAdminBusinessReportService,
   getAdminNotificationsService,

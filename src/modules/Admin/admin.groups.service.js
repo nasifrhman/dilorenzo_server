@@ -101,6 +101,18 @@ const getAdminGroupsListService = async (query = {}, adminUserId = null) => {
   // Find 3-way chat rooms
   let roomFilter = { type: '3-way', isActive: { $ne: false } };
 
+  // Filter directly by athlete if athleteId/playerId provided (e.g. from Athlete Hub 3-Way Chat)
+  const athleteTargetId = query.athleteId || query.athlete || query.playerId || query.userId;
+  if (athleteTargetId && mongoose.isValidObjectId(athleteTargetId)) {
+    roomFilter.athlete = athleteTargetId;
+  }
+
+  // Filter directly by coach if coachId provided
+  const coachTargetId = query.coachId || query.coach;
+  if (coachTargetId && mongoose.isValidObjectId(coachTargetId)) {
+    roomFilter.coach = coachTargetId;
+  }
+
   const rooms = await ChatRoom.find(roomFilter)
     .populate('athlete', 'fullName email image currentClub leagueDivision streak xp tier mentorshipDay mentorshipPhase assignedCoach')
     .populate('coach', 'fullName email image roleTitle specialties maxAthleteCapacity rating')

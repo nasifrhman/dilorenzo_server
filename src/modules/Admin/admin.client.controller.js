@@ -7,8 +7,10 @@ const {
   getAthleteHubService,
   getAdminDashboardOverviewService,
   getAdminPaymentsService,
+  getAdminPaymentByIdService,
   createAdminInvoiceService,
   exportAdminPaymentsCsvService,
+  getLeaguesListService,
   getAdminBusinessMetricsService,
   exportAdminBusinessReportService,
   getAdminNotificationsService,
@@ -174,6 +176,33 @@ const getAdminPaymentsController = catchAsync(async (req, res) => {
   );
 });
 
+const getAdminPaymentByIdController = catchAsync(async (req, res) => {
+  const paymentId = req.params.id || req.params.paymentId;
+  const result = await getAdminPaymentByIdService(paymentId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'AdminPayment',
+      message: 'Payment details retrieved successfully',
+      data: result,
+    })
+  );
+});
+
+const getLeaguesListController = catchAsync(async (req, res) => {
+  const result = await getLeaguesListService();
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'LeaguesList',
+      message: 'Leagues and divisions list retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 const exportAdminPaymentsCsvController = catchAsync(async (req, res) => {
   const csvData = await exportAdminPaymentsCsvService(req.query);
   res.setHeader('Content-Type', 'text/csv');
@@ -317,8 +346,10 @@ module.exports = {
   getAthleteCalendarTabController,
   getAdminDashboardOverviewController,
   getAdminPaymentsController,
+  getAdminPaymentByIdController,
   createAdminInvoiceController,
   exportAdminPaymentsCsvController,
+  getLeaguesListController,
   getAdminBusinessMetricsController,
   exportAdminBusinessReportController,
   getAdminNotificationsController,

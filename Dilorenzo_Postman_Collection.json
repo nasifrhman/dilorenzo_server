@@ -337,106 +337,6 @@
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-10-29T03:02:14.000Z",
               "uid": "48870830-6860b2ac-3e43-41b2-8289-aab663dccd45"
-            },
-            {
-              "name": "Purchase / Activate 90-Day Program",
-              "id": "dfc03954-9a27-4f27-b155-f13f0926435a",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"plan\": \"90-day-mentorship\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "text"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/api/v1/user/homepage/purchase-90days",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "v1",
-                    "user",
-                    "homepage",
-                    "purchase-90days"
-                  ]
-                },
-                "description": "Activates or purchases the 90-Day Mentorship Program for the athlete. Sets tier = \"90-day-mentorship\", initial mentorshipDay = 1, mentorshipStartDate = now, mentorshipEndDate = now + 90 days, and synchronizes active subscription. Calling GET /api/v1/user/homepage afterwards returns the active 90-Day Program dashboard (Figma node 32959:3560)."
-              },
-              "response": [],
-              "createdAt": "2026-10-29T03:02:14.000Z",
-              "updatedAt": "2026-10-29T03:02:14.000Z",
-              "uid": "48870830-dfc03954-9a27-4f27-b155-f13f0926435a"
-            },
-            {
-              "name": "Reset 90-Day Program",
-              "id": "b1998f4a-edb5-408e-8f96-3312d334e410",
-              "request": {
-                "auth": {
-                  "type": "bearer",
-                  "bearer": [
-                    {
-                      "key": "token",
-                      "value": "{{token}}",
-                      "type": "string"
-                    }
-                  ]
-                },
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"athleteId\": \"\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "text"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/api/v1/user/homepage/reset-90days",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "v1",
-                    "user",
-                    "homepage",
-                    "reset-90days"
-                  ]
-                },
-                "description": "Resets the 90-Day Mentorship program back to free tier for pre-purchase preview (Figma node 32801:5982). Useful for demonstrating and simulating the before and after transition."
-              },
-              "response": [],
-              "createdAt": "2026-10-29T03:02:14.000Z",
-              "updatedAt": "2026-10-29T03:02:14.000Z",
-              "uid": "48870830-b1998f4a-edb5-408e-8f96-3312d334e410"
             }
           ],
           "id": "f9a8e20d-9861-4a41-9b60-c4175d568242",
@@ -4372,12 +4272,15 @@
         {
           "name": "Subscription",
           "id": "5658d37d-5958-40ef-a482-89107cd40c67",
-          "description": "Subscription & Mentorship purchase flows handled through Stripe.",
+          "description": "Clean subscription APIs matching Figma designs: Page 1 (Upgrade Modal) & Page 2 (Full Upgrade Screen).",
           "item": [
             {
-              "name": "1. Get All Plans (App Subscription & 90-Day Mentorship)",
-              "id": "4be84a7b-111e-43b3-ad4b-46fa4de8ecf3",
+              "name": "Page 1: Get Upgrade Modal (Container)",
+              "id": "986d5960-9333-4009-8e09-875f27e4c2bc",
               "request": {
+                "auth": {
+                  "type": "noauth"
+                },
                 "method": "GET",
                 "header": [
                   {
@@ -4386,7 +4289,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{url}}/api/v1/subscription/plans",
+                  "raw": "{{url}}/api/v1/subscription/modal",
                   "host": [
                     "{{url}}"
                   ],
@@ -4394,23 +4297,239 @@
                     "api",
                     "v1",
                     "subscription",
-                    "plans"
+                    "modal"
                   ]
                 },
-                "description": "See all plans matching the Upgrade screen: App Subscription (Monthly £7.99, Annual £59.99 with 7-day free trial & comparison table) and 90-Day Mentorship Elite Program (£450.00)."
+                "description": "Returns title, 5 features, price, and actions for the Upgrade Modal/Container (Image 2)"
               },
-              "response": []
+              "response": [
+                {
+                  "id": "2e0ac036-2675-4451-b740-65a5ae43f154",
+                  "name": "200 OK - Upgrade Modal",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/subscription/modal",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "subscription",
+                        "modal"
+                      ]
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Upgrade modal data retrieved successfully\",\n  \"data\": {\n    \"type\": \"UpgradeModal\",\n    \"attributes\": {\n      \"title\": \"UPGRADE TO ACADEMY\",\n      \"subtitle\": \"Unlock your full potential\",\n      \"badge\": \"ACADEMY ★\",\n      \"features\": [\n        \"Everything in Free\",\n        \"Personal coach feedback\",\n        \"1-on-1 sessions\",\n        \"Parent dashboard\",\n        \"Priority support\"\n      ],\n      \"plan\": {\n        \"planId\": \"academy-monthly\",\n        \"price\": 4.99,\n        \"currency\": \"GBP\",\n        \"formattedPrice\": \"£4.99/month\",\n        \"trialDays\": 7\n      },\n      \"upgradeButtonText\": \"UPGRADE NOW — £4.99/month\",\n      \"trialButtonText\": \"Start 7 Days Free Trial\"\n    }\n  }\n}"
+                }
+              ]
             },
             {
-              "name": "2. Get My Plan & Status",
-              "id": "6dc537e0-e1b2-4b2e-87e9-aed0dbb87f52",
+              "name": "Page 2: Get Upgrade Screen (Full Screen)",
+              "id": "57b7a139-b782-429c-8082-4e30b1dfa709",
               "request": {
+                "auth": {
+                  "type": "noauth"
+                },
                 "method": "GET",
                 "header": [
                   {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}"
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/screen",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "screen"
+                  ]
+                },
+                "description": "Returns header pills (£4.99/mo, £59.99/yr), trial button, and 90-Day Mentorship card for the Full Upgrade Screen (Image 1)"
+              },
+              "response": [
+                {
+                  "id": "135f792e-1a4c-4f5c-8234-bb06debd9148",
+                  "name": "200 OK - Upgrade Screen",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/subscription/screen",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "subscription",
+                        "screen"
+                      ]
+                    }
                   },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Upgrade screen data retrieved successfully\",\n  \"data\": {\n    \"type\": \"UpgradeScreen\",\n    \"attributes\": {\n      \"academy\": {\n        \"tag\": \"DSM ACADEMY APP\",\n        \"title\": \"UPGRADE TO ACADEMY\",\n        \"subtitle\": \"Unlock your full potential\",\n        \"pills\": [\n          {\n            \"planId\": \"academy-monthly\",\n            \"pillText\": \"£4.99/month\",\n            \"price\": 4.99,\n            \"currency\": \"GBP\",\n            \"isDefault\": true\n          },\n          {\n            \"planId\": \"academy-annual\",\n            \"pillText\": \"£59.99/year\",\n            \"price\": 59.99,\n            \"currency\": \"GBP\",\n            \"isDefault\": false\n          }\n        ],\n        \"buttonText\": \"START 7-DAY FREE TRIAL\",\n        \"trialDays\": 7,\n        \"disclaimer\": \"Does not include 1-on-1 coaching · Cancel anytime\"\n      },\n      \"eliteProgram\": {\n        \"tag\": \"ELITE PROGRAM\",\n        \"title\": \"90-DAY MENTORSHIP\",\n        \"description\": \"A high-ticket, high-accountability 1-on-1 mentorship program. Selective admission. Personal coach assigned by our team.\",\n        \"badges\": [\n          \"Assigned Coach\",\n          \"Private Group\",\n          \"Action Steps\",\n          \"Personalized Training\"\n        ],\n        \"buttonText\": \"LEARN MORE & APPLY ➔\",\n        \"planId\": \"90-day-mentorship\",\n        \"price\": 450,\n        \"formattedPrice\": \"£450.00\"\n      }\n    }\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Action: Subscribe / Purchase via Stripe (Monthly or Annual with 7-Day Trial)",
+              "id": "6e324548-7122-493c-9e6f-73d38afb6a9e",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/subscription/subscribe",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "subscription",
+                    "subscribe"
+                  ]
+                },
+                "description": "Unified Stripe subscription checkout for both plans (Monthly £4.99/mo or Annual £59.99/yr) and 90-Day Mentorship. User normally purchases via card through Stripe. The first 7 days are a free trial (£0 charged today). Stripe takes card info securely and auto-charges on day 7 unless cancelled. Does NOT directly purchase in DB without card verification!",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"planId\": \"academy-monthly\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "4389ed24-2225-441d-9da6-a7ce69a8433d",
+                  "name": "200 OK - Subscription Session",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/subscription/subscribe",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "subscription",
+                        "subscribe"
+                      ]
+                    },
+                    "description": "Unified Stripe subscription checkout. Returns BOTH mobilePaymentSheet (setupIntentClientSecret, ephemeralKey, customerId, publishableKey for Flutter/React Native) AND webCheckout (checkoutUrl, sessionId for web).",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"plan\": \"academy-monthly\",\n  \"successUrl\": \"https://app.dsm.com/success\",\n  \"cancelUrl\": \"https://app.dsm.com/cancel\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Subscription session initialized successfully\",\n  \"data\": {\n    \"type\": \"SubscriptionSession\",\n    \"attributes\": {\n      \"plan\": \"academy-monthly\",\n      \"amount\": 4.99,\n      \"currency\": \"GBP\",\n      \"trialDays\": 7,\n      \"mobilePaymentSheet\": {\n        \"setupIntentClientSecret\": \"seti_1..._secret_...\",\n        \"ephemeralKey\": \"ek_test_...\",\n        \"customerId\": \"cus_...\",\n        \"publishableKey\": \"pk_test_...\"\n      },\n      \"webCheckout\": {\n        \"checkoutUrl\": \"https://checkout.stripe.com/c/pay/cs_test_...\",\n        \"sessionId\": \"cs_test_...\"\n      }\n    }\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "User Status: Get My Plan & Trial Status",
+              "id": "dec766ca-b936-4707-aaf0-75ca60b60edc",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
                   {
                     "key": "Content-Type",
                     "value": "application/json"
@@ -4428,36 +4547,80 @@
                     "my-plan"
                   ]
                 },
-                "description": "Returns authenticated user's active tier, app subscription status, trial status (isTrialActive, trialDaysRemaining), and 90-day mentorship progress if enrolled."
+                "description": "Returns active user tier, current plan, trial status (isTrialActive, trialDaysRemaining), and renewal date."
               },
-              "response": []
+              "response": [
+                {
+                  "id": "820e8b01-7bb6-4751-a2af-9057a1f32eb9",
+                  "name": "200 OK - Active Subscription Status",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/subscription/my-plan",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "subscription",
+                        "my-plan"
+                      ]
+                    },
+                    "description": "Returns active user tier, current plan, trial status (isTrialActive, trialDaysRemaining), and renewal date."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"data\": {\n    \"type\": \"UserSubscription\",\n    \"attributes\": {\n      \"tier\": \"academy\",\n      \"tierLabel\": \"Academy\",\n      \"hasAppSubscription\": true,\n      \"appSubscription\": {\n        \"status\": \"trialing\",\n        \"plan\": \"academy-monthly\",\n        \"planName\": \"Academy Membership\",\n        \"formattedPrice\": \"£4.99/month\",\n        \"isTrialActive\": true,\n        \"trialDaysRemaining\": 7\n      }\n    }\n  }\n}"
+                }
+              ]
             },
             {
-              "name": "3. Purchase App Subscription (Monthly £7.99 / Annual £59.99 with 7-Day Trial)",
-              "id": "ed28bc0b-c306-43b9-ac5b-7ada2a6addfa",
+              "name": "User Action: Cancel Active Subscription / 7-Day Free Trial",
+              "id": "8a768c59-290d-41a6-a110-87e0a114c102",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
                 "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}"
-                  },
                   {
                     "key": "Content-Type",
                     "value": "application/json"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"planId\": \"app-subscription-monthly\",\n  \"paymentMethodId\": \"\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
-                  "raw": "{{url}}/api/v1/subscription/purchase",
+                  "raw": "{{url}}/api/v1/subscription/cancel",
                   "host": [
                     "{{url}}"
                   ],
@@ -4465,57 +4628,92 @@
                     "api",
                     "v1",
                     "subscription",
-                    "purchase"
+                    "cancel"
                   ]
                 },
-                "description": "Purchases the DSM Academy App Subscription via Stripe. Pass paymentMethodId for mobile direct card entry, or leave empty to receive a hosted Stripe Checkout URL."
-              },
-              "response": []
-            },
-            {
-              "name": "4. Purchase 90-Day Mentorship Program (£450.00 via Stripe)",
-              "id": "f5beefb5-811a-431c-91fe-cd0d06ff3430",
-              "request": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
+                "description": "Cancels an active subscription or free trial. If cancelled during the 7-day free trial, the Stripe subscription is immediately canceled so that NO money will be deducted on day 7.",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"planId\": \"90-day-mentorship\",\n  \"paymentMethodId\": \"\"\n}",
+                  "raw": "{\n  \"immediately\": false\n}",
                   "options": {
                     "raw": {
                       "language": "json"
                     }
                   }
-                },
-                "url": {
-                  "raw": "{{url}}/api/v1/subscription/purchase",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "api",
-                    "v1",
-                    "subscription",
-                    "purchase"
-                  ]
-                },
-                "description": "Purchases the 90-Day Mentorship Elite Admission (£450.00) via Stripe. Grants tier: \"90-day-mentorship\", sets up Day 1 to 90 progression, and records payment."
+                }
               },
-              "response": []
+              "response": [
+                {
+                  "id": "216f378b-95f7-495d-996a-520627a01d77",
+                  "name": "200 OK - Subscription Cancelled",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/subscription/cancel",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "subscription",
+                        "cancel"
+                      ]
+                    },
+                    "description": "Cancels the user's active subscription or trial and reverts tier to free.",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"immediately\": false\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Subscription cancelled successfully\"\n}"
+                }
+              ]
             },
             {
-              "name": "5. Stripe Webhook Listener",
-              "id": "1aa43c18-d302-455a-860e-5a544f6c12a9",
+              "name": "Stripe: Webhook Listener",
+              "id": "8739ea08-0b50-430d-b1d6-5f3babb7487e",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
                 "header": [
                   {
@@ -4527,15 +4725,6 @@
                     "value": "application/json"
                   }
                 ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"mode\": \"subscription\",\n      \"customer\": \"cus_test\",\n      \"subscription\": \"sub_test\"\n    }\n  }\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{url}}/api/v1/subscription/webhook",
                   "host": [
@@ -4548,7 +4737,16 @@
                     "webhook"
                   ]
                 },
-                "description": "Stripe webhook event listener to handle asynchronous subscription activations, renewals, cancellations, and mentorship payments."
+                "description": "Processes Stripe webhooks: checkout.session.completed, customer.subscription.*, invoice.payment_*.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"mode\": \"subscription\",\n      \"customer\": \"cus_test\"\n    }\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
               },
               "response": []
             }
@@ -5003,6 +5201,90 @@
         {
           "name": "Dashboard",
           "item": [
+            {
+              "name": "Get Admin Overview Dashboard (Triage & Milestones)",
+              "id": "d9118d82-554d-4491-b20b-125e716a743e",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                },
+                "description": "Admin command dashboard with triage athlete groups (unassigned, readyForProgression, inactiveIn3WayGroup), recent activity feed, and confirmed admission screening call."
+              },
+              "response": [
+                {
+                  "id": "7362a310-218f-4ac1-8dff-12e10a2d4ff8",
+                  "name": "200 OK - Admin Overview Dashboard",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/admin/dashboard",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "admin",
+                        "dashboard"
+                      ]
+                    },
+                    "description": "Admin command dashboard with triage athlete groups (unassigned, readyForProgression, inactiveIn3WayGroup), recent activity feed, and confirmed admission screening call."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"data\": {\n    \"type\": \"AdminDashboard\",\n    \"attributes\": {\n      \"metrics\": {\n        \"totalAthletes\": 48,\n        \"activeCoaches\": 6,\n        \"totalRevenue\": 34500,\n        \"activeChallenges\": 3\n      },\n      \"triage\": {\n        \"unassigned\": [\n          {\n            \"_id\": \"6acc80dca1df2a2ed315c20e\",\n            \"name\": \"Alex Thompson\",\n            \"tier\": \"90-day-mentorship\",\n            \"phase\": \"Phase 1\"\n          }\n        ],\n        \"readyForProgression\": [\n          {\n            \"_id\": \"6acb269481bb041722d7e889\",\n            \"name\": \"Marcus Sterling\",\n            \"tier\": \"90-day-mentorship\",\n            \"phase\": \"Phase 2\"\n          }\n        ],\n        \"inactiveIn3WayGroup\": [\n          {\n            \"_id\": \"6acb269481bb041722d7e88a\",\n            \"name\": \"Jordan Hayes\",\n            \"alertType\": \"warning\",\n            \"alert\": \"Inactive in 3-way group\"\n          }\n        ]\n      },\n      \"recentActivities\": [\n        {\n          \"id\": \"act-1\",\n          \"text\": \"Marcus Sterling signed up from London, UK\",\n          \"type\": \"signup\"\n        },\n        {\n          \"id\": \"act-2\",\n          \"text\": \"Alex Thompson achieved a 7-day habit streak! 🔥\",\n          \"type\": \"milestone\"\n        }\n      ],\n      \"nextScreeningCall\": {\n        \"isConfirmed\": true,\n        \"status\": \"confirmed\",\n        \"scheduledAt\": \"2026-11-16T14:00:00.000Z\",\n        \"candidateName\": \"Liam Miller\"\n      }\n    }\n  }\n}"
+                }
+              ]
+            },
             {
               "name": "Add Athlete & Complete Intake",
               "id": "35809741-4b8d-48c4-843f-a68b61e27419",
@@ -5848,6 +6130,92 @@
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-10-29T03:02:14.000Z",
               "uid": "48870830-6c280b55-5b49-4414-9c36-880b8828f9b2"
+            },
+            {
+              "name": "Get Challenge Leaderboard",
+              "id": "d4cf51d3-e845-4120-886d-45071e9ba8bf",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/challenge/:id/leaderboard",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "challenge",
+                    ":id",
+                    "leaderboard"
+                  ]
+                },
+                "description": "Returns challenge ranking leaderboard with ranks, medals (🥇🥈🥉), athlete info, earned XP, xpGoal, and progress percentage."
+              },
+              "response": [
+                {
+                  "id": "e0ee5889-06c0-41c8-844a-119f4ca15178",
+                  "name": "200 OK - Challenge Leaderboard",
+                  "originalRequest": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{url}}/api/v1/challenge/:id/leaderboard",
+                      "host": [
+                        "{{url}}"
+                      ],
+                      "path": [
+                        "api",
+                        "v1",
+                        "challenge",
+                        ":id",
+                        "leaderboard"
+                      ]
+                    },
+                    "description": "Returns challenge ranking leaderboard with ranks, medals (🥇🥈🥉), athlete info, earned XP, xpGoal, and progress percentage."
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Challenge leaderboard retrieved successfully\",\n  \"data\": {\n    \"type\": \"ChallengeLeaderboard\",\n    \"attributes\": {\n      \"challenge\": {\n        \"_id\": \"6af4371feec43182349ec32a\",\n        \"title\": \"Mental Toughness Week\",\n        \"xpGoal\": 500,\n        \"participantsCount\": 2\n      },\n      \"leaderboard\": [\n        {\n          \"rank\": 1,\n          \"medal\": \"🥇\",\n          \"athlete\": {\n            \"_id\": \"6acb269481bb041722d7e889\",\n            \"fullName\": \"Marcus Sterling\",\n            \"avatarInitials\": \"MS\",\n            \"avatarColor\": \"#2B7FFF\"\n          },\n          \"earnedXp\": 150,\n          \"xpGoal\": 500,\n          \"progressPercentage\": 30\n        }\n      ]\n    }\n  }\n}"
+                }
+              ]
             }
           ],
           "id": "f80fdaae-541b-4021-b5c8-3d8d696a7fe6",
@@ -6038,6 +6406,49 @@
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-10-29T03:02:14.000Z",
               "uid": "48870830-33dc854d-e05d-484d-8733-f6cc148fa793"
+            },
+            {
+              "name": "Get Calls Overview (Mentorship & Screening Filter)",
+              "id": "8ff591a2-ca58-4d73-801b-7259494f0358",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/session/overview?type=calls",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "session",
+                    "overview"
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "calls"
+                    }
+                  ]
+                },
+                "description": "Filters sessions overview to only return mentorship 1-on-1 calls and admission screening calls."
+              },
+              "response": []
             }
           ],
           "id": "7bf1d0ca-35e8-4b12-b294-7026b3ac8203",
@@ -6794,6 +7205,837 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Payments",
+          "id": "b9463b36-bc21-4398-8dd5-5d12ab6c66b4",
+          "description": "Payments, invoices, and financial exports",
+          "item": [
+            {
+              "name": "1. Get Payments & Transactions Overview",
+              "id": "7cfc9456-9594-4dec-837b-696d9f89f237",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/payments?search=&status=&page=1&limit=20",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "payments"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": ""
+                    },
+                    {
+                      "key": "status",
+                      "value": ""
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Returns payments table with search, status filters (succeeded, pending, failed), pagination, and revenue summary."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Create One-Off Invoice",
+              "id": "b32b74ff-164d-4a21-a6ac-5daceddec312",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/payments/invoice",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "payments",
+                    "invoice"
+                  ]
+                },
+                "description": "Generates a one-off invoice with invoice number and direct payment link for an athlete.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"athleteId\": \"6acc80dca1df2a2ed315c20e\",\n  \"amount\": 150,\n  \"currency\": \"GBP\",\n  \"description\": \"1-on-1 Extra Mentorship Session\",\n  \"dueDate\": \"2026-11-20\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "3. Export Payments CSV",
+              "id": "125dd5fc-f5d0-401a-a1e6-32a0d9dab441",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/payments/export",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "payments",
+                    "export"
+                  ]
+                },
+                "description": "Downloads CSV spreadsheet of all payment records with athlete names, amounts, statuses, and Stripe IDs."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Business",
+          "id": "4c638eab-bfd1-414d-be3d-a33a187a9d5b",
+          "description": "Business analytics, revenue charts, and KPIs",
+          "item": [
+            {
+              "name": "1. Get Business & Financial Metrics",
+              "id": "7c23f66f-70dc-4c0c-b1c2-93741e8e3b2f",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/business",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "business"
+                  ]
+                },
+                "description": "Returns MRR, ARR, active subscribers breakdown, revenue chart data points, and top coach performance."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Export Business Report CSV",
+              "id": "713e8f47-a73d-4bbd-9bc4-7ca2445b2913",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/business/export",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "business",
+                    "export"
+                  ]
+                },
+                "description": "Downloads detailed business performance and revenue CSV report."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "id": "9914cba3-8b5e-4283-8651-7d5717d6900a",
+          "description": "Admin notifications and alerts",
+          "item": [
+            {
+              "name": "1. Get Admin Notifications",
+              "id": "2faf47be-9d1c-4ace-94a7-54e4aa93243c",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/notifications?status=unread&page=1&limit=20",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "unread"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Fetches admin notifications list with unread counter, filterable by all / unread."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Mark Admin Notification Read",
+              "id": "85f4c82a-de2a-4196-ac88-79271199bc5b",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/notifications/:id/read",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "notifications",
+                    ":id",
+                    "read"
+                  ]
+                },
+                "description": "Marks single notification read by ID."
+              },
+              "response": []
+            },
+            {
+              "name": "3. Mark All Admin Notifications Read",
+              "id": "fa24a193-e9eb-4345-aa85-4c6683e87fdd",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/notifications/mark-all-read",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "notifications",
+                    "mark-all-read"
+                  ]
+                },
+                "description": "Marks all unread admin notifications as read."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Universal Search",
+          "id": "b921d60c-91a8-427c-914f-dc48dd556cd7",
+          "description": "Global search across athletes, coaches, groups",
+          "item": [
+            {
+              "name": "Execute Universal Search",
+              "id": "b207030e-8b3e-4160-a6ff-41661f603c54",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/admin/search?query=marcus",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "search"
+                  ],
+                  "query": [
+                    {
+                      "key": "query",
+                      "value": "marcus"
+                    }
+                  ]
+                },
+                "description": "Instant global search in top bar returning athletes, coaches, 3-way groups, and challenges."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Athlete Hub & Clients",
+          "id": "de16fe5f-7f6f-4cea-9a63-9cfa7bcd652d",
+          "description": "Unified Athlete Hub & Client Roster",
+          "item": [
+            {
+              "name": "1. Get Client Directory (Filter by Tier)",
+              "id": "c3450983-81b1-4f6e-b76b-50f381790c62",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/clients?tier=90-day-mentorship&page=1&limit=20",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "clients"
+                  ],
+                  "query": [
+                    {
+                      "key": "tier",
+                      "value": "90-day-mentorship"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "Fetches client roster filtered by tier (90-day-mentorship, academy, or free)."
+              },
+              "response": []
+            },
+            {
+              "name": "2. Export Clients CSV",
+              "id": "5b53020f-7d41-4201-b40e-ee46aa1d78a0",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/user/clients/export",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "user",
+                    "clients",
+                    "export"
+                  ]
+                },
+                "description": "Exports CSV spreadsheet of all clients with tier, coach, phase, and streak."
+              },
+              "response": []
+            },
+            {
+              "name": "3. Get Unified Athlete Hub (All 5 Tabs Preloaded)",
+              "id": "68720e82-80b7-4a8b-945d-63a323d20ead",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId"
+                  ]
+                },
+                "description": "Returns unified athlete profile, coach, 3-way group, and all 5 tabs preloaded."
+              },
+              "response": []
+            },
+            {
+              "name": "4. Tab 1: Athlete Dash",
+              "id": "1e7474c4-83b3-460a-a02a-7f5344135776",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/dash",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "dash"
+                  ]
+                },
+                "description": "Athlete Dash sub-tab metrics, adherence, recent submissions, and quick stats."
+              },
+              "response": []
+            },
+            {
+              "name": "5. Tab 2: Goals & Habits",
+              "id": "12ce2c88-8a3e-4119-8d0f-08ec73a751fd",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/goals-habits",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "goals-habits"
+                  ]
+                },
+                "description": "Goals & habits list with streak, adherence %, and progress."
+              },
+              "response": []
+            },
+            {
+              "name": "6. Tab 3: Training Program",
+              "id": "9b702458-7b8c-4b0d-b9b3-75946a4147be",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/training",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "training"
+                  ]
+                },
+                "description": "Current training week, video drills, and completion status."
+              },
+              "response": []
+            },
+            {
+              "name": "7. Tab 4: Action Steps & Reports",
+              "id": "46ea1caa-5574-4cbf-9919-cc87b4c8995d",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/reports",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "reports"
+                  ]
+                },
+                "description": "Assignments, submissions, coach feedback, and weekly report answers."
+              },
+              "response": []
+            },
+            {
+              "name": "8. Tab 5: Calendar",
+              "id": "0b283b44-6fb0-43dd-84a9-f43d2132e9a0",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/calendar",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "calendar"
+                  ]
+                },
+                "description": "Scheduled mentorship calls, screening sessions, and events."
+              },
+              "response": []
+            },
+            {
+              "name": "9. Create Habit for Athlete (Athlete Hub)",
+              "id": "dae8f1f4-6e83-4c8d-9bc1-a373d733cc92",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/habits",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "habits"
+                  ]
+                },
+                "description": "Creates a custom habit directly from the Athlete Hub.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Mindset Morning Journal\",\n  \"frequency\": \"daily\",\n  \"targetDays\": 7\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "10. Schedule Event for Athlete (Athlete Hub)",
+              "id": "fb6318e6-0576-49bb-92cf-93080738d42a",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/hub/:athleteId/events",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "hub",
+                    ":athleteId",
+                    "events"
+                  ]
+                },
+                "description": "Schedules a calendar event or 1-on-1 call directly from Athlete Hub.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Tactical Review 1-on-1\",\n  \"scheduledAt\": \"2026-11-18T15:00:00.000Z\",\n  \"durationMinutes\": 45\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "id": "dab260fa-9be8-40de-b030-3091c8138adc",
@@ -6893,6 +8135,141 @@
               ],
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-11-03T09:29:44.188Z"
+            },
+            {
+              "name": "Assign Training Drill to Player (Unblocks Add Training Form)",
+              "id": "b106a0c9-7e4d-4d34-82e2-3fe9c4d49787",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/:id/training",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    ":id",
+                    "training"
+                  ]
+                },
+                "description": "Assigns training drill directly to player from player training tab.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"drillId\": \"6acda8d4587717ac62d60533\",\n  \"dueDate\": \"2026-11-20\",\n  \"instructions\": \"Watch drill and submit 30s reflection\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Graduate Player Phase",
+              "id": "ed348da1-d5d6-4a25-9923-72afa9ede88c",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/:id/graduate",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    ":id",
+                    "graduate"
+                  ]
+                },
+                "description": "Graduates player to the next mentorship phase.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPhase\": \"Phase 2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Player 3-Way Group Chat Messages",
+              "id": "bd994615-3e9b-4a5a-ba0d-768a118993cc",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/:id/messages",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    ":id",
+                    "messages"
+                  ]
+                },
+                "description": "Loads historical group chat messages with voice notes and media attachments."
+              },
+              "response": []
             }
           ],
           "description": "Coach Web Dashboard - Mentorship Clients & My Players (Figma Node #33092:10786)"
@@ -7310,6 +8687,83 @@
                   "body": "{\n  \"status\": \"success\",\n  \"statusCode\": 200,\n  \"message\": \"Coach notifications retrieved successfully\",\n  \"data\": {\n    \"type\": \"CoachNotifications\",\n    \"attributes\": {\n      \"subheading\": \"INBOX\",\n      \"heading\": \"NOTIFICATIONS\",\n      \"unreadCount\": 3,\n      \"total\": 6,\n      \"notifications\": [\n        {\n          \"_id\": \"6ae6c516d603b52e81b019f7\",\n          \"title\": \"New Action Step\",\n          \"message\": \"Alex Thompson submitted Post-Practice Feedback\",\n          \"type\": \"action-step-submitted\",\n          \"icon\": \"clipboard\",\n          \"iconVariant\": \"blue\",\n          \"isRead\": false,\n          \"timeAgo\": \"3d ago\"\n        },\n        {\n          \"_id\": \"6ae6c516d603b52e81b019f8\",\n          \"title\": \"Task Completed\",\n          \"message\": \"Marcus Silva completed Ball Mastery Session\",\n          \"type\": \"task-completed\",\n          \"icon\": \"check-circle\",\n          \"iconVariant\": \"gold\",\n          \"isRead\": false,\n          \"timeAgo\": \"3d ago\"\n        },\n        {\n          \"_id\": \"6ae6c516d603b52e81b019f9\",\n          \"title\": \"Overdue Task\",\n          \"message\": \"Jordan Lee has missed 2 tasks this week\",\n          \"type\": \"task-overdue\",\n          \"icon\": \"alert-triangle\",\n          \"iconVariant\": \"red\",\n          \"isRead\": false,\n          \"timeAgo\": \"4d ago\"\n        },\n        {\n          \"_id\": \"6ae6c516d603b52e81b019fa\",\n          \"title\": \"New Group Message\",\n          \"message\": \"Alex Thompson sent a message in the private group\",\n          \"type\": \"group-message\",\n          \"icon\": \"message-square\",\n          \"iconVariant\": \"gold\",\n          \"isRead\": true,\n          \"timeAgo\": \"4d ago\"\n        },\n        {\n          \"_id\": \"6ae6c516d603b52e81b019fb\",\n          \"title\": \"Upcoming Session\",\n          \"message\": \"Session with Alex Thompson — Today at 3:00 PM\",\n          \"type\": \"session-scheduled\",\n          \"icon\": \"calendar\",\n          \"iconVariant\": \"green\",\n          \"isRead\": true,\n          \"timeAgo\": \"5d ago\"\n        },\n        {\n          \"_id\": \"6ae6c516d603b52e81b019fc\",\n          \"title\": \"Player Achievement\",\n          \"message\": \"Sam Davies hit a 21-day streak\",\n          \"type\": \"player-achievement\",\n          \"icon\": \"award\",\n          \"iconVariant\": \"gold\",\n          \"isRead\": true,\n          \"timeAgo\": \"5d ago\"\n        }\n      ]\n    }\n  },\n  \"errors\": []\n}"
                 }
               ]
+            },
+            {
+              "name": "Mark Coach Notification Read",
+              "id": "9134b41e-e3ea-4705-ac8e-9fbd97b78bef",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/notifications/:id/read",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "notifications",
+                    ":id",
+                    "read"
+                  ]
+                },
+                "description": "Marks single coach notification as read."
+              },
+              "response": []
+            },
+            {
+              "name": "Mark All Coach Notifications Read",
+              "id": "b78d1d7f-9e70-4169-8e76-b57104159d88",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/notifications/mark-all-read",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "notifications",
+                    "mark-all-read"
+                  ]
+                },
+                "description": "Marks all unread coach notifications as read."
+              },
+              "response": []
             }
           ]
         },
@@ -7929,6 +9383,55 @@
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-10-29T03:02:14.000Z",
               "uid": "48870830-bc5868fd-457f-48b7-9e41-ec6d97d91ae7"
+            },
+            {
+              "name": "Edit or Pause Athlete Habit",
+              "id": "bbf25fb9-bf28-4b2d-ae8a-2f6dffdf3add",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/players/:playerId/habits/:habitId",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "players",
+                    ":playerId",
+                    "habits",
+                    ":habitId"
+                  ]
+                },
+                "description": "Updates habit details or toggles pause/active status.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Ball Mastery (Updated)\",\n  \"status\": \"paused\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
             }
           ],
           "id": "d65420d7-71af-46ec-b71e-8ea7b0a730e5",
@@ -8593,6 +10096,91 @@
               "createdAt": "2026-10-29T03:02:14.000Z",
               "updatedAt": "2026-10-29T03:02:14.000Z",
               "uid": "48870830-b3d0baff-ec2a-4f04-8423-0ef1c3bed7a3"
+            },
+            {
+              "name": "Get Action Steps Awaiting Review (Across Roster)",
+              "id": "6875304b-a03c-4cdc-b0c2-3df4282f5b52",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/action-steps",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "action-steps"
+                  ]
+                },
+                "description": "Fetches list of athlete action steps awaiting coach review across entire roster."
+              },
+              "response": []
+            },
+            {
+              "name": "Submit Action Step Review & Feedback",
+              "id": "b80641d0-eed2-4dff-9082-402bdf682bba",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/action-steps/:id/review",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "action-steps",
+                    ":id",
+                    "review"
+                  ]
+                },
+                "description": "Submits coach review, star rating, and written feedback for an action step submission.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"reviewed\",\n  \"rating\": 5,\n  \"feedback\": \"Excellent tactical positioning in the clips! Keep this intensity.\",\n  \"timeframe\": \"week\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
             }
           ],
           "id": "5f21b8d4-bee6-4540-929f-2495c9e5d9fb",
@@ -8600,6 +10188,97 @@
           "createdAt": "2026-10-29T03:02:14.000Z",
           "updatedAt": "2026-10-29T03:02:14.000Z",
           "uid": "48870830-5f21b8d4-bee6-4540-929f-2495c9e5d9fb"
+        },
+        {
+          "name": "videos",
+          "id": "c64c34ea-0fdd-4449-9caa-8d6ed193ccfc",
+          "description": "Coach video drill library and bulk assignment",
+          "item": [
+            {
+              "name": "Get Coach Video Library Catalog",
+              "id": "40030eb5-ae7b-4716-80fa-7d55b38d11de",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/videos",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "videos"
+                  ]
+                },
+                "description": "Returns catalog of video drills available for coach assignment."
+              },
+              "response": []
+            },
+            {
+              "name": "Bulk Assign Video Drill to Players",
+              "id": "838dbad4-ff84-4457-a6bd-d0bebd8c10c7",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/v1/coach/videos/assign",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "coach",
+                    "videos",
+                    "assign"
+                  ]
+                },
+                "description": "Assigns video drill in bulk across multiple players.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"videoId\": \"6acda8d4587717ac62d60533\",\n  \"playerIds\": [\n    \"6acc80dca1df2a2ed315c20e\",\n    \"6acb269481bb041722d7e889\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ],
       "id": "9023ddd6-a030-463f-93cb-cde9691563c4",
@@ -9154,49 +10833,6 @@
           "createdAt": "2026-10-29T03:02:14.000Z",
           "updatedAt": "2026-10-29T03:02:14.000Z",
           "uid": "48870830-53d80f5b-33ae-4d18-98ae-f8615912dd44"
-        },
-        {
-          "name": "8. User - Purchase / Enroll in 90-Day Mentorship",
-          "id": "13f5d9c3-2660-41be-8a7e-db8181d31571",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
-              "options": {
-                "raw": {
-                  "language": "text"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/api/v1/curriculum/purchase",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "curriculum",
-                "purchase"
-              ]
-            },
-            "description": "Simulates 90-Day Mentorship program purchase/enrollment, setting user tier to 90-day-mentorship and starting 24-hour daily mission progression from Day 1."
-          },
-          "response": [],
-          "createdAt": "2026-10-29T03:02:14.000Z",
-          "updatedAt": "2026-10-29T03:02:14.000Z",
-          "uid": "48870830-13f5d9c3-2660-41be-8a7e-db8181d31571"
         },
         {
           "name": "9. User - Get 90-Day Mentorship Program Progress",

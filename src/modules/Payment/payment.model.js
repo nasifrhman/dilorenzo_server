@@ -25,6 +25,8 @@ const paymentSchema = new mongoose.Schema(
     stripeCustomerId: { type: String, default: '' },
     invoicePdfUrl: { type: String, default: '' },
     paymentMethod: { type: String, default: 'card' },
+    plan: { type: String, default: 'custom' },
+    dueDate: { type: Date, default: null },
     paidAt: { type: Date, default: null },
     issuedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Admin who created the invoice
   },

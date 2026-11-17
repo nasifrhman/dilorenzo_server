@@ -38,6 +38,7 @@ const {
   getCoachesSimpleListService,
   bulkAssignVideoService,
   graduatePlayerPhaseService,
+  getGraduationChecklistService,
   getAllCoachActionStepsService,
   getCoachPreferencesService,
   updateCoachPreferencesService,
@@ -644,6 +645,21 @@ const graduatePlayerPhaseController = catchAsync(async (req, res) => {
   );
 });
 
+const getGraduationChecklistController = catchAsync(async (req, res) => {
+  const { athleteId, id } = req.params;
+  const targetId = athleteId || id || getLoggedInUserId(req) || req.query.athleteId;
+  const result = await getGraduationChecklistService(targetId);
+  return res.status(status.OK).json(
+    response({
+      status: 'success',
+      statusCode: status.OK,
+      type: 'GraduationChecklist',
+      message: 'Graduation checklist retrieved successfully',
+      data: result,
+    })
+  );
+});
+
 const getCoachPreferencesController = catchAsync(async (req, res) => {
   const coachId = getLoggedInUserId(req);
   const result = await getCoachPreferencesService(coachId);
@@ -723,6 +739,7 @@ module.exports = {
   getCoachesSimpleListController,
   bulkAssignVideoController,
   graduatePlayerPhaseController,
+  getGraduationChecklistController,
   getCoachPreferencesController,
   updateCoachPreferencesController,
   getAllCoachActionStepsController,

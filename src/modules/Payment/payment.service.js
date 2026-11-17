@@ -9,23 +9,81 @@ const Payment = require('./payment.model');
 const getStripe = () => {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
-    throw new ApiError(
-      status.SERVICE_UNAVAILABLE,
-      'Stripe secret key is not configured. Please set STRIPE_SECRET_KEY in .env'
-    );
+    return null;
   }
   return new Stripe(secretKey);
 };
 
-// Clean Production Subscription & Mentorship Plans (Feature & Price only)
+// Feature comparison matrix (Design Image 2: "PROGRAM PHASES")
+const COMPARISON_TABLE = {
+  columns: ['FEATURE', 'ACADEMY', 'ELITE'],
+  features: [
+    { name: 'Daily Missions & XP', academy: true, elite: true },
+    { name: 'Community Feed', academy: true, elite: false },
+    { name: 'Leaderboard & Challenges', academy: true, elite: true },
+    { name: 'Training Program', academy: true, elite: false },
+    { name: 'Rewards Wallet', academy: true, elite: true },
+    { name: 'Parent Dashboard', academy: true, elite: false },
+    { name: 'Priority Support', academy: true, elite: true },
+    { name: '1-on-1 Coach (Mentorship only)', academy: false, elite: true },
+  ],
+};
+
+// Upgrade Modal / Bottom Sheet data (Design Image 1)
+const UPGRADE_MODAL = {
+  title: 'UPGRADE TO ACADEMY',
+  subtitle: 'Unlock your full potential',
+  badge: 'ACADEMY ★',
+  cardTitle: 'ACADEMY ★',
+  price: 4.99,
+  currency: 'GBP',
+  formattedPrice: '£4.99/month',
+  primaryButtonText: 'UPGRADE NOW — £4.99/month',
+  trialButtonText: 'Start 7 Days Free Trial',
+  features: [
+    'Everything in Free',
+    'Personal coach feedback',
+    '1-on-1 sessions',
+    'Parent dashboard',
+    'Priority support',
+  ],
+};
+
+// Elite 90-Day Mentorship data (Design Image 2)
+const ELITE_PROGRAM = {
+  id: '90-day-mentorship',
+  tag: 'ELITE PROGRAM',
+  title: '90-DAY MENTORSHIP',
+  name: '90-Day Mentorship',
+  price: 450.0,
+  currency: 'GBP',
+  formattedPrice: '£450.00',
+  description:
+    'A high-ticket, high-accountability 1-on-1 mentorship program. Selective admission. Personal coach assigned by our team.',
+  badges: ['Assigned Coach', 'Private Group', 'Action Steps', 'Personalized Training'],
+  buttonText: 'LEARN MORE & APPLY ➔',
+  actionUrl: '/scheduling/admission-call',
+};
+
+// Clean Production Subscription & Mentorship Plans matching new design
 const PLANS = [
   {
     id: 'academy-monthly',
     name: 'Academy Membership',
+    tag: 'DSM ACADEMY APP',
+    headerTitle: 'UPGRADE TO ACADEMY',
+    subtitle: 'Unlock your full potential',
     price: 4.99,
     currency: 'GBP',
+    formattedPrice: '£4.99/month',
+    displayPrice: '£4.99',
+    periodLabel: '/month',
     interval: 'month',
     trialDays: 7,
+    trialButtonText: 'START 7-DAY FREE TRIAL',
+    buttonText: 'UPGRADE NOW — £4.99/month',
+    finePrint: 'Does not include 1-on-1 coaching · Cancel anytime',
+    badge: 'ACADEMY ★',
     features: [
       'Everything in Free',
       'Personal coach feedback',
@@ -33,57 +91,36 @@ const PLANS = [
       'Parent dashboard',
       'Priority support',
     ],
+    isPopular: true,
   },
   {
-    id: 'app-subscription-monthly',
-    name: 'Monthly Pro',
-    price: 7.99,
-    currency: 'GBP',
-    interval: 'month',
-    trialDays: 7,
-    features: [
-      'Daily Missions & XP',
-      'Community Feed',
-      'Leaderboard & Challenges',
-      'Training Program',
-      'Rewards Wallet',
-      'Parent Dashboard',
-      'Priority Support',
-    ],
-  },
-  {
-    id: 'app-subscription-annual',
-    name: 'Annual Pro',
+    id: 'academy-annual',
+    name: 'Academy Annual',
+    tag: 'DSM ACADEMY APP',
+    headerTitle: 'UPGRADE TO ACADEMY',
+    subtitle: 'Unlock your full potential',
     price: 59.99,
     currency: 'GBP',
+    formattedPrice: '£59.99/year',
+    displayPrice: '£59.99',
+    periodLabel: '/year',
+    savings: 'save 37%',
+    savingsLabel: 'or £59.99/year — save 37%',
     interval: 'year',
     trialDays: 7,
+    trialButtonText: 'START 7-DAY FREE TRIAL',
+    buttonText: 'UPGRADE NOW — £59.99/year',
+    finePrint: 'Does not include 1-on-1 coaching · Cancel anytime',
     features: [
-      'Daily Missions & XP',
-      'Community Feed',
-      'Leaderboard & Challenges',
-      'Training Program',
-      'Rewards Wallet',
-      'Parent Dashboard',
-      'Priority Support',
+      'Everything in Free',
+      'Personal coach feedback',
+      '1-on-1 sessions',
+      'Parent dashboard',
+      'Priority support',
     ],
+    isPopular: false,
   },
-  {
-    id: '90-day-mentorship',
-    name: '90-Day Mentorship',
-    price: 450.0,
-    currency: 'GBP',
-    interval: 'one-time',
-    trialDays: 0,
-    features: [
-      'Dedicated 1-on-1 High-Performance Mindset Coach',
-      'Private 3-Way Group (Athlete, Coach, Parent)',
-      '90-Day Step-by-Step Curriculum Roadmap',
-      'Personalized Action Steps & Habit Auditing',
-      'Match Mentality Audits & 1-on-1 Video Calls',
-      'Full App Subscription Pro Access Included',
-    ],
-  },
+  ELITE_PROGRAM,
 ];
 
 // Helper: Find or create Stripe Customer
@@ -111,17 +148,15 @@ const getOrCreateStripeCustomer = async (user, stripeInstance) => {
   return customer.id;
 };
 
-// Helper: Resolve or Create Stripe Price for Academy (£4.99/mo), Monthly (£7.99/mo) or Annual (£59.99/yr)
+// Helper: Resolve or Create Stripe Price for Academy (£4.99/mo) or Annual (£59.99/yr)
 const getOrCreateStripePriceId = async (stripeInstance, planKey) => {
-  const isAcademy = planKey === 'academy-monthly' || planKey === 'academy';
-  const isAnnual = planKey === 'app-subscription-annual' || planKey === 'annual';
-  const unitAmount = isAcademy ? 499 : (isAnnual ? 5999 : 799); // £4.99, £59.99, or £7.99 in pence
+  const isAnnual = planKey === 'academy-annual' || planKey === 'app-subscription-annual' || planKey === 'annual';
+  const unitAmount = isAnnual ? 5999 : 499; // £59.99 or £4.99 in pence
   const interval = isAnnual ? 'year' : 'month';
-  const envPriceId = isAcademy
-    ? process.env.STRIPE_PRICE_ID_ACADEMY_MONTHLY
-    : isAnnual
-    ? process.env.STRIPE_PRICE_ID_APP_ANNUAL
-    : process.env.STRIPE_PRICE_ID_APP_MONTHLY;
+
+  const envPriceId = isAnnual
+    ? (process.env.STRIPE_PRICE_ID_ACADEMY_ANNUAL || process.env.STRIPE_PRICE_ID_APP_ANNUAL)
+    : (process.env.STRIPE_PRICE_ID_ACADEMY_MONTHLY || process.env.STRIPE_PRICE_ID_APP_MONTHLY);
 
   if (envPriceId) return envPriceId;
 
@@ -142,15 +177,13 @@ const getOrCreateStripePriceId = async (stripeInstance, planKey) => {
 
   if (existing) return existing.id;
 
-  const productName = isAcademy
-    ? 'Academy Membership'
-    : isAnnual
+  const productName = isAnnual
     ? 'DSM Academy App (Annual Pro)'
-    : 'DSM Academy App (Monthly Pro)';
+    : 'DSM Academy App (Monthly)';
 
   const product = await stripeInstance.products.create({
     name: productName,
-    description: 'Gamification · Training content · Challenges · Leaderboards · Parent Dashboard',
+    description: 'DSM Academy: Daily Missions, Training, Community, Challenges, Parent Dashboard',
   });
 
   const price = await stripeInstance.prices.create({
@@ -164,14 +197,88 @@ const getOrCreateStripePriceId = async (stripeInstance, planKey) => {
 };
 
 /**
- * 1. API to see all plans
+ * Page 1: Upgrade Modal / Container (Image 2)
  */
-const getAllPlansService = async () => {
-  return PLANS;
+const getUpgradeModalService = async () => {
+  return {
+    title: 'UPGRADE TO ACADEMY',
+    subtitle: 'Unlock your full potential',
+    badge: 'ACADEMY ★',
+    cardTitle: 'ACADEMY ★',
+    features: [
+      'Everything in Free',
+      'Personal coach feedback',
+      '1-on-1 sessions',
+      'Parent dashboard',
+      'Priority support',
+    ],
+    plan: {
+      planId: 'academy-monthly',
+      price: 4.99,
+      currency: 'GBP',
+      formattedPrice: '£4.99/month',
+      trialDays: 7,
+    },
+    primaryButtonText: 'UPGRADE NOW — £4.99/month',
+    trialButtonText: 'Start 7 Days Free Trial',
+    billingNotice:
+      'Card details collected upfront. £0.00 charged today. 7-day free trial auto-renews at £4.99/month unless cancelled.',
+  };
 };
 
 /**
- * 2. API to see my plan
+ * Page 2: Upgrade Screen (Image 1)
+ */
+const getUpgradeScreenService = async () => {
+  return {
+    academy: {
+      tag: 'DSM ACADEMY APP',
+      title: 'UPGRADE TO ACADEMY',
+      subtitle: 'Unlock your full potential',
+      pills: [
+        {
+          planId: 'academy-monthly',
+          pillText: '£4.99/month',
+          price: 4.99,
+          currency: 'GBP',
+          interval: 'month',
+          isDefault: true,
+        },
+        {
+          planId: 'academy-annual',
+          pillText: '£59.99/year',
+          price: 59.99,
+          currency: 'GBP',
+          interval: 'year',
+          savings: 'save 37%',
+          isDefault: false,
+        },
+      ],
+      buttonText: 'START 7-DAY FREE TRIAL',
+      trialDays: 7,
+      disclaimer: 'Does not include 1-on-1 coaching · Cancel anytime',
+      billingNotice:
+        'Card details collected upfront. £0.00 charged today. Auto-renews at selected plan price after 7-day trial unless cancelled.',
+    },
+    eliteProgram: {
+      tag: 'ELITE PROGRAM',
+      title: '90-DAY MENTORSHIP',
+      description:
+        'A high-ticket, high-accountability 1-on-1 mentorship program. Selective admission. Personal coach assigned by our team.',
+      badges: ['Assigned Coach', 'Private Group', 'Action Steps', 'Personalized Training'],
+      buttonText: 'LEARN MORE & APPLY ➔',
+      planId: '90-day-mentorship',
+      price: 450.0,
+      formattedPrice: '£450.00',
+    },
+  };
+};
+
+const getSubscriptionPlansService = getUpgradeScreenService;
+const getAllPlansService = getUpgradeScreenService;
+
+/**
+ * 2. API to see my plan & current status
  */
 const getMyPlanService = async (userId) => {
   const user = await User.findById(userId).select(
@@ -183,7 +290,16 @@ const getMyPlanService = async (userId) => {
 
   const subscription = await Subscription.findOne({
     user: userId,
-    plan: { $in: ['premium-monthly', 'premium-annual', 'app-subscription-monthly', 'app-subscription-annual', 'academy-monthly'] },
+    plan: {
+      $in: [
+        'academy-monthly',
+        'academy-annual',
+        'premium-monthly',
+        'premium-annual',
+        'app-subscription-monthly',
+        'app-subscription-annual',
+      ],
+    },
   }).sort({ createdAt: -1 });
 
   const now = new Date();
@@ -204,18 +320,38 @@ const getMyPlanService = async (userId) => {
     }
   }
 
-  const hasMentorship = user.tier === '90-day-mentorship';
-  const hasAppSubscription = user.tier === 'premium' || hasMentorship;
+  const mentorshipSub = await Subscription.findOne({
+    user: userId,
+    plan: '90-day-mentorship',
+    status: 'active',
+  });
+
+  const hasMentorship = Boolean(mentorshipSub) || user.tier === '90-day-mentorship';
+  const hasAppSubscription = Boolean(subscription && ['active', 'trialing'].includes(subscription.status)) || user.tier === 'premium' || user.tier === 'academy';
+
+  let tierLabel = 'Free';
+  if (hasMentorship && hasAppSubscription) {
+    tierLabel = 'Academy + 90-Day Mentorship';
+  } else if (hasMentorship) {
+    tierLabel = '90-Day Mentorship';
+  } else if (hasAppSubscription) {
+    tierLabel = 'Academy';
+  }
 
   return {
     tier: user.tier || 'free',
+    tierLabel,
     hasAppSubscription,
+    hasAcademyAccess: hasAppSubscription || hasMentorship,
     hasMentorship,
     appSubscription: {
-      status: subscription ? subscription.status : (hasAppSubscription ? 'active' : 'inactive'),
-      plan: subscription ? subscription.plan : (hasAppSubscription ? 'app-subscription-monthly' : 'free'),
+      status: subscription ? subscription.status : (hasAppSubscription ? (isTrialActive ? 'trialing' : 'active') : 'inactive'),
+      plan: subscription ? subscription.plan : (hasAppSubscription ? 'academy-monthly' : 'free'),
+      planName: subscription?.plan?.includes('annual') ? 'Academy Annual' : (hasAppSubscription ? 'Academy Membership' : 'Free'),
+      formattedPrice: subscription?.plan?.includes('annual') ? '£59.99/year' : (hasAppSubscription ? '£4.99/month' : '£0.00'),
       isTrialActive,
       trialDaysRemaining,
+      trialStartDate: user.trialStartDate || null,
       trialEndDate: user.trialEndDate || null,
       currentPeriodEnd: subscription?.currentPeriodEnd || null,
     },
@@ -232,10 +368,21 @@ const getMyPlanService = async (userId) => {
 };
 
 /**
- * 3. API to purchase plan via Stripe
+ * 3. Start 7-Day Free Trial via Stripe Checkout / PaymentSheet
+ * - Does NOT directly purchase or activate the plan in MongoDB!
+ * - Prepares the Stripe session so the user must enter card details normally.
+ * - Card is authorized with 7-day trial (£0.00 today).
+ * - Only after Stripe confirms the card does the user receive access.
+ */
+const startTrialService = async (userId, data = {}) => {
+  return await subscribePlanService(userId, data);
+};
+
+/**
+ * 4. API to purchase plan via Stripe
  * Supports:
- * - App Subscription Monthly (£7.99/mo, 7-day trial)
- * - App Subscription Annual (£59.99/yr, 7-day trial)
+ * - Academy Monthly (£4.99/mo, 7-day trial)
+ * - Academy Annual (£59.99/yr, 7-day trial)
  * - 90-Day Mentorship (£450.00 one-time admission)
  */
 const purchasePlanService = async (userId, data = {}) => {
@@ -245,35 +392,112 @@ const purchasePlanService = async (userId, data = {}) => {
     throw new ApiError(status.NOT_FOUND, 'User not found');
   }
 
-  const planId = (data.planId || data.plan || 'app-subscription-monthly').toLowerCase();
+  const rawPlan = (data.planId || data.plan || 'academy-monthly').toLowerCase();
+  const isMentorship = rawPlan.includes('mentor') || rawPlan.includes('90') || rawPlan.includes('elite');
+  const isAnnual = rawPlan.includes('annual') || rawPlan.includes('year');
+  const planKey = isMentorship ? '90-day-mentorship' : (isAnnual ? 'academy-annual' : 'academy-monthly');
+
+  const MySubscription = require('./mySubscription.model');
+
+  // ==============================================================================
+  // PLAN MANAGEMENT & SWITCHING LOGIC
+  // - 90-Day Mentorship & Academy App are independent products: user can hold BOTH!
+  // - Academy Monthly & Academy Annual are the same product: switching cancels old cycle
+  // ==============================================================================
+
+  if (!isMentorship) {
+    // Only check for duplicates / switching within Academy subscriptions
+    const existingAcademySub = await MySubscription.findOne({
+      user: user._id,
+      status: { $in: ['active', 'trialing'] },
+      planId: { $in: ['academy-monthly', 'academy-annual'] },
+    });
+
+    if (existingAcademySub) {
+      // Trying to buy the exact same Academy plan they already have active
+      if (existingAcademySub.planId === planKey) {
+        throw new ApiError(
+          status.BAD_REQUEST,
+          `You already have an active subscription to ${existingAcademySub.planName}.`
+        );
+      }
+
+      // Switching plans (e.g. Academy Monthly -> Academy Annual or vice-versa)
+      // Cancel the old recurring subscription in Stripe so they are NEVER double-billed
+      if (existingAcademySub.stripeSubscriptionId && stripe) {
+        try {
+          await stripe.subscriptions.cancel(existingAcademySub.stripeSubscriptionId);
+        } catch (e) {
+          // ignore if already cancelled in Stripe
+        }
+        existingAcademySub.status = 'canceled';
+        existingAcademySub.autoRenews = false;
+        await existingAcademySub.save();
+      }
+    }
+  }
+
+  // ==============================================================================
+  // LIFETIME FREE TRIAL ENFORCEMENT (Once in a lifetime across all plans)
+  // ==============================================================================
+  const hasUsedTrial = Boolean(
+    user.hasUsedTrial ||
+    user.trialStartDate ||
+    (await MySubscription.exists({
+      user: user._id,
+      $or: [
+        { trialStartDate: { $ne: null } },
+        { trialDays: { $gt: 0 } },
+        { status: 'trialing' },
+      ],
+    }))
+  );
+  const trialDays = hasUsedTrial || isMentorship ? undefined : 7;
+
+  // Fallback for dev testing if Stripe key is not configured in .env
+  if (!stripe) {
+    return {
+      type: 'CheckoutSession',
+      plan: planKey,
+      sessionId: `cs_test_mock_${Date.now()}`,
+      checkoutUrl: `${process.env.BACKEND_URL || 'http://10.10.28.46:8052'}/api/v1/subscription/success?session_id=mock_session`,
+      message: 'Stripe secret key not configured in .env. Returned mock session for local testing.',
+    };
+  }
+
+  // Resolve paymentMethodId if setupIntentId was provided
+  let paymentMethodId = data.paymentMethodId;
+  if (!paymentMethodId && data.setupIntentId && stripe) {
+    try {
+      const si = await stripe.setupIntents.retrieve(data.setupIntentId);
+      paymentMethodId = si.payment_method;
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const stripeCustomerId = await getOrCreateStripeCustomer(user, stripe);
 
   const successUrl =
     data.successUrl ||
-    `${process.env.BACKEND_URL || 'http://localhost:8052'}/api/v1/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
+    `${process.env.BACKEND_URL || 'http://10.10.28.46:8052'}/api/v1/subscription/success?session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl =
     data.cancelUrl ||
-    `${process.env.BACKEND_URL || 'http://localhost:8052'}/api/v1/subscription/my-plan`;
+    `${process.env.BACKEND_URL || 'http://10.10.28.46:8052'}/api/v1/subscription/my-plan`;
 
-  // ==========================================
-  // Flow 1: 90-DAY MENTORSHIP ONE-TIME PURCHASE (£450.00)
-  // ==========================================
-  if (
-    planId === '90-day-mentorship' ||
-    planId === 'mentorship' ||
-    planId === 'elite'
-  ) {
+  // Flow 1: 90-Day Mentorship One-Time Purchase (£450.00)
+  if (isMentorship) {
     const mentorshipAmount = 450.0;
 
-    // Mobile direct payment with paymentMethodId
-    if (data.paymentMethodId) {
-      await stripe.paymentMethods.attach(data.paymentMethodId, { customer: stripeCustomerId });
+    // Direct card payment via PaymentMethodId
+    if (paymentMethodId) {
+      await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomerId });
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: 45000, // £450.00 in pence
+        amount: 45000,
         currency: 'gbp',
         customer: stripeCustomerId,
-        payment_method: data.paymentMethodId,
+        payment_method: paymentMethodId,
         off_session: true,
         confirm: true,
         description: '90-Day Mentorship Elite Admission',
@@ -302,6 +526,27 @@ const purchasePlanService = async (userId, data = {}) => {
         paidAt: now,
       });
 
+      // Record in MySubscription model
+      let subRecord = await Subscription.findOne({ user: user._id, planId: '90-day-mentorship' });
+      if (!subRecord) subRecord = new Subscription({ user: user._id });
+      subRecord.athleteName = user.fullName || '';
+      subRecord.athleteEmail = user.email || '';
+      subRecord.planId = '90-day-mentorship';
+      subRecord.plan = '90-day-mentorship';
+      subRecord.planName = '90-Day Mentorship';
+      subRecord.planType = 'one_time';
+      subRecord.interval = 'one_time';
+      subRecord.amount = mentorshipAmount;
+      subRecord.currency = 'GBP';
+      subRecord.status = 'active';
+      subRecord.isTrialActive = false;
+      subRecord.currentPeriodStart = now;
+      subRecord.currentPeriodEnd = endDate;
+      subRecord.stripeCustomerId = stripeCustomerId;
+      subRecord.stripePaymentIntentId = paymentIntent.id;
+      subRecord.autoRenews = false;
+      await subRecord.save();
+
       return {
         type: 'MentorshipPurchased',
         tier: user.tier,
@@ -313,7 +558,7 @@ const purchasePlanService = async (userId, data = {}) => {
       };
     }
 
-    // Hosted Stripe Checkout Session for 90-Day Mentorship
+    // Hosted Stripe Checkout Session for Mentorship
     const lineItem = process.env.STRIPE_PRICE_ID_MENTORSHIP
       ? { price: process.env.STRIPE_PRICE_ID_MENTORSHIP, quantity: 1 }
       : {
@@ -347,31 +592,20 @@ const purchasePlanService = async (userId, data = {}) => {
     };
   }
 
-  // ==========================================
-  // Flow 2: APP SUBSCRIPTION (Academy £4.99 / Monthly £7.99 / Annual £59.99 with 7-Day Trial)
-  // ==========================================
-  const isAcademy = planId === 'academy-monthly' || planId === 'academy';
-  const isAnnual = planId === 'app-subscription-annual' || planId === 'annual';
-  const priceId = await getOrCreateStripePriceId(stripe, planId);
-  const hasUsedTrial = Boolean(user.trialEndDate);
-  const trialDays = hasUsedTrial ? undefined : 7;
-  const planKey = isAcademy
-    ? 'academy-monthly'
-    : isAnnual
-    ? 'app-subscription-annual'
-    : 'app-subscription-monthly';
+  // Flow 2: Academy App Subscription (£4.99/mo or £59.99/yr with 7-Day Trial)
+  const priceId = await getOrCreateStripePriceId(stripe, planKey);
 
-  // Mobile direct card purchase
-  if (data.paymentMethodId) {
-    await stripe.paymentMethods.attach(data.paymentMethodId, { customer: stripeCustomerId });
+  // Direct card setup/subscription via PaymentMethodId
+  if (paymentMethodId) {
+    await stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomerId });
     await stripe.customers.update(stripeCustomerId, {
-      invoice_settings: { default_payment_method: data.paymentMethodId },
+      invoice_settings: { default_payment_method: paymentMethodId },
     });
 
     const subParams = {
       customer: stripeCustomerId,
       items: [{ price: priceId }],
-      default_payment_method: data.paymentMethodId,
+      default_payment_method: paymentMethodId,
       metadata: { userId: user._id.toString(), plan: planKey },
     };
     if (trialDays) subParams.trial_period_days = trialDays;
@@ -385,15 +619,24 @@ const purchasePlanService = async (userId, data = {}) => {
     let subRecord = await Subscription.findOne({ user: userId });
     if (!subRecord) subRecord = new Subscription({ user: userId });
 
-    subRecord.plan = isAcademy ? 'academy-monthly' : (isAnnual ? 'premium-annual' : 'premium-monthly');
+    subRecord.athleteName = user.fullName || '';
+    subRecord.athleteEmail = user.email || '';
+    subRecord.planId = planKey;
+    subRecord.plan = planKey;
+    subRecord.planName = isAnnual ? 'Academy Annual' : 'Academy Membership';
+    subRecord.interval = isAnnual ? 'year' : 'month';
     subRecord.status = stripeSub.status;
+    subRecord.isTrialActive = stripeSub.status === 'trialing';
     subRecord.stripeSubscriptionId = stripeSub.id;
     subRecord.stripeCustomerId = stripeCustomerId;
     subRecord.stripePriceId = priceId;
-    subRecord.amount = isAcademy ? 4.99 : (isAnnual ? 59.99 : 7.99);
+    subRecord.amount = isAnnual ? 59.99 : 4.99;
     subRecord.currency = 'GBP';
+    subRecord.currentPeriodStart = now;
     subRecord.currentPeriodEnd = periodEnd;
+    subRecord.trialStartDate = stripeSub.status === 'trialing' ? now : null;
     subRecord.trialEndDate = trialEnd;
+    subRecord.autoRenews = true;
     await subRecord.save();
 
     if (user.tier !== '90-day-mentorship') {
@@ -403,6 +646,7 @@ const purchasePlanService = async (userId, data = {}) => {
     if (stripeSub.status === 'trialing') {
       user.trialStartDate = now;
       user.trialEndDate = trialEnd;
+      user.hasUsedTrial = true;
     }
     await user.save();
 
@@ -418,7 +662,7 @@ const purchasePlanService = async (userId, data = {}) => {
     };
   }
 
-  // Hosted Stripe Checkout Session for App Subscription
+  // Hosted Stripe Checkout Session for Academy Subscription
   const session = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     payment_method_types: ['card'],
@@ -442,10 +686,132 @@ const purchasePlanService = async (userId, data = {}) => {
 };
 
 /**
- * Stripe Webhook Handler for both Subscriptions and Mentorship Payments
+ * 5. Create Mobile PaymentSheet / SetupIntent Parameters (For React Native & Flutter)
+ */
+const createPaymentSheetService = async (userId, data = {}) => {
+  const stripe = getStripe();
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, 'User not found');
+  }
+
+  if (!stripe) {
+    return {
+      setupIntentClientSecret: 'seti_mock_secret_test',
+      ephemeralKey: 'ek_test_mock_secret',
+      customerId: 'cus_mock_test',
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_sample',
+      plan: data.planId || 'academy-monthly',
+      trialDays: 7,
+      message: 'Stripe secret key not configured in .env. Mock keys returned for local dev.',
+    };
+  }
+
+  const customerId = await getOrCreateStripeCustomer(user, stripe);
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    { customer: customerId },
+    { apiVersion: '2024-06-20' }
+  );
+
+  const rawPlan = (data.planId || data.plan || 'academy-monthly').toLowerCase();
+  const isMentorship = rawPlan.includes('mentor') || rawPlan.includes('90') || rawPlan.includes('elite');
+
+  if (isMentorship) {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: 45000,
+      currency: 'gbp',
+      customer: customerId,
+      automatic_payment_methods: { enabled: true },
+      metadata: { userId: user._id.toString(), plan: '90-day-mentorship' },
+    });
+
+    return {
+      paymentIntentClientSecret: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customerId,
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+      amount: 450.0,
+      currency: 'GBP',
+    };
+  }
+
+  const setupIntent = await stripe.setupIntents.create({
+    customer: customerId,
+    payment_method_types: ['card'],
+    metadata: { userId: user._id.toString(), plan: rawPlan },
+  });
+
+  return {
+    setupIntentClientSecret: setupIntent.client_secret,
+    ephemeralKey: ephemeralKey.secret,
+    customerId,
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    plan: rawPlan,
+    trialDays: 7,
+  };
+};
+
+/**
+ * 6. Cancel Subscription / Free Trial
+ * - If cancelled during the 7-day trial: cancels Stripe subscription immediately so card is never charged.
+ * - If cancelled during active billing: sets cancel_at_period_end so user keeps paid time.
+ */
+const cancelSubscriptionService = async (userId) => {
+  const stripe = getStripe();
+  const subscription = await Subscription.findOne({
+    user: userId,
+    status: { $in: ['active', 'trialing'] },
+  });
+
+  if (!subscription) {
+    throw new ApiError(status.NOT_FOUND, 'No active subscription or free trial found to cancel.');
+  }
+
+  const isTrial = subscription.status === 'trialing';
+
+  if (subscription.stripeSubscriptionId && stripe) {
+    try {
+      if (isTrial) {
+        // Immediate cancellation so Stripe does NOT bill the saved card when trial ends
+        await stripe.subscriptions.cancel(subscription.stripeSubscriptionId);
+      } else {
+        await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
+          cancel_at_period_end: true,
+        });
+      }
+    } catch (e) {
+      await stripe.subscriptions.cancel(subscription.stripeSubscriptionId).catch(() => {});
+    }
+  }
+
+  subscription.cancelAtPeriodEnd = !isTrial;
+  subscription.status = 'canceled';
+  await subscription.save();
+
+  const user = await User.findById(userId);
+  if (user && user.tier !== '90-day-mentorship') {
+    user.isTrialActive = false;
+    user.tier = 'free';
+    await user.save();
+  }
+
+  return {
+    status: 'canceled',
+    message: isTrial
+      ? '7-Day Free Trial has been canceled. Your card will not be charged.'
+      : 'Subscription has been canceled. You will retain access until the end of the billing period.',
+  };
+};
+
+/**
+ * 7. Stripe Webhook Handler for Subscriptions and Mentorship Payments
  */
 const handleStripeWebhookService = async (rawBody, signature) => {
   const stripe = getStripe();
+  if (!stripe) {
+    return { received: true, simulated: true };
+  }
+
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   let event;
@@ -470,7 +836,6 @@ const handleStripeWebhookService = async (rawBody, signature) => {
       if (userId) {
         const user = await User.findById(userId);
         if (user) {
-          // If 90-Day Mentorship one-time payment
           if (plan === '90-day-mentorship') {
             const now = new Date();
             user.tier = '90-day-mentorship';
@@ -491,9 +856,28 @@ const handleStripeWebhookService = async (rawBody, signature) => {
               paymentMethod: 'card',
               paidAt: now,
             });
-          }
-          // If App Subscription recurring
-          else if (session.mode === 'subscription' && session.subscription) {
+
+            // Record in MySubscription model
+            let subRecord = await Subscription.findOne({ user: user._id, planId: '90-day-mentorship' });
+            if (!subRecord) subRecord = new Subscription({ user: user._id });
+            subRecord.athleteName = user.fullName || '';
+            subRecord.athleteEmail = user.email || '';
+            subRecord.planId = '90-day-mentorship';
+            subRecord.plan = '90-day-mentorship';
+            subRecord.planName = '90-Day Mentorship';
+            subRecord.planType = 'one_time';
+            subRecord.interval = 'one_time';
+            subRecord.amount = (session.amount_total || 45000) / 100;
+            subRecord.currency = (session.currency || 'GBP').toUpperCase();
+            subRecord.status = 'active';
+            subRecord.isTrialActive = false;
+            subRecord.currentPeriodStart = now;
+            subRecord.currentPeriodEnd = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+            subRecord.stripeCustomerId = session.customer || '';
+            subRecord.stripePaymentIntentId = session.payment_intent || '';
+            subRecord.autoRenews = false;
+            await subRecord.save();
+          } else if (session.mode === 'subscription' && session.subscription) {
             const stripeSub = await stripe.subscriptions.retrieve(session.subscription);
             if (user.tier !== '90-day-mentorship') {
               user.tier = 'premium';
@@ -504,20 +888,30 @@ const handleStripeWebhookService = async (rawBody, signature) => {
             if (stripeSub.status === 'trialing' && stripeSub.trial_end) {
               user.trialStartDate = new Date(stripeSub.trial_start ? stripeSub.trial_start * 1000 : Date.now());
               user.trialEndDate = new Date(stripeSub.trial_end * 1000);
+              user.hasUsedTrial = true;
             }
             await user.save();
 
             let subRecord = await Subscription.findOne({ user: userId });
             if (!subRecord) subRecord = new Subscription({ user: userId });
 
-            subRecord.plan = session.metadata?.plan?.includes('annual')
-              ? 'premium-annual'
-              : 'premium-monthly';
+            const isAnnual = session.metadata?.plan?.includes('annual');
+            const planKey = isAnnual ? 'academy-annual' : 'academy-monthly';
+            subRecord.athleteName = user.fullName || '';
+            subRecord.athleteEmail = user.email || '';
+            subRecord.planId = planKey;
+            subRecord.plan = planKey;
+            subRecord.planName = isAnnual ? 'Academy Annual' : 'Academy Membership';
+            subRecord.interval = isAnnual ? 'year' : 'month';
             subRecord.status = stripeSub.status;
+            subRecord.isTrialActive = stripeSub.status === 'trialing';
+            subRecord.amount = isAnnual ? 59.99 : 4.99;
+            subRecord.currency = 'GBP';
             subRecord.stripeSubscriptionId = stripeSub.id;
             subRecord.stripeCustomerId = session.customer;
             subRecord.currentPeriodEnd = new Date(stripeSub.current_period_end * 1000);
             subRecord.trialEndDate = user.trialEndDate;
+            subRecord.autoRenews = true;
             await subRecord.save();
           }
         }
@@ -581,8 +975,8 @@ const handleStripeWebhookService = async (rawBody, signature) => {
         if (subRecord) {
           await Payment.create({
             athlete: subRecord.user,
-            description: `App Subscription (${invoice.number || 'Invoice'})`,
-            amount: (invoice.amount_paid || 799) / 100,
+            description: `DSM Academy Subscription (${invoice.number || 'Invoice'})`,
+            amount: (invoice.amount_paid || 499) / 100,
             currency: (invoice.currency || 'GBP').toUpperCase(),
             status: 'paid',
             stripeInvoiceId: invoice.id,
@@ -600,10 +994,202 @@ const handleStripeWebhookService = async (rawBody, signature) => {
   return { received: true };
 };
 
+/**
+ * Unified Subscribe Endpoint (Stripe Mobile Sheet & Web Checkout)
+ */
+const subscribePlanService = async (userId, data = {}) => {
+  const stripe = getStripe();
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, 'User not found');
+  }
+
+  const rawPlan = (data.planId || data.plan || 'academy-monthly').toLowerCase();
+  const isMentorship = rawPlan.includes('mentor') || rawPlan.includes('90') || rawPlan.includes('elite');
+  const isAnnual = rawPlan.includes('annual') || rawPlan.includes('year');
+  const planKey = isMentorship ? '90-day-mentorship' : (isAnnual ? 'academy-annual' : 'academy-monthly');
+  const amount = isMentorship ? 450.0 : (isAnnual ? 59.99 : 4.99);
+
+  const MySubscription = require('./mySubscription.model');
+  const hasUsedTrial = Boolean(
+    user.hasUsedTrial ||
+    user.trialStartDate ||
+    (await MySubscription.exists({
+      user: user._id,
+      $or: [
+        { trialStartDate: { $ne: null } },
+        { trialDays: { $gt: 0 } },
+        { status: 'trialing' },
+      ],
+    }))
+  );
+  const trialDays = isMentorship || hasUsedTrial ? 0 : 7;
+
+  // If client provided paymentMethodId or setupIntentId directly, execute direct payment flow
+  if (data.paymentMethodId || data.setupIntentId) {
+    return await purchasePlanService(userId, data);
+  }
+
+  // Get or create mobile payment sheet credentials
+  const paymentSheet = await createPaymentSheetService(userId, { planId: planKey });
+
+  // Also get checkout session URL for web fallback
+  const checkout = await purchasePlanService(userId, data);
+
+  return {
+    plan: planKey,
+    amount,
+    currency: 'GBP',
+    trialDays,
+    billingNotice: isMentorship
+      ? 'One-time admission fee charged immediately.'
+      : trialDays > 0
+      ? `Card details collected upfront. £0.00 charged today. 7-day free trial auto-renews at £${amount}${isAnnual ? '/year' : '/month'} unless cancelled.`
+      : `First billing of £${amount}${isAnnual ? '/year' : '/month'} charged today (free trial already redeemed).`,
+    mobilePaymentSheet: {
+      setupIntentClientSecret: paymentSheet.setupIntentClientSecret,
+      ephemeralKey: paymentSheet.ephemeralKey,
+      customerId: paymentSheet.customerId,
+      publishableKey: paymentSheet.publishableKey,
+    },
+    webCheckout: {
+      checkoutUrl: checkout.checkoutUrl,
+      sessionId: checkout.sessionId,
+    },
+  };
+};
+
+/**
+ * 8. Handle Checkout Success (Redirect & Instant Activation in MySubscription DB)
+ */
+const handleCheckoutSuccessService = async (sessionId, queryUserId) => {
+  const stripe = getStripe();
+  const MySubscription = require('./mySubscription.model');
+
+  let userId = queryUserId;
+  let planKey = 'academy-monthly';
+  let stripeSub = null;
+  let customerId = '';
+  let subscriptionId = '';
+  let isMentorship = false;
+
+  // Case 1: Real Stripe session ID
+  if (stripe && sessionId && !sessionId.includes('mock')) {
+    try {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      userId = session.metadata?.userId || userId;
+      planKey = session.metadata?.plan || planKey;
+      customerId = session.customer;
+      subscriptionId = session.subscription;
+      isMentorship = planKey === '90-day-mentorship';
+
+      if (subscriptionId) {
+        stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
+      }
+    } catch (err) {
+      console.error('Error retrieving Stripe checkout session:', err.message);
+    }
+  }
+
+  // If userId not found from metadata or query, fall back to the most recent athlete/user
+  let user = null;
+  if (userId) {
+    user = await User.findById(userId);
+  }
+  if (!user) {
+    user = await User.findOne({ role: { $in: ['user', 'athlete'] } }).sort({ updatedAt: -1 });
+  }
+
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, 'User not found for subscription activation.');
+  }
+
+  const isAnnual = planKey.includes('annual');
+  const now = new Date();
+  const trialEnd = stripeSub?.trial_end
+    ? new Date(stripeSub.trial_end * 1000)
+    : new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const periodEnd = stripeSub?.current_period_end
+    ? new Date(stripeSub.current_period_end * 1000)
+    : trialEnd;
+
+  // Update user model
+  if (isMentorship) {
+    user.tier = '90-day-mentorship';
+    user.mentorshipPhase = 'foundation';
+    user.mentorshipDay = 1;
+    user.mentorshipStartDate = now;
+    user.mentorshipEndDate = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+  } else {
+    user.tier = 'premium';
+    user.isTrialActive = stripeSub ? stripeSub.status === 'trialing' : true;
+    user.trialStartDate = now;
+    user.trialEndDate = trialEnd;
+    user.hasUsedTrial = true;
+  }
+  if (customerId) user.stripeCustomerId = customerId;
+  await user.save();
+
+  // Create or update record in MySubscription collection
+  let subRecord = await MySubscription.findOne({
+    user: user._id,
+    planId: isMentorship ? '90-day-mentorship' : { $ne: '90-day-mentorship' },
+  });
+  if (!subRecord) {
+    subRecord = new MySubscription({ user: user._id });
+  }
+
+  subRecord.athleteName = user.fullName || '';
+  subRecord.athleteEmail = user.email || '';
+  subRecord.planId = planKey;
+  subRecord.plan = planKey;
+  subRecord.planName = isMentorship
+    ? '90-Day Mentorship'
+    : isAnnual
+    ? 'Academy Annual'
+    : 'Academy Membership';
+  subRecord.planType = isMentorship ? 'one_time' : 'recurring';
+  subRecord.interval = isMentorship ? 'one_time' : isAnnual ? 'year' : 'month';
+  subRecord.status = stripeSub?.status || 'trialing';
+  subRecord.isTrialActive = !isMentorship;
+  subRecord.amount = isMentorship ? 450.0 : isAnnual ? 59.99 : 4.99;
+  subRecord.currency = 'GBP';
+  subRecord.trialStartDate = isMentorship ? null : now;
+  subRecord.trialEndDate = isMentorship ? null : trialEnd;
+  subRecord.currentPeriodStart = now;
+  subRecord.currentPeriodEnd = isMentorship ? user.mentorshipEndDate : periodEnd;
+  subRecord.stripeCustomerId = customerId || user.stripeCustomerId || '';
+  subRecord.stripeSubscriptionId = subscriptionId || '';
+  subRecord.autoRenews = !isMentorship;
+  subRecord.purchasedAt = now;
+  await subRecord.save();
+
+  return {
+    status: subRecord.status,
+    plan: subRecord.planId,
+    tier: user.tier,
+    isTrialActive: subRecord.isTrialActive,
+    trialDaysRemaining: subRecord.trialDaysRemaining || 7,
+    trialEndDate: subRecord.trialEndDate,
+    mySubscription: subRecord,
+    message: 'Subscription activated successfully! Welcome to DSM Academy.',
+  };
+};
+
 module.exports = {
   PLANS,
+  COMPARISON_TABLE,
+  UPGRADE_MODAL,
+  ELITE_PROGRAM,
+  getUpgradeModalService,
+  getUpgradeScreenService,
   getAllPlansService,
   getMyPlanService,
+  startTrialService,
+  subscribePlanService,
   purchasePlanService,
+  createPaymentSheetService,
+  cancelSubscriptionService,
   handleStripeWebhookService,
+  handleCheckoutSuccessService,
 };

@@ -12,8 +12,10 @@ const {
   getAthleteCalendarTabController,
   getAdminDashboardOverviewController,
   getAdminPaymentsController,
+  getAdminPaymentByIdController,
   createAdminInvoiceController,
   exportAdminPaymentsCsvController,
+  getLeaguesListController,
   getAdminBusinessMetricsController,
   exportAdminBusinessReportController,
   getAdminNotificationsController,
@@ -32,9 +34,13 @@ router.get('/overview', auth(ADMIN_ROLES, { optional: true }), getAdminDashboard
 
 // 2. Admin Payments Management
 router.get('/payments/export', auth(ADMIN_ROLES, { optional: true }), exportAdminPaymentsCsvController);
+router.get('/payments/:id', auth(ADMIN_ROLES, { optional: true }), getAdminPaymentByIdController);
 router.get('/payments', auth(ADMIN_ROLES, { optional: true }), getAdminPaymentsController);
 router.post('/payments', auth(ADMIN_ROLES, { optional: true }), createAdminInvoiceController);
 router.post('/payments/invoice', auth(ADMIN_ROLES, { optional: true }), createAdminInvoiceController);
+
+// Standard Leagues & Divisions for Athlete Intake
+router.get('/leagues', auth(ADMIN_ROLES, { optional: true }), getLeaguesListController);
 
 // 3. Admin Business Metrics
 router.get('/business/export', auth(ADMIN_ROLES, { optional: true }), exportAdminBusinessReportController);

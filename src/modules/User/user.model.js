@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
     trialStartDate: { type: Date, required: false },
     trialEndDate: { type: Date, required: false },
     isTrialActive: { type: Boolean, default: false },
+    hasUsedTrial: { type: Boolean, default: false },
     tokenVersion: { type: Number, default: 0 },
     enabledPushNotification: { type: Boolean, default: true },
     fcmToken: { type: String, default: '' },
@@ -58,7 +59,7 @@ const userSchema = new mongoose.Schema(
     // Mentorship & Tier Access
     tier: {
       type: String,
-      enum: ['free', 'premium', '90-day-mentorship'],
+      enum: ['free', 'premium', 'academy', '90-day-mentorship'],
       default: 'free',
     },
     mentorshipPhase: {

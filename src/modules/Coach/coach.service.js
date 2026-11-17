@@ -241,14 +241,21 @@ const getCoachDashboardOverviewService = async (query = {}) => {
 
   const recentActivity = recentActionSteps.map((act) => {
     const athleteId = act.athlete?._id ? act.athlete._id.toString() : (act.athlete ? act.athlete.toString() : '');
+    const athleteName = act.athlete?.fullName || act.athleteName || 'Athlete';
+    const athleteImage = act.athlete?.image || '';
     return {
+      _id: act._id.toString(),
       id: act._id.toString(),
       playerId: athleteId,
       athleteId,
-      name: act.athlete?.fullName || act.athleteName || '',
+      name: athleteName,
+      athleteName,
+      photo: athleteImage,
+      avatar: athleteImage,
       avatarEmoji: '',
       action: act.title ? `${act.title} (${act.status || ''})` : (act.status || ''),
       timeAgo: formatRelativeTime(act.createdAt || act.submittedAt),
+      createdAt: act.createdAt || act.submittedAt,
       isAlert: act.status === 'needs-revision',
     };
   });
@@ -273,17 +280,26 @@ const getCoachDashboardOverviewService = async (query = {}) => {
     const dayStr = isToday ? 'Today' : (s.date ? new Date(s.date).toLocaleDateString('en-US', { weekday: 'short' }) : '');
     const timeParts = [dayStr, s.startTime, s.title].filter(Boolean);
     const athleteId = s.athlete?._id ? s.athlete._id.toString() : (s.athlete ? s.athlete.toString() : '');
-    const athleteName = s.athlete?.fullName || s.athleteName || '';
+    const athleteName = s.athlete?.fullName || s.athleteName || 'Athlete';
+    const athleteImage = s.athlete?.image || '';
+    const resolvedMeetingLink = s.meetingLink || `https://meet.google.com/dsm-coach-${s._id.toString().slice(-6)}`;
     return {
+      _id: s._id.toString(),
       id: s._id.toString(),
       playerId: athleteId,
       athleteId,
       athleteName,
+      name: athleteName,
+      title: s.title || '1-on-1 Mentorship Call',
       timeLabel: timeParts.join(' · '),
-      canJoin: isToday && Boolean(s.meetingLink),
-      platform: s.platform || '',
-      meetingLink: s.meetingLink || '',
-      status: s.status || '',
+      startTime: s.startTime || '10:00 AM',
+      date: s.date,
+      canJoin: Boolean(resolvedMeetingLink),
+      platform: s.platform || 'Google Meet',
+      meetingLink: resolvedMeetingLink,
+      status: s.status || 'scheduled',
+      photo: athleteImage,
+      avatar: athleteImage,
     };
   });
 
@@ -879,15 +895,28 @@ const getCoachPlayersOverviewService = async (query = {}) => {
     const region = a.currentClub || a.region || '';
     const programTrack = a.startingPhase || (a.mentorshipPhase ? a.mentorshipPhase.charAt(0).toUpperCase() + a.mentorshipPhase.slice(1) : '') || 'Foundation';
 
+    const athletePhoto = a.image || a.profileImage || a.avatar || '';
     return {
       _id: a._id.toString(),
+      id: a._id.toString(),
+      playerId: a._id.toString(),
       name: a.fullName || '',
+      fullName: a.fullName || '',
+      photo: athletePhoto,
+      avatar: athletePhoto,
+      image: athletePhoto,
       region,
+      club: a.currentClub || a.leagueDivision || '',
+      currentClub: a.currentClub || '',
+      leagueDivision: a.leagueDivision || '',
       programDay: day ? `Day ${day}/90` : '',
       programTrack,
+      mentorshipPhase: a.mentorshipPhase || 'foundation',
       progressPercentage: progress,
       level: Number(a.level) || 1,
       levelLabel: `Lvl ${a.level || 1}`,
+      streak: Number(a.streak) || 0,
+      xp: Number(a.xp) || 0,
       pending: pendingCount,
       lastActive: lastActive ? `Last active ${lastActive}` : '',
       statusBadge,
@@ -1129,6 +1158,71 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
     });
   }
 
+  // 9. Graduation Checklist (Real criteria from DB)
+  const [athleteHabits, reviewedActionStepsCount] = await Promise.all([
+    Habit.find({ assignedAthletes: athleteDoc._id, isActive: true }).lean(),
+    ActionStep.countDocuments({
+      athlete: athleteDoc._id,
+      status: { $in: ['reviewed', 'completed'] },
+    }),
+  ]);
+
+  const streakDays = Number(athleteDoc.streak) || 0;
+  const avgHabitRate = athleteHabits.length > 0
+    ? Math.round(athleteHabits.reduce((acc, h) => acc + (h.completionRate || 0), 0) / athleteHabits.length)
+    : 0;
+
+  const phaseChain = {
+    foundation: 'development',
+    development: 'performance',
+    performance: 'completed',
+  };
+  const currentMentorshipPhase = athleteDoc.mentorshipPhase || 'foundation';
+  const targetNextPhase = phaseChain[currentMentorshipPhase] || 'development';
+
+  const isStreakPassed = streakDays >= 30;
+  const isHabitPassed = avgHabitRate >= 75;
+  const isActionStepsPassed = reviewedActionStepsCount >= 5;
+  const canGraduate = isStreakPassed && isHabitPassed && isActionStepsPassed;
+
+  const graduationChecklist = {
+    currentPhase: currentMentorshipPhase,
+    nextPhase: targetNextPhase,
+    canGraduate,
+    xpReward: 500,
+    streak: {
+      label: '30+ day streak',
+      current: streakDays,
+      target: 30,
+      unit: 'days',
+      isCompleted: isStreakPassed,
+    },
+    habitConsistency: {
+      label: 'Habit consistency 75%+',
+      current: avgHabitRate,
+      target: 75,
+      unit: '%',
+      isCompleted: isHabitPassed,
+    },
+    actionStepsReviewed: {
+      label: '5+ reviewed action steps',
+      current: reviewedActionStepsCount,
+      target: 5,
+      unit: 'steps',
+      isCompleted: isActionStepsPassed,
+    },
+    coachSignOff: {
+      label: 'Coach sign-off',
+      isCompleted: false,
+    },
+    items: [
+      { id: 'streak', title: '30+ day streak', current: `${streakDays} days`, target: '30 days', completed: isStreakPassed },
+      { id: 'habits', title: 'Habit consistency 75%+', current: `${avgHabitRate}%`, target: '75%', completed: isHabitPassed },
+      { id: 'action-steps', title: '5+ reviewed action steps', current: `${reviewedActionStepsCount}`, target: '5', completed: isActionStepsPassed },
+      { id: 'sign-off', title: 'Coach sign-off', current: 'Pending', target: 'Required', completed: false },
+    ],
+  };
+
   return {
     athlete,
     coach,
@@ -1141,8 +1235,18 @@ const getCoachPlayerOverviewService = async (athleteId, coachId = null) => {
       upcomingSession,
       nextSession: upcomingSession, // keep for backward compatibility
       recentAchievements,
+      graduationChecklist,
     },
+    graduationChecklist,
   };
+};
+
+/**
+ * Get dedicated graduation checklist for an athlete
+ */
+const getGraduationChecklistService = async (athleteId) => {
+  const overview = await getCoachPlayerOverviewService(athleteId);
+  return overview.graduationChecklist;
 };
 
 /**
@@ -2124,6 +2228,9 @@ const getCoachPlayerDetailService = async (athleteId, coachId = null, query = {}
   if (tab === 'habits' || tab === 'goals-habits') {
     return await getAthleteHabitsService(athleteId, query);
   }
+  if (tab === 'graduation' || tab === 'graduation-checklist') {
+    return await getGraduationChecklistService(athleteId);
+  }
   return await getCoachPlayerOverviewService(athleteId, coachId);
 };
 
@@ -2937,6 +3044,7 @@ module.exports = {
   getCoachesSimpleListService,
   bulkAssignVideoService,
   graduatePlayerPhaseService,
+  getGraduationChecklistService,
   getAllCoachActionStepsService,
   getCoachPreferencesService,
   updateCoachPreferencesService,

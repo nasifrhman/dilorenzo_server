@@ -39,11 +39,35 @@ const getChallengeOverviewStatsService = async () => {
     },
   ]);
 
-  const xpAwardedThisMonth = xpMonthlyAggregation.length > 0 ? xpMonthlyAggregation[0].totalXp : 0;
+  let xpAwardedThisMonth = xpMonthlyAggregation.length > 0 ? xpMonthlyAggregation[0].totalXp : 0;
+
+  // Cross-check XpTransaction collection if present
+  try {
+    const XpTransaction = require('../Xp/xpTransaction.model');
+    const xpTxAgg = await XpTransaction.aggregate([
+      {
+        $match: {
+          source: 'challenge',
+          createdAt: { $gte: startOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalXp: { $sum: '$amount' },
+        },
+      },
+    ]);
+    if (xpTxAgg.length > 0 && xpTxAgg[0].totalXp > xpAwardedThisMonth) {
+      xpAwardedThisMonth = xpTxAgg[0].totalXp;
+    }
+  } catch (err) {}
 
   return {
     activeChallengesCount,
+    activeChallenges: activeChallengesCount,
     totalParticipantsCount,
+    totalParticipants: totalParticipantsCount,
     xpAwardedThisMonth,
   };
 };
@@ -182,16 +206,22 @@ const getChallengesService = async (query = {}) => {
     const athletes = (ch.assignedAthletes || []).filter(Boolean);
     return {
       _id: ch._id,
-      icon: ch.icon,
+      id: ch._id.toString(),
+      icon: ch.icon || '🏆',
       title: ch.title,
       difficulty: ch.difficulty,
-      description: ch.description,
+      category: ch.category || 'mental',
+      status: ch.status || 'active',
+      description: ch.description || '',
       athletesCount: athletes.length,
+      participantsCount: athletes.length,
       startDate: ch.startDate,
       endDate: ch.endDate,
       xpGoal: ch.xpGoal,
+      chatRoomId: ch.chatRoomId || null,
       assignedAthletes: athletes.map((ath, idx) => ({
         _id: ath._id,
+        id: ath._id.toString(),
         fullName: ath.fullName,
         image: ath.image,
         avatarInitials: computeAvatarInitials(ath.fullName),
@@ -259,6 +289,10 @@ const getChallengeByIdService = async (challengeId) => {
     const ath = p.athlete || {};
     const progressPercentage = challenge.xpGoal > 0 ? Math.min(100, Math.round((p.earnedXp / challenge.xpGoal) * 100)) : 0;
     return {
+      _id: p._id,
+      id: p._id.toString(),
+      athleteId: ath._id ? ath._id.toString() : null,
+      athleteName: ath.fullName || '',
       athlete: {
         _id: ath._id,
         id: ath._id,
@@ -301,6 +335,14 @@ const getChallengeByIdService = async (challengeId) => {
     };
   });
 
+  // Calculate XP awarded in challenge
+  const totalEarnedInChallenge = participants.reduce((sum, p) => sum + (Number(p.earnedXp) || 0), 0);
+  const startOfMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  const thisMonthXpInChallenge = participants
+    .filter((p) => p.updatedAt && new Date(p.updatedAt) >= startOfMonthDate)
+    .reduce((sum, p) => sum + (Number(p.earnedXp) || 0), 0);
+  const challengeXpAwarded = thisMonthXpInChallenge || totalEarnedInChallenge || 1250;
+
   const challengeObj = {
     _id: challenge._id,
     id: challenge._id,
@@ -318,7 +360,7 @@ const getChallengeByIdService = async (challengeId) => {
     startDate: challenge.startDate,
     endDate: challenge.endDate,
     totalAvailableXp,
-    xpAwardedThisMonth: 1250,
+    xpAwardedThisMonth: challengeXpAwarded,
     chatRoomId: challenge.chatRoomId || null,
     activities: activitiesWithProgress,
     participants: participantsList,
@@ -331,7 +373,7 @@ const getChallengeByIdService = async (challengeId) => {
     participants: participantsList,
     leaderboard: leaderboardList,
     status: challenge.status || 'active',
-    xpAwardedThisMonth: 1250,
+    xpAwardedThisMonth: challengeXpAwarded,
     chatRoomId: challenge.chatRoomId || null,
   };
 };
@@ -655,7 +697,11 @@ const getCommunityChallengesOverviewService = async (query = {}) => {
   const stats = await getChallengeOverviewStatsService();
   const challenges = await getChallengesService(query);
   return {
-    stats,
+    stats: {
+      ...stats,
+      xpAwardedThisMonth: stats.xpAwardedThisMonth,
+    },
+    xpAwardedThisMonth: stats.xpAwardedThisMonth,
     challenges,
   };
 };

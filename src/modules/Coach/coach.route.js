@@ -128,6 +128,8 @@ router.post('/videos/:videoId/assign', coachController.bulkAssignVideoController
 router.post('/videos/:id/assign', coachController.bulkAssignVideoController);
 
 // 10. Phase Graduation (New B.7)
+router.get('/players/:athleteId/graduation-checklist', coachController.getGraduationChecklistController);
+router.get('/players/:athleteId/graduation', coachController.getGraduationChecklistController);
 router.post('/players/:athleteId/graduate-phase', coachController.graduatePlayerPhaseController);
 
 // 11. Coach Preferences (New B.8)

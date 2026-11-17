@@ -623,10 +623,10 @@ const createAthleteService = async (athleteData) => {
 
   // Tier normalization
   let tier = '90-day-mentorship';
-  const rawTier = (athleteData.tier || '').toLowerCase();
+  const rawTier = (athleteData.tier || athleteData.program || athleteData.planId || '').toLowerCase();
   if (rawTier.includes('free') || rawTier.includes('standard')) {
     tier = 'free';
-  } else if (rawTier.includes('prem')) {
+  } else if (rawTier.includes('prem') || rawTier.includes('acad') || rawTier.includes('month') || rawTier.includes('annu')) {
     tier = 'premium';
   } else if (rawTier.includes('90') || rawTier.includes('mentor')) {
     tier = '90-day-mentorship';
@@ -708,6 +708,38 @@ const createAthleteService = async (athleteData) => {
   });
 
   await newAthlete.save();
+
+  // If a paid plan or tier was selected on intake, enroll active subscription in MySubscription
+  try {
+    const MySubscription = require('../Payment/mySubscription.model');
+    const planIdToCreate = athleteData.planId || (tier === '90-day-mentorship' ? '90-day-mentorship' : (tier === 'premium' ? 'academy-monthly' : null));
+    if (planIdToCreate && ['academy-monthly', 'academy-annual', '90-day-mentorship'].includes(planIdToCreate)) {
+      const isMentorship = planIdToCreate === '90-day-mentorship';
+      const amount = isMentorship ? 450.00 : (planIdToCreate === 'academy-annual' ? 59.99 : 4.99);
+      const planName = isMentorship ? '90-Day Mentorship' : (planIdToCreate === 'academy-annual' ? 'Academy Annual' : 'Academy Membership');
+      const interval = isMentorship ? 'one_time' : (planIdToCreate === 'academy-annual' ? 'year' : 'month');
+      const planType = isMentorship ? 'one_time' : 'recurring';
+      
+      await MySubscription.create({
+        user: newAthlete._id,
+        athleteName: newAthlete.fullName,
+        athleteEmail: newAthlete.email,
+        planId: planIdToCreate,
+        planName,
+        planType,
+        interval,
+        amount,
+        currency: 'GBP',
+        status: 'active',
+        isTrialActive: false,
+        trialDays: 0,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: isMentorship ? new Date(Date.now() + 90 * 86400000) : (interval === 'year' ? new Date(Date.now() + 365 * 86400000) : new Date(Date.now() + 30 * 86400000)),
+        autoRenews: !isMentorship,
+        purchasedAt: new Date(),
+      });
+    }
+  } catch (err) {}
 
   if (parentUser) {
     if (!parentUser.athletes) {
@@ -881,13 +913,14 @@ const assignCoachService = async (data) => {
     await chatRoom.save();
   }
 
-  if (autoLaunchGroupChat && adminWelcomeMessage && adminWelcomeMessage.trim()) {
+  const welcomeText = (data.welcomeMessage || data.adminWelcomeMessage || adminWelcomeMessage || '').trim();
+  if (autoLaunchGroupChat && welcomeText) {
     const senderId = adminUser?._id || coachDoc._id;
     const newMsg = new Message({
       chatRoom: chatRoom._id,
       sender: senderId,
       messageType: 'text',
-      content: adminWelcomeMessage.trim()
+      content: welcomeText
     });
     await newMsg.save();
 

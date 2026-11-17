@@ -23,15 +23,7 @@ const moduleRoutes = [
     route: paymentRoutes,
   },
   {
-    path: '/subscriptions',
-    route: paymentRoutes,
-  },
-  {
-    path: '/payment',
-    route: paymentRoutes,
-  },
-  {
-    path: '/payments',
+    path: '/upgrade',
     route: paymentRoutes,
   },
   {
@@ -156,6 +148,14 @@ const moduleRoutes = [
   },
   {
     path: '/clients',
+    route: adminClientRoutes
+  },
+  {
+    path: '/payments',
+    route: adminClientRoutes
+  },
+  {
+    path: '/leagues',
     route: adminClientRoutes
   }
 ];
